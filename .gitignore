@@ -1,0 +1,10 @@
+node_modules/
+.env
+.env.local
+config/private.json
+apps/dashboard/.env
+apps/dashboard/.next/
+packages/gcp-functions/node_modules/
+dist/
+.config/gcloud*
+config/private.json

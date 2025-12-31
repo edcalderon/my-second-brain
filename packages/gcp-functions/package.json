@@ -1,0 +1,26 @@
+{
+  "name": "@ed/gcp-functions",
+  "version": "1.0.0",
+  "description": "Cloud Function for processing Rocketbook habit tracking emails",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "gcloud functions deploy rocketbook-webhook --runtime=nodejs20 --trigger-http --allow-unauthenticated --entry-point=processGmailWebhook --region=us-central1",
+    "deploy-insights": "gcloud functions deploy rocketbook-insights --runtime=nodejs20 --trigger-http --allow-unauthenticated --entry-point=generateInsights --region=us-central1",
+    "local": "functions-framework --target=processGmailWebhook --port=8080"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^7.0.0",
+    "@google-cloud/storage": "^7.0.0",
+    "@google-cloud/vertexai": "^1.10.0",
+    "google-auth-library": "^9.0.0",
+    "googleapis": "^128.0.0",
+    "imapflow": "^1.2.4",
+    "mailparser": "^3.9.1"
+  },
+  "devDependencies": {
+    "@google-cloud/functions-framework": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
