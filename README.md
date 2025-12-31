@@ -1,33 +1,42 @@
 # My Second Brain
 
-A personal knowledge laboratory leveraged by Obsidian as the markdown foundation, designed for agentic intelligence and deep reflection.
+A personal knowledge laboratory leveraged by **Obsidian** as the markdown foundation, designed for agentic intelligence and deep reflection.
 
-## 🏗️ Architecture & Blueprint
+## 🏗️ High-Level Architecture
 
-This repository serves as the orchestrator for a "Second Brain" system that bridges human thought, digital organization, and agentic execution.
+```mermaid
+graph TD
+    subgraph "Human Input"
+        A[Rocketbook] -->|Handwritten Notes| B[Digital Sync]
+    end
 
-### 1. Markdown Foundation (Obsidian)
-- **Role**: Primary document gathering and knowledge vault.
-- **Implementation**: Uses Obsidian's local-first markdown structure for maximum portability and human readability.
+    subgraph "Cloud Processing (GCP)"
+        B -->|IMAP/Webhook| C[Cloud Functions]
+        C -->|Gemini AI| D[Structured Data]
+        D -->|Archive| E[(Firestore / GCS)]
+    end
 
-### 2. Contextual Intelligence (Supermemory)
-- **Role**: Provides long-term memory and contextual grounding for AI agents.
-- **Workflow**: Obsidian notes are ingested into Supermemory to build a dense knowledge graph.
+    subgraph "Knowledge Foundation"
+        E -->|Markdown Export| F[Obsidian Vault]
+        F -->|Context Sync| G[Supermemory]
+    end
 
-### 3. Agent Orchestration (Open Code / Oh My OpenCode)
-- **Role**: The "CPU" of the second brain.
-- **Implementation**: Leverages [Oh My OpenCode](https://github.com/open-code-orchestrator) to orchestrate specialized agents that process, synthesize, and act upon the foundation documents.
+    subgraph "Agentic Orchestration"
+        G -->|Knowledge Graph| H[Open Code]
+        H -->|Specialized Agents| I[Task Execution]
+        I -->|Insights/Actions| J[Dashboard]
+    end
 
-### 4. Human Manual Gathering (Rocketbook)
-- **Role**: Captures analog thoughts and daily reflections via handwriting.
-- **Integration**: Handwritten notes are transcribed and pushed into the digital garden automatically.
+    J -->|Review| A
+```
 
 ---
 
-## 📅 Ignatian Habit Tracker
+## 🏛️ The Ignatian Roots of Reflection
 
-A core component of this system is the **Ignatian Habit Tracker**, processed through Rocketbook manual gathering. It focuses on three daily reflection questions:
+The core of this system is the **Ignatian Habit Tracker**. These three reflective questions stem from a 500-year-old tradition of daily self-examination known as the **Examen of Conscience**, formalized by **St. Ignatius of Loyola** (1491–1556), the founder of the Jesuits.
 
+### The Three Pillars
 1. **What wrong did I do?**
    - *Recognition of faults, sins, or harmful habits.*
 2. **What good did I accomplish?**
@@ -35,22 +44,47 @@ A core component of this system is the **Ignatian Habit Tracker**, processed thr
 3. **What did I forget or fail to do?**
    - *Awareness of omissions and missed duties.*
 
+### Historical Context
+While Ignatius systematized this into a repeatable spiritual and behavioral framework, its roots reach back even further to **Stoic philosophy**:
+- **Seneca** (1st century AD): Reviewed each day at night, asking: *"What bad habit did you cure today? What fault did you resist? In what respect are you better?"*
+- **Epictetus**: Taught daily moral accounting as a path to virtue.
+
+This repository bridges these ancient wisdom traditions with modern AI, making the practice "brief, honest, and daily" as Ignatius encouraged, but with the added power of agentic synthesis.
+
+---
+
+## 💎 Why Obsidian?
+
+Obsidian serves as the **Markdown Foundation** for this laboratory. While many tools exist, Obsidian provides the best balance for an agentic second brain.
+
+### Pros
+- **Local-First & Future-Proof**: Your data lives on your machine in standard Markdown. No vendor lock-in.
+- **Agent-Friendly**: Markdown is the native language of LLMs. Agents can easily parse, modify, and generate documents without complex APIs.
+- **Graph Visualization**: Semantic linking mimics human thought and helps identify knowledge clusters.
+- **Infinite Extensibility**: A rich plugin ecosystem allows for custom workflows and automation.
+
+### Cons (vs. Other Approaches)
+- **Sync Overhead**: Requires a strategy (Git, Cloud, or Obsidian Sync) compared to SaaS tools like Notion.
+- **Mobile Experience**: Can be less fluid than cloud-native mobile apps for quick capture (remedied here by **Rocketbook** integration).
+
+**Verdict**: Obsidian is not overhead; it is the **Ground Truth**. It ensures that the knowledge remains human-readable for decades while being agent-ingestible today.
+
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] **Phase 1**: Finalize IMAP ingestion for Rocketbook reflections.
+- [x] **Phase 0**: Initialize Repository & Cleanse Sensitive Data.
+- [/] **Phase 1**: Finalize IMAP ingestion for Rocketbook reflections.
 - [ ] **Phase 2**: Deep integration between Obsidian vault and Supermemory graph.
-- [ ] **Phase 3**: Deploy Oh My OpenCode orchestrator for automated note processing.
-- [ ] **Phase 4**: Implement specialized agents for specific knowledge domains (e.g., Development, Philosophy, Trading).
+- [ ] **Phase 3**: Deploy [Oh My OpenCode](https://github.com/open-code-orchestrator) orchestrator for automated processing.
 
 ---
 
 ## 🚀 Repository Structure
 
-- **`apps/dashboard`**: Dashboard for visualizing the Knowledge Base.
-- **`packages/gcp-functions`**: Cloud Functions for IMAP ingestion and AI processing.
-- **`docs/`**: Detailed architecture diagrams and manuals.
+- **`apps/dashboard`**: Next.js dashboard for visualizing the Knowledge Base.
+- **`packages/gcp-functions`**: Cloud Functions for IMAP ingestion and Gemini AI processing.
+- **`docs/`**: [Detailed Architecture](file:///home/ed/Documents/edward/docs/ARCHITECTURE.md) and [GCP Deployment Guide](file:///home/ed/Documents/edward/docs/archive/GCP_DEPLOYMENT_GUIDE.md).
 
 ## 📄 License
 MIT
