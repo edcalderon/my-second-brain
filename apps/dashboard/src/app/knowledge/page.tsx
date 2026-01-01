@@ -12,6 +12,11 @@ export default function KnowledgePage() {
     useEffect(() => {
         const fetchEntries = async () => {
             try {
+                if (!db) {
+                    console.log("Firebase not configured, skipping knowledge base fetch");
+                    setLoading(false);
+                    return;
+                }
                 const q = query(collection(db, "knowledge_base"), orderBy("created_at", "desc"), limit(20));
                 const snapshot = await getDocs(q);
                 const fetchedEntries = snapshot.docs.map(doc => ({
