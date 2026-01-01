@@ -11,6 +11,7 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 - 📦 NPM publishable
 - 🏷️ Git tagging and committing
 - ✅ Validation of version sync
+- 🔌 **Extensible plugin system** for custom business logic
 
 ## Installation
 
@@ -22,21 +23,34 @@ pnpm add -g @edcalderon/versioning
 yarn global add @edcalderon/versioning
 ```
 
+## Extensions
+
+The versioning tool supports a **composable extension system** that allows you to add custom business logic and commands. Extensions can:
+
+- Add new CLI commands
+- Hook into existing workflows (pre/post version bumps, releases, etc.)
+- Integrate with external services
+- Implement custom versioning strategies
+
+Extensions are loaded automatically from:
+- Built-in extensions in the `src/extensions/` directory
+- External packages listed in `versioning.config.json`
+
 ## Quick Start
 
 1. Initialize configuration:
 ```bash
-ed-version init
+versioning init
 ```
 
 2. Bump version and generate changelog:
 ```bash
-ed-version bump patch
+versioning bump patch
 ```
 
 3. Sync versions across packages (for monorepos):
 ```bash
-ed-version sync
+versioning sync
 ```
 
 ### Edward's Monorepo Example
@@ -45,7 +59,7 @@ For this specific monorepo with dashboard app:
 
 ```bash
 # Initialize config
-ed-version init
+versioning init
 
 # Edit versioning.config.json to:
 {
@@ -54,10 +68,10 @@ ed-version init
 }
 
 # Sync dashboard with main version
-ed-version patch --packages "apps/dashboard"
+versioning patch --packages "apps/dashboard"
 
 # Versioning package maintains its own version
-cd packages/versioning && ed-version patch --skip-sync
+cd packages/versioning && versioning patch --skip-sync
 ```
 
 ## Configuration
@@ -101,39 +115,39 @@ For monorepos:
 
 ### Release Commands
 
-#### `ed-version patch [options]`
+#### `versioning patch [options]`
 
 Create a patch release (bumps 1.0.0 → 1.0.1)
 
 ```bash
-ed-version patch
-ed-version patch --packages "packages/app1,packages/app2" --message "Fix critical bug"
+versioning patch
+versioning patch --packages "packages/app1,packages/app2" --message "Fix critical bug"
 ```
 
-#### `ed-version minor [options]`
+#### `versioning minor [options]`
 
 Create a minor release (bumps 1.0.0 → 1.1.0)
 
 ```bash
-ed-version minor
-ed-version minor --packages "apps/dashboard" --message "Add new features"
+versioning minor
+versioning minor --packages "apps/dashboard" --message "Add new features"
 ```
 
-#### `ed-version major [options]`
+#### `versioning major [options]`
 
 Create a major release (bumps 1.0.0 → 2.0.0)
 
 ```bash
-ed-version major --message "Breaking changes"
+versioning major --message "Breaking changes"
 ```
 
-#### `ed-version release <version> [options]`
+#### `versioning release <version> [options]`
 
 Create a custom release with specific version
 
 ```bash
-ed-version release 1.2.3 --message "Custom release"
-ed-version release 2.0.0-beta.1 --skip-sync
+versioning release 1.2.3 --message "Custom release"
+versioning release 2.0.0-beta.1 --skip-sync
 ```
 
 **Options for release commands:**
@@ -156,7 +170,7 @@ Options:
 - `--no-commit`: Don't commit changes
 - `--no-tag`: Don't create git tag
 
-### `ed-version changelog [options]`
+### `versioning changelog [options]`
 
 Generate changelog from commits.
 
@@ -165,7 +179,7 @@ Options:
 - `-t, --to <commit>`: To commit
 - `-c, --config <file>`: Config file path
 
-### `ed-version sync [options]`
+### `versioning sync [options]`
 
 Sync versions across all packages.
 
@@ -173,14 +187,14 @@ Options:
 - `-v, --version <version>`: Target version to sync to
 - `-c, --config <file>`: Config file path
 
-### `ed-version validate [options]`
+### `versioning validate [options]`
 
 Validate that all packages have the correct version.
 
 Options:
 - `-c, --config <file>`: Config file path
 
-### `ed-version init [options]`
+### `versioning init [options]`
 
 Initialize a new versioning config file.
 
@@ -205,7 +219,7 @@ Add to your release workflow:
 Use with husky for automated versioning:
 
 ```bash
-npx husky add .husky/pre-commit "ed-version validate"
+npx husky add .husky/pre-commit "versioning validate"
 ```
 
 ## Conventional Commits
@@ -232,7 +246,7 @@ This package uses GitHub Actions for automated publishing to NPM when version ta
 
 1. **Update Version**: Use the versioning commands to bump version and update changelog
    ```bash
-   ed-version patch  # or minor, major
+   versioning patch  # or minor, major
    ```
 
 2. **Create Git Tag**: The package includes a helper script to create and push version tags

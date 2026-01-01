@@ -1,10 +1,10 @@
 {
   "name": "@edcalderon/versioning",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A comprehensive versioning and changelog management tool for monorepos",
   "main": "dist/index.js",
   "bin": {
-    "ed-version": "dist/cli.js"
+    "versioning": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc",

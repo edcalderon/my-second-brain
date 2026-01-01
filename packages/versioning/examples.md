@@ -21,13 +21,13 @@ For this specific monorepo structure, here's how to configure versioning:
 
 ```bash
 # Sync dashboard app with main version
-ed-version patch --packages "apps/dashboard"
+versioning patch --packages "apps/dashboard"
 
 # Create release for dashboard only
-ed-version minor --packages "apps/dashboard" --message "Dashboard improvements"
+versioning minor --packages "apps/dashboard" --message "Dashboard improvements"
 
 # Validate dashboard version sync
-ed-version validate
+versioning validate
 ```
 
 ### Standalone Versioning for Versioning Package
@@ -37,7 +37,7 @@ The versioning package itself maintains independent versioning:
 ```bash
 # In packages/versioning directory
 cd packages/versioning
-ed-version patch --skip-sync --message "Versioning tool improvements"
+versioning patch --skip-sync --message "Versioning tool improvements"
 ```
 
 ### Full Monorepo Release
@@ -57,7 +57,7 @@ For releases affecting the entire monorepo:
 
 ```bash
 # Full monorepo release
-ed-version minor --message "Major feature rollout"
+versioning minor --message "Major feature rollout"
 ```
 
 ## Configuration Templates

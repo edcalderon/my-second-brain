@@ -27,10 +27,10 @@ yarn global add @edcalderon/versioning
 
 ```bash
 # Initialize versioning config
-ed-version init
+versioning init
 
 # Create your first patch release
-ed-version patch
+versioning patch
 ```
 
 ## Single Repository Usage
@@ -41,7 +41,7 @@ Perfect for standalone projects, libraries, or applications.
 
 ```bash
 # Initialize for single repo (default configuration)
-ed-version init
+versioning init
 ```
 
 This creates `versioning.config.json`:
@@ -61,7 +61,7 @@ This creates `versioning.config.json`:
 
 #### Patch Release (1.0.0 → 1.0.1)
 ```bash
-ed-version patch
+versioning patch
 ```
 
 **What happens:**
@@ -73,7 +73,7 @@ ed-version patch
 
 #### Minor Release (1.0.0 → 1.1.0)
 ```bash
-ed-version minor --message "Add user authentication"
+versioning minor --message "Add user authentication"
 ```
 
 **What happens:**
@@ -84,17 +84,17 @@ ed-version minor --message "Add user authentication"
 
 #### Major Release (1.0.0 → 2.0.0)
 ```bash
-ed-version major --message "Breaking API changes"
+versioning major --message "Breaking API changes"
 ```
 
 ### Custom Release
 ```bash
-ed-version release 1.2.3 --message "Hotfix for critical bug"
+versioning release 1.2.3 --message "Hotfix for critical bug"
 ```
 
 ### Files Modified
 
-After running `ed-version patch`, your files will be:
+After running `versioning patch`, your files will be:
 
 **package.json:**
 ```json
@@ -124,10 +124,10 @@ After running `ed-version patch`, your files will be:
 
 ```bash
 # Create release but don't commit or tag
-ed-version patch --no-commit --no-tag
+versioning patch --no-commit --no-tag
 
 # Just bump version and generate changelog locally
-ed-version patch --no-commit --no-tag
+versioning patch --no-commit --no-tag
 ```
 
 ## Monorepo Usage
@@ -138,7 +138,7 @@ Advanced usage for monorepos with multiple packages and applications.
 
 ```bash
 # Initialize config
-ed-version init
+versioning init
 
 # Edit versioning.config.json for monorepo
 ```
@@ -158,7 +158,7 @@ ed-version init
 ### Full Monorepo Release
 
 ```bash
-ed-version patch
+versioning patch
 ```
 
 **What happens:**
@@ -175,10 +175,10 @@ Sync only specific packages instead of all:
 
 ```bash
 # Sync only API and dashboard
-ed-version patch --packages "packages/api,apps/dashboard"
+versioning patch --packages "packages/api,apps/dashboard"
 
 # Sync only the web app
-ed-version minor --packages "apps/web"
+versioning minor --packages "apps/web"
 ```
 
 ### Excluding Packages
@@ -196,7 +196,7 @@ Or exclude during release:
 
 ```bash
 # This will sync all except ignored packages
-ed-version patch
+versioning patch
 ```
 
 ## Advanced Examples
@@ -218,7 +218,7 @@ For this specific monorepo structure:
 
 #### Sync dashboard app only
 ```bash
-ed-version patch --packages "apps/dashboard"
+versioning patch --packages "apps/dashboard"
 ```
 
 #### Sync all packages except versioning
@@ -251,13 +251,13 @@ ed-version patch --packages "apps/dashboard"
 #### Team-specific releases
 ```bash
 # Frontend team release
-ed-version minor --packages "packages/ui,packages/utils,apps/web" --message "Frontend improvements"
+versioning minor --packages "packages/ui,packages/utils,apps/web" --message "Frontend improvements"
 
 # API team release
-ed-version patch --packages "packages/api" --message "API performance fixes"
+versioning patch --packages "packages/api" --message "API performance fixes"
 
 # Mobile team release
-ed-version patch --packages "apps/mobile" --message "Mobile bug fixes"
+versioning patch --packages "apps/mobile" --message "Mobile bug fixes"
 ```
 
 ### Standalone Versioning for Individual Packages
@@ -266,7 +266,7 @@ For packages that need independent versioning:
 
 ```bash
 # Version only the API package independently
-ed-version release 2.0.0 --packages "packages/api" --skip-sync --message "API v2 release"
+versioning release 2.0.0 --packages "packages/api" --skip-sync --message "API v2 release"
 ```
 
 ## CI/CD Integration
@@ -297,7 +297,7 @@ jobs:
         run: npm install -g @ed/versioning
 
       - name: Create release
-        run: ed-version patch
+        run: versioning patch
 
       - name: Push changes
         run: |
@@ -330,7 +330,7 @@ jobs:
         run: npm install -g @ed/versioning
 
       - name: Create patch release
-        run: ed-version patch --message "Automated patch release"
+        run: versioning patch --message "Automated patch release"
 
       - name: Push changes
         run: |
@@ -344,20 +344,20 @@ jobs:
 
 ```bash
 # Check if versions are in sync
-ed-version validate
+versioning validate
 
 # Fix version mismatches
-ed-version sync
+versioning sync
 ```
 
 ### Changelog Generation Issues
 
 ```bash
 # Generate changelog manually
-ed-version changelog
+versioning changelog
 
 # Generate changelog for specific commits
-ed-version changelog --from abc123 --to def456
+versioning changelog --from abc123 --to def456
 ```
 
 ### Git Issues
@@ -368,14 +368,14 @@ git status
 
 # Reset and try again
 git reset --hard HEAD~1
-ed-version patch
+versioning patch
 ```
 
 ### Common Problems
 
 **"Config file not found"**
 ```bash
-ed-version init
+versioning init
 ```
 
 **"No conventional commits found"**
@@ -415,8 +415,8 @@ test: add unit tests for auth
 
 1. Develop features on feature branches
 2. Merge to main with conventional commits
-3. Run `ed-version validate` to check sync
-4. Create release: `ed-version patch/minor/major`
+3. Run `versioning validate` to check sync
+4. Create release: `versioning patch/minor/major`
 5. Push commits and tags
 6. CI/CD handles publishing
 

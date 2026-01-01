@@ -7,13 +7,14 @@ import { VersionManager } from './versioning';
 import { ChangelogManager } from './changelog';
 import { SyncManager } from './sync';
 import { ReleaseManager } from './release';
+import { loadExtensions } from './extensions';
 
 const program = new Command();
 
 program
-  .name('ed-version')
+  .name('versioning')
   .description('Comprehensive versioning and changelog management for monorepos')
-  .version('1.0.0');
+  .version('1.0.4');
 
 program
   .command('bump <type>')
@@ -277,7 +278,8 @@ program
         changelogFile: 'CHANGELOG.md',
         conventionalCommits: true,
         syncDependencies: false,
-        ignorePackages: []
+        ignorePackages: [],
+        extensions: [] // Add extensions array to config
       };
 
       await fs.writeJson(configPath, defaultConfig, { spaces: 2 });
@@ -290,9 +292,24 @@ program
 
 async function loadConfig(configPath: string): Promise<any> {
   if (!(await fs.pathExists(configPath))) {
-    throw new Error(`Config file not found: ${configPath}. Run 'ed-version init' to create one.`);
+    throw new Error(`Config file not found: ${configPath}. Run 'versioning init' to create one.`);
   }
   return await fs.readJson(configPath);
 }
 
 program.parse();
+
+async function main() {
+  try {
+    // Load and register extensions
+    await loadExtensions(program);
+    
+    // Parse command line arguments
+    program.parse();
+  } catch (error) {
+    console.error('❌ Error loading extensions:', error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
+}
+
+main();
