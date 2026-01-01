@@ -1,6 +1,6 @@
 {
-  "name": "@ed/versioning",
-  "version": "1.0.0",
+  "name": "ed-versioning",
+  "version": "1.0.1",
   "description": "A comprehensive versioning and changelog management tool for monorepos",
   "main": "dist/index.js",
   "bin": {

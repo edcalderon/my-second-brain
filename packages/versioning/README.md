@@ -1,4 +1,4 @@
-# @ed/versioning
+# ed-versioning
 
 A comprehensive versioning and changelog management tool designed for monorepos and single repositories. It provides automated version bumping, changelog generation using conventional commits, and version synchronization across multiple packages.
 
@@ -15,11 +15,11 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 ## Installation
 
 ```bash
-npm install -g @ed/versioning
+npm install -g ed-versioning
 # or
-pnpm add -g @ed/versioning
+pnpm add -g ed-versioning
 # or
-yarn global add @ed/versioning
+yarn global add ed-versioning
 ```
 
 ## Quick Start
@@ -195,7 +195,7 @@ Add to your release workflow:
 
 ```yaml
 - name: Bump version
-  run: npx @ed/versioning bump patch
+  run: npx ed-versioning bump patch
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```

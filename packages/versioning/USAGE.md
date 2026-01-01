@@ -1,4 +1,4 @@
-# Usage Guide for @ed/versioning
+# Usage Guide for ed-versioning
 
 This guide provides comprehensive examples of using the versioning system for both single repositories and complex monorepos.
 
@@ -16,11 +16,11 @@ This guide provides comprehensive examples of using the versioning system for bo
 ### Installation
 
 ```bash
-npm install -g @ed/versioning
+npm install -g ed-versioning
 # or
-pnpm add -g @ed/versioning
+pnpm add -g ed-versioning
 # or
-yarn global add @ed/versioning
+yarn global add ed-versioning
 ```
 
 ### Basic Setup
