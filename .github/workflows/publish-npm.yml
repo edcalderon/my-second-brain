@@ -8,6 +8,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
@@ -63,6 +65,7 @@ jobs:
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
+        continue-on-error: true
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
