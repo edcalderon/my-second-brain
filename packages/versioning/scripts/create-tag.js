@@ -17,9 +17,12 @@ function createVersionTag() {
 
     // Check if tag already exists
     try {
-      execSync(`git tag -l "${fullTag}"`, { stdio: 'pipe' });
-      console.log(`Tag ${fullTag} already exists`);
-      return;
+      const result = execSync(`git tag -l "${fullTag}"`, { stdio: 'pipe' });
+      const output = result.toString().trim();
+      if (output === fullTag) {
+        console.log(`Tag ${fullTag} already exists`);
+        return;
+      }
     } catch (error) {
       // Tag doesn't exist, continue
     }
