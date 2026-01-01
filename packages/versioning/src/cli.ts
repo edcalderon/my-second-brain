@@ -7,7 +7,7 @@ import { VersionManager } from './versioning';
 import { ChangelogManager } from './changelog';
 import { SyncManager } from './sync';
 import { ReleaseManager } from './release';
-import { loadExtensions } from './extensions';
+import { loadExtensions, runExtensionHooks } from './extensions';
 
 const program = new Command();
 
@@ -29,6 +29,9 @@ program
       const versionManager = new VersionManager(config);
       const changelogManager = new ChangelogManager(config);
 
+      // Pre-version hook
+      await runExtensionHooks('preVersion', type, options);
+
       const newVersion = await versionManager.bumpVersion(type as any, options.preRelease);
       console.log(`Bumped version to ${newVersion}`);
 
@@ -45,6 +48,9 @@ program
         await versionManager.createGitTag(newVersion);
         console.log('Created git tag');
       }
+
+      // Post-version hook
+      await runExtensionHooks('postVersion', type, newVersion, options);
 
       console.log(`✅ Successfully released v${newVersion}`);
     } catch (error) {
@@ -64,7 +70,14 @@ program
       const config = await loadConfig(options.config);
       const changelogManager = new ChangelogManager(config);
 
+      // Pre-changelog hook
+      await runExtensionHooks('preChangelog', options);
+
       await changelogManager.generate(options.from, options.to);
+
+      // Post-changelog hook
+      await runExtensionHooks('postChangelog', options);
+
       console.log('✅ Changelog generated');
     } catch (error) {
       console.error('❌ Error:', error instanceof Error ? error.message : String(error));
@@ -82,6 +95,9 @@ program
       const config = await loadConfig(options.config);
       const syncManager = new SyncManager(config);
 
+      // Pre-sync hook
+      await runExtensionHooks('preSync', options);
+
       await syncManager.syncVersions(options.version);
       console.log('✅ Versions synced');
 
@@ -90,6 +106,9 @@ program
         console.log('⚠️  Validation issues:');
         validation.issues.forEach(issue => console.log(`  - ${issue}`));
       }
+
+      // Post-sync hook
+      await runExtensionHooks('postSync', options);
     } catch (error) {
       console.error('❌ Error:', error instanceof Error ? error.message : String(error));
       process.exit(1);
@@ -296,8 +315,6 @@ async function loadConfig(configPath: string): Promise<any> {
   }
   return await fs.readJson(configPath);
 }
-
-program.parse();
 
 async function main() {
   try {

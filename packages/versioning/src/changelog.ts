@@ -1,7 +1,5 @@
 import * as fs from 'fs-extra';
-import * as path from 'path';
 import conventionalChangelog from 'conventional-changelog';
-import { Readable } from 'stream';
 
 export interface ChangelogConfig {
   preset?: string;

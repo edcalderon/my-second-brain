@@ -7,6 +7,18 @@ export interface VersioningExtension {
   description: string;
   version: string;
   register: (program: Command, config: any) => void | Promise<void>;
+  hooks?: ExtensionHooks;
+}
+
+export interface ExtensionHooks {
+  preVersion?: (type: string, options: any) => void | Promise<void>;
+  postVersion?: (type: string, version: string, options: any) => void | Promise<void>;
+  preRelease?: (version: string, options: any) => void | Promise<void>;
+  postRelease?: (version: string, options: any) => void | Promise<void>;
+  preChangelog?: (options: any) => void | Promise<void>;
+  postChangelog?: (options: any) => void | Promise<void>;
+  preSync?: (options: any) => void | Promise<void>;
+  postSync?: (options: any) => void | Promise<void>;
 }
 
 export interface ExtensionContext {
@@ -15,6 +27,36 @@ export interface ExtensionContext {
   changelogManager?: any;
   syncManager?: any;
   releaseManager?: any;
+  hooks: ExtensionHooks[];
+}
+
+let globalExtensionContext: ExtensionContext | null = null;
+
+export function getExtensionContext(): ExtensionContext | null {
+  return globalExtensionContext;
+}
+
+export async function initializeExtensionContext(config: any): Promise<ExtensionContext> {
+  globalExtensionContext = {
+    config,
+    hooks: []
+  };
+  return globalExtensionContext;
+}
+
+export async function runExtensionHooks(hookName: keyof ExtensionHooks, ...args: any[]): Promise<void> {
+  if (!globalExtensionContext) return;
+
+  for (const extensionHooks of globalExtensionContext.hooks) {
+    const hook = extensionHooks[hookName];
+    if (hook) {
+      try {
+        await (hook as any)(...args);
+      } catch (error) {
+        console.warn(`⚠️  Extension hook ${hookName} failed:`, error instanceof Error ? error.message : String(error));
+      }
+    }
+  }
 }
 
 export async function loadExtensions(program: Command): Promise<void> {
@@ -25,6 +67,9 @@ export async function loadExtensions(program: Command): Promise<void> {
       config = await fs.readJson('versioning.config.json');
     }
 
+    // Initialize extension context
+    const context = await initializeExtensionContext(config);
+
     const extensions = config.extensions || [];
 
     // Load built-in extensions from local extensions directory
@@ -32,13 +77,20 @@ export async function loadExtensions(program: Command): Promise<void> {
     if (await fs.pathExists(extensionsDir)) {
       const extensionFiles = await fs.readdir(extensionsDir);
       for (const file of extensionFiles) {
-        if (file.endsWith('.js') || file.endsWith('.ts')) {
+        if (file.endsWith('.js')) {
           try {
             const extensionPath = path.join(extensionsDir, file);
-            const extension: VersioningExtension = require(extensionPath);
+            const extensionModule = require(extensionPath);
+            const extension: VersioningExtension = extensionModule.default || extensionModule;
 
             if (extension && typeof extension.register === 'function') {
               await extension.register(program, config);
+
+              // Register hooks if available
+              if (extension.hooks) {
+                context.hooks.push(extension.hooks);
+              }
+
               console.log(`✅ Loaded extension: ${extension.name}@${extension.version}`);
             }
           } catch (error) {
@@ -47,6 +99,9 @@ export async function loadExtensions(program: Command): Promise<void> {
         }
       }
     }
+
+    // Note: External extensions from config.extensions are not yet implemented
+    // This would require a package manager to install and load external extensions
 
     // Load external extensions from node_modules or specified paths
     for (const extConfig of extensions) {
@@ -65,6 +120,12 @@ export async function loadExtensions(program: Command): Promise<void> {
 
         if (extension && typeof extension.register === 'function') {
           await extension.register(program, config);
+
+          // Register hooks if available
+          if (extension.hooks) {
+            context.hooks.push(extension.hooks);
+          }
+
           console.log(`✅ Loaded external extension: ${extension.name}@${extension.version}`);
         }
       } catch (error) {
@@ -81,6 +142,7 @@ export async function loadExtensions(program: Command): Promise<void> {
 export function createExtensionContext(config: any): ExtensionContext {
   return {
     config,
+    hooks: []
     // Managers will be injected when available
   };
 }

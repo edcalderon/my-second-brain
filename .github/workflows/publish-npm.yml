@@ -35,6 +35,23 @@ jobs:
       - name: Run tests
         run: pnpm --filter @edcalderon/versioning test
 
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          # Extract version from tag (remove 'versioning-v' prefix)
+          TAG_NAME=${{ github.ref_name }}
+          VERSION=${TAG_NAME#versioning-v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing version: $VERSION"
+
+      - name: Update package.json version
+        run: |
+          VERSION=${{ steps.extract_version.outputs.version }}
+          cd packages/versioning
+          # Update package.json version to match the tag
+          npm version $VERSION --no-git-tag-version --no-commit-hooks
+          echo "Updated package.json to version $VERSION"
+
       - name: Publish to NPM
         run: cd packages/versioning && npm publish
         env:

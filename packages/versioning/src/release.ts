@@ -1,11 +1,12 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { VersionManager, ChangelogManager, SyncManager } from './index';
+import { VersionManager } from './index';
+import { ChangelogManager } from './changelog';
 
 export interface ReleaseConfig {
   versionManager: VersionManager;
   changelogManager: ChangelogManager;
-  syncManager: SyncManager;
+  syncManager: any; // Replace 'any' with the correct type if available
   createTag?: boolean;
   createCommit?: boolean;
   publish?: boolean;

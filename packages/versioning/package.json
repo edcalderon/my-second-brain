@@ -1,6 +1,6 @@
 {
   "name": "@edcalderon/versioning",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "description": "A comprehensive versioning and changelog management tool for monorepos",
   "main": "dist/index.js",
   "bin": {
@@ -14,7 +14,15 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src/**/*.ts",
     "prepublishOnly": "npm run build && npm run test",
-    "create-tag": "node scripts/create-tag.js"
+    "version:patch": "node dist/cli.js patch --no-commit --no-tag",
+    "version:minor": "node dist/cli.js minor --no-commit --no-tag",
+    "version:major": "node dist/cli.js major --no-commit --no-tag",
+    "changelog": "node dist/cli.js changelog",
+    "publish:npm": "node dist/cli.js publish-package",
+    "publish:local": "node dist/cli.js publish-local",
+    "create-tag": "node scripts/create-tag.js",
+    "release": "npm run version:patch && npm run changelog && npm run create-tag",
+    "release:local": "npm run version:patch && npm run changelog && npm run publish:local"
   },
   "keywords": [
     "versioning",

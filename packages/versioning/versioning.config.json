@@ -1,0 +1,15 @@
+{
+  "rootPackageJson": "package.json",
+  "packages": [],
+  "changelogFile": "CHANGELOG.md",
+  "conventionalCommits": true,
+  "syncDependencies": false,
+  "ignorePackages": [],
+  "changelog": {
+    "preset": "angular",
+    "releaseCount": 0
+  },
+  "sync": {
+    "includeRoot": true
+  }
+}
