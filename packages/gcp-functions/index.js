@@ -3,6 +3,7 @@ const { Storage } = require('@google-cloud/storage');
 const { ImapFlow } = require('imapflow');
 const { simpleParser } = require('mailparser');
 const { VertexAI } = require('@google-cloud/vertexai');
+const nodemailer = require('nodemailer');
 
 // 1. Initial State & Configuration
 // These are fallback defaults; preferably passed via Environment Variables
@@ -16,6 +17,16 @@ const storage = new Storage({ projectId: PROJECT_ID });
 // Initialize Vertex AI for Agentic Structuring
 const vertexAI = new VertexAI({ project: PROJECT_ID, location: 'us-central1' });
 const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+const transporter = nodemailer.createTransporter({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: false,
+    auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD
+    }
+});
 
 /**
  * MAIN ENTRY POINT: Triggered via Cloud Scheduler (or HTTP for testing)
@@ -82,6 +93,12 @@ exports.fetchFromHostinger = async (req, res) => {
                                 messageId: parsed.messageId
                             });
 
+                            await sendEntranceNotification({
+                                filename: transcriptionAttachment.filename,
+                                subject,
+                                structuredData
+                            });
+
                             await client.messageFlagsAdd(uid, ['\\Seen']);
                             totalProcessed++;
                         }
@@ -105,6 +122,67 @@ exports.fetchFromHostinger = async (req, res) => {
 };
 
 // End of fetchFromHostinger
+
+async function sendEntranceNotification({ filename, subject, structuredData }) {
+    if (!process.env.NOTIFICATION_EMAIL) {
+        console.log('⚠️  No notification email configured, skipping notification');
+        return;
+    }
+
+    const mailOptions = {
+        from: process.env.SMTP_USER,
+        to: process.env.NOTIFICATION_EMAIL,
+        subject: `📬 New Rocketbook Note: ${subject}`,
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+                    🚀 New Entrance Detected
+                </h2>
+                
+                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <h3 style="color: #495057; margin-top: 0;">📝 Note Details</h3>
+                    <p><strong>Filename:</strong> ${filename}</p>
+                    <p><strong>Subject:</strong> ${subject}</p>
+                    <p><strong>Processed at:</strong> ${new Date().toISOString()}</p>
+                </div>
+
+                <div style="background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <h3 style="color: #0066cc; margin-top: 0;">📋 Summary</h3>
+                    <p>${structuredData.summary}</p>
+                </div>
+
+                ${structuredData.action_items && structuredData.action_items.length > 0 ? `
+                <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                    <h3 style="color: #856404; margin-top: 0;">⚡ Action Items</h3>
+                    <ul style="margin: 0; padding-left: 20px;">
+                        ${structuredData.action_items.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                </div>
+                ` : ''}
+
+                ${structuredData.tags && structuredData.tags.length > 0 ? `
+                <div style="margin: 15px 0;">
+                    <h3 style="color: #333;">🏷️ Tags</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+                        ${structuredData.tags.map(tag => `<span style="background-color: #007bff; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px;">#${tag}</span>`).join('')}
+                    </div>
+                </div>
+                ` : ''}
+
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #dee2e6; color: #6c757d; font-size: 12px;">
+                    <p>This notification was sent automatically when a new Rocketbook note was processed from edward@lsts.tech</p>
+                </div>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ Email notification sent to ${process.env.NOTIFICATION_EMAIL}`);
+    } catch (error) {
+        console.error('❌ Failed to send email notification:', error);
+    }
+}
 
 /**
  * AGENTIC STEP: Uses Gemini to turn messy OCR into high-quality Knowledge Base entry
