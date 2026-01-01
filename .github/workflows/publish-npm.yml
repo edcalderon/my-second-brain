@@ -30,10 +30,10 @@ jobs:
         run: pnpm install
 
       - name: Build versioning package
-        run: pnpm --filter ed-versioning build
+        run: pnpm --filter @edcalderon/versioning build
 
       - name: Run tests
-        run: pnpm --filter ed-versioning test
+        run: pnpm --filter @edcalderon/versioning test
 
       - name: Publish to NPM
         run: cd packages/versioning && npm publish
@@ -55,17 +55,17 @@ jobs:
             ### Installation
 
             ```bash
-            npm install ed-versioning
+            npm install @edcalderon/versioning
             # or
-            pnpm add ed-versioning
+            pnpm add @edcalderon/versioning
             # or
-            yarn add ed-versioning
+            yarn add @edcalderon/versioning
             ```
 
             ### Usage
 
             ```bash
-            npx ed-versioning --help
+            npx @edcalderon/versioning --help
             ```
           draft: false
           prerelease: false

@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2026-01-01
 
 ### Added
-- Initial release of ed-versioning
+- Initial release of @edcalderon/versioning
 - Comprehensive versioning and changelog management
 - Support for both single repositories and monorepos
 - CLI tool with multiple commands (patch, minor, major, release, bump, changelog, sync, validate, init)

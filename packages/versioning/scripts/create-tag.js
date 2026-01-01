@@ -28,7 +28,7 @@ function createVersionTag() {
     }
 
     // Create annotated tag
-    const tagMessage = `Release ed-versioning v${version}`;
+    const tagMessage = `Release @edcalderon/versioning v${version}`;
     execSync(`git tag -a "${fullTag}" -m "${tagMessage}"`, { stdio: 'inherit' });
 
     console.log(`Created tag ${fullTag}`);
