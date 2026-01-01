@@ -48,9 +48,13 @@ jobs:
         run: |
           VERSION=${{ steps.extract_version.outputs.version }}
           cd packages/versioning
-          # Update package.json version to match the tag
-          npm version $VERSION --no-git-tag-version --no-commit-hooks
-          echo "Updated package.json to version $VERSION"
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          if [ "$CURRENT_VERSION" != "$VERSION" ]; then
+            echo "Updating package.json from $CURRENT_VERSION to $VERSION"
+            npm version $VERSION --no-git-tag-version --no-commit-hooks
+          else
+            echo "Package.json already has correct version $VERSION"
+          fi
 
       - name: Publish to NPM
         run: cd packages/versioning && npm publish
