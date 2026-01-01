@@ -1,19 +1,48 @@
-import { db } from "@/lib/firebase-admin";
+"use client";
+
+import { useEffect, useState } from "react";
+import { db } from "@/lib/firebase-client";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { Book, Calendar, Tag, ExternalLink } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export default function KnowledgePage() {
+    const [entries, setEntries] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-export default async function KnowledgePage() {
-    let entries: any[] = [];
+    useEffect(() => {
+        const fetchEntries = async () => {
+            try {
+                const q = query(collection(db, "knowledge_base"), orderBy("created_at", "desc"), limit(20));
+                const snapshot = await getDocs(q);
+                const fetchedEntries = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setEntries(fetchedEntries);
+            } catch (error) {
+                console.error("Error fetching knowledge base:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    try {
-        const snapshot = await db.collection("knowledge_base").orderBy("created_at", "desc").limit(20).get();
-        entries = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-    } catch (error) {
-        console.error("Error fetching knowledge base:", error);
+        fetchEntries();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="max-w-7xl mx-auto space-y-8 pb-12">
+                <header>
+                    <div className="flex items-center space-x-3 mb-2">
+                        <Book className="text-accent w-8 h-8" />
+                        <h1 className="text-4xl font-extrabold tracking-tight">
+                            Knowledge Base
+                        </h1>
+                    </div>
+                    <p className="text-gray-400 text-lg">Loading...</p>
+                </header>
+            </div>
+        );
     }
 
     return (
@@ -40,21 +69,21 @@ export default async function KnowledgePage() {
                                 <div className="space-y-3 flex-1">
                                     <div className="flex items-center space-x-2 text-xs text-gray-400">
                                         <Calendar size={14} />
-                                        <span>{new Date(entry.metadata.received_at).toLocaleDateString()}</span>
+                                        <span>{new Date(entry.metadata?.received_at).toLocaleDateString()}</span>
                                         <span className="text-gray-600">•</span>
                                         <span className="font-mono text-accent/80">{entry.id}</span>
                                     </div>
 
                                     <h2 className="text-2xl font-bold group-hover:text-accent transition-colors">
-                                        {entry.content.title}
+                                        {entry.content?.title}
                                     </h2>
 
                                     <p className="text-gray-300 leading-relaxed max-w-3xl">
-                                        {entry.content.summary}
+                                        {entry.content?.summary}
                                     </p>
 
                                     <div className="flex flex-wrap gap-2 pt-2">
-                                        {entry.content.tags?.map((tag: string) => (
+                                        {entry.content?.tags?.map((tag: string) => (
                                             <span key={tag} className="flex items-center space-x-1 px-2.5 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-xs font-medium">
                                                 <Tag size={10} />
                                                 <span>{tag}</span>
@@ -67,20 +96,20 @@ export default async function KnowledgePage() {
                                     <div className="p-4 rounded-xl bg-black/40 border border-border/50">
                                         <h4 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Action Items</h4>
                                         <ul className="space-y-2">
-                                            {entry.content.action_items?.slice(0, 3).map((item: string, idx: number) => (
+                                            {entry.content?.action_items?.slice(0, 3).map((item: string, idx: number) => (
                                                 <li key={idx} className="text-xs text-gray-400 flex items-start">
                                                     <span className="text-accent mr-2">•</span>
                                                     <span>{item}</span>
                                                 </li>
                                             ))}
-                                            {(!entry.content.action_items || entry.content.action_items.length === 0) && (
+                                            {(!entry.content?.action_items || entry.content.action_items.length === 0) && (
                                                 <li className="text-xs text-gray-600 italic">No actions identified.</li>
                                             )}
                                         </ul>
                                     </div>
 
                                     <a
-                                        href={entry.raw_storage_path.replace("gs://", "https://storage.googleapis.com/")}
+                                        href={entry.raw_storage_path?.replace("gs://", "https://storage.googleapis.com/")}
                                         target="_blank"
                                         className="text-xs text-gray-500 hover:text-white flex items-center justify-center p-2 rounded-lg border border-border/30 hover:bg-white/5 transition-all"
                                     >

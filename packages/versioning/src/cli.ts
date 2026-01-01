@@ -1,0 +1,298 @@
+#!/usr/bin/env node
+
+import { Command } from 'commander';
+import * as path from 'path';
+import * as fs from 'fs-extra';
+import { VersionManager } from './versioning';
+import { ChangelogManager } from './changelog';
+import { SyncManager } from './sync';
+import { ReleaseManager } from './release';
+
+const program = new Command();
+
+program
+  .name('ed-version')
+  .description('Comprehensive versioning and changelog management for monorepos')
+  .version('1.0.0');
+
+program
+  .command('bump <type>')
+  .description('Bump version (patch, minor, major, prerelease)')
+  .option('-p, --pre-release <identifier>', 'prerelease identifier')
+  .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+  .option('--no-commit', 'do not commit changes')
+  .option('--no-tag', 'do not create git tag')
+  .action(async (type, options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const versionManager = new VersionManager(config);
+      const changelogManager = new ChangelogManager(config);
+
+      const newVersion = await versionManager.bumpVersion(type as any, options.preRelease);
+      console.log(`Bumped version to ${newVersion}`);
+
+      // Generate changelog
+      await changelogManager.generate();
+      console.log('Generated changelog');
+
+      if (options.commit !== false) {
+        await versionManager.commitChanges(newVersion);
+        console.log('Committed changes');
+      }
+
+      if (options.tag !== false) {
+        await versionManager.createGitTag(newVersion);
+        console.log('Created git tag');
+      }
+
+      console.log(`✅ Successfully released v${newVersion}`);
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('changelog')
+  .description('Generate changelog')
+  .option('-f, --from <commit>', 'from commit')
+  .option('-t, --to <commit>', 'to commit')
+  .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const changelogManager = new ChangelogManager(config);
+
+      await changelogManager.generate(options.from, options.to);
+      console.log('✅ Changelog generated');
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('sync')
+  .description('Sync versions across monorepo')
+  .option('-v, --version <version>', 'target version to sync to')
+  .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const syncManager = new SyncManager(config);
+
+      await syncManager.syncVersions(options.version);
+      console.log('✅ Versions synced');
+
+      const validation = await syncManager.validateSync();
+      if (!validation.valid) {
+        console.log('⚠️  Validation issues:');
+        validation.issues.forEach(issue => console.log(`  - ${issue}`));
+      }
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('validate')
+  .description('Validate version sync across monorepo')
+  .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const syncManager = new SyncManager(config);
+
+      const validation = await syncManager.validateSync();
+      if (validation.valid) {
+        console.log('✅ All versions are in sync');
+      } else {
+        console.log('❌ Version sync issues:');
+        validation.issues.forEach(issue => console.log(`  - ${issue}`));
+        process.exit(1);
+      }
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('patch')
+  .description('Create a patch release')
+  .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
+  .option('-m, --message <message>', 'Release commit message')
+  .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--no-tag', 'Do not create git tag')
+  .option('--no-commit', 'Do not commit changes')
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const versionManager = new VersionManager(config);
+      const changelogManager = new ChangelogManager(config);
+      const syncManager = new SyncManager(config);
+      const releaseManager = new ReleaseManager({
+        versionManager,
+        changelogManager,
+        syncManager,
+        createTag: options.tag !== false,
+        createCommit: options.commit !== false
+      });
+
+      const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
+      const newVersion = await releaseManager.patchRelease({
+        packages,
+        message: options.message
+      });
+
+      console.log(`✅ Patch release v${newVersion} completed`);
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('minor')
+  .description('Create a minor release')
+  .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
+  .option('-m, --message <message>', 'Release commit message')
+  .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--no-tag', 'Do not create git tag')
+  .option('--no-commit', 'Do not commit changes')
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const versionManager = new VersionManager(config);
+      const changelogManager = new ChangelogManager(config);
+      const syncManager = new SyncManager(config);
+      const releaseManager = new ReleaseManager({
+        versionManager,
+        changelogManager,
+        syncManager,
+        createTag: options.tag !== false,
+        createCommit: options.commit !== false
+      });
+
+      const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
+      const newVersion = await releaseManager.minorRelease({
+        packages,
+        message: options.message
+      });
+
+      console.log(`✅ Minor release v${newVersion} completed`);
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('major')
+  .description('Create a major release')
+  .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
+  .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--no-tag', 'Do not create git tag')
+  .option('--no-commit', 'Do not commit changes')
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const versionManager = new VersionManager(config);
+      const changelogManager = new ChangelogManager(config);
+      const syncManager = new SyncManager(config);
+      const releaseManager = new ReleaseManager({
+        versionManager,
+        changelogManager,
+        syncManager,
+        createTag: options.tag !== false,
+        createCommit: options.commit !== false
+      });
+
+      const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
+      const newVersion = await releaseManager.majorRelease({
+        packages,
+        message: options.message
+      });
+
+      console.log(`✅ Major release v${newVersion} completed`);
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('release <version>')
+  .description('Create a custom release')
+  .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
+  .option('-m, --message <message>', 'Release commit message')
+  .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--no-tag', 'Do not create git tag')
+  .option('--no-commit', 'Do not commit changes')
+  .option('--skip-sync', 'Skip version synchronization')
+  .action(async (version, options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const versionManager = new VersionManager(config);
+      const changelogManager = new ChangelogManager(config);
+      const syncManager = new SyncManager(config);
+      const releaseManager = new ReleaseManager({
+        versionManager,
+        changelogManager,
+        syncManager,
+        createTag: options.tag !== false,
+        createCommit: options.commit !== false
+      });
+
+      const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
+      await releaseManager.release(version, {
+        packages,
+        message: options.message,
+        skipSync: options.skipSync
+      });
+
+      console.log(`✅ Release v${version} completed`);
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('init')
+  .description('Initialize versioning config')
+  .option('-f, --force', 'overwrite existing config')
+  .action(async (options) => {
+    try {
+      const configPath = 'versioning.config.json';
+      if (!options.force && await fs.pathExists(configPath)) {
+        console.error('❌ Config file already exists. Use --force to overwrite.');
+        process.exit(1);
+      }
+
+      const defaultConfig = {
+        rootPackageJson: 'package.json',
+        packages: [],
+        changelogFile: 'CHANGELOG.md',
+        conventionalCommits: true,
+        syncDependencies: false,
+        ignorePackages: []
+      };
+
+      await fs.writeJson(configPath, defaultConfig, { spaces: 2 });
+      console.log('✅ Initialized versioning config at versioning.config.json');
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+async function loadConfig(configPath: string): Promise<any> {
+  if (!(await fs.pathExists(configPath))) {
+    throw new Error(`Config file not found: ${configPath}. Run 'ed-version init' to create one.`);
+  }
+  return await fs.readJson(configPath);
+}
+
+program.parse();

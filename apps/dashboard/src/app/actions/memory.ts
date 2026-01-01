@@ -1,7 +1,4 @@
-"use server";
-
 import { supermemory } from "@/lib/supermemory";
-import { revalidatePath } from "next/cache";
 
 export async function addMemory(content: string, tags: string[] = []) {
     try {
@@ -11,7 +8,7 @@ export async function addMemory(content: string, tags: string[] = []) {
         });
 
         // In a real app, we might want to trigger a refresh of the graph or stats
-        revalidatePath("/");
+        window.location.reload(); // Simple refresh for now
 
         return { success: true, data: memory };
     } catch (error) {

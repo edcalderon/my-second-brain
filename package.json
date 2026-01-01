@@ -1,13 +1,14 @@
 {
-    "name": "@ed/monorepo",
-    "private": true,
-    "description": "Monorepo for Edward's Second Brain and Knowledge Base",
-    "scripts": {
-        "dev": "pnpm --filter @ed/dashboard dev",
-        "build": "pnpm --recursive build",
-        "deploy:functions": "cd scripts && ./deploy-gcp.sh"
-    },
-    "devDependencies": {
-        "pnpm": "latest"
-    }
+  "name": "@ed/monorepo",
+  "version": "1.0.2",
+  "private": true,
+  "description": "Monorepo for Edward's Second Brain and Knowledge Base",
+  "scripts": {
+    "dev": "pnpm --filter @ed/dashboard dev",
+    "build": "pnpm --recursive build",
+    "deploy:functions": "cd scripts && ./deploy-gcp.sh"
+  },
+  "devDependencies": {
+    "pnpm": "latest"
+  }
 }

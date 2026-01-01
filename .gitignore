@@ -1,6 +1,10 @@
 node_modules/
 .env
 .env.local
+.env.*.local
+.emv.*
+.DS_Store
+npm-debug.log*
 config/private.json
 apps/dashboard/.env
 apps/dashboard/.next/

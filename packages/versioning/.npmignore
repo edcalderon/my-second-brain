@@ -1,0 +1,26 @@
+# Exclude source files
+src/
+*.ts
+!*.d.ts
+
+# Exclude test files
+__tests__/
+*.test.ts
+*.test.js
+
+# Exclude development files
+.eslintrc*
+.prettierrc*
+jest.config.*
+tsconfig.json
+*.map
+
+# Exclude documentation (will be in README)
+USAGE.md
+examples.md
+
+# Exclude git and other files
+.git/
+.github/
+*.log
+.DS_Store
