@@ -36,13 +36,17 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "testMatch": ["**/__tests__/**/*.test.ts"],
+    "testMatch": [
+      "**/__tests__/**/*.test.ts"
+    ],
     "collectCoverageFrom": [
       "src/**/*.ts",
       "!src/**/*.d.ts",
       "!src/**/__tests__/**"
     ],
-    "setupFilesAfterEnv": ["<rootDir>/src/__tests__/setup.ts"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/__tests__/setup.ts"
+    ],
     "transform": {
       "^.+\\.ts$": "ts-jest"
     }
@@ -59,7 +63,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/yourrepo.git",
+    "url": "git+https://github.com/edcalderon/my-second-brain.git",
     "directory": "packages/versioning"
   }
 }
