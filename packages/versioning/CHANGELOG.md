@@ -1,3 +1,9 @@
+## [1.0.9](https://github.com/edcalderon/my-second-brain/compare/v1.0.8...v1.0.9) (2026-01-02)
+
+
+
+
+
 ## 1.0.8 (2026-01-02)
 
 
