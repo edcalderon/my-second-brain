@@ -11,32 +11,32 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
+    title: 'AI-Powered Knowledge Processing',
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        Leverage Supermemory AI to automatically process, categorize, and connect your knowledge.
+        Extract insights, identify action items, and build comprehensive knowledge graphs.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Unified Monorepo Architecture',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Single repository managing dashboard, documentation, versioning system, and cloud functions.
+        Automated semantic versioning, consistent tooling, and streamlined development workflow.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Modern Web Technologies',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Built with Next.js 14, TypeScript, Tailwind CSS, and Firebase. Deployed via GitHub Actions
+        to GitHub Pages with automated CI/CD pipelines and comprehensive testing.
       </>
     ),
   },

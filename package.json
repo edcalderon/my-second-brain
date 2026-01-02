@@ -1,11 +1,12 @@
 {
   "name": "@ed/monorepo",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "Monorepo for Edward's Second Brain and Knowledge Base",
   "scripts": {
-    "dev": "pnpm --filter @ed/dashboard dev",
-    "dev:docs": "pnpm --filter @ed/docs start",
+    "dev": "pnpm --filter @ed/dashboard dev -p 3000",
+    "dev:docs": "pnpm --filter @ed/docs start --port 3001",
+    "dev:all": "concurrently \"pnpm --filter @ed/dashboard dev -p 3000\" \"pnpm --filter @ed/docs start --port 3001\"",
     "build": "pnpm --recursive build",
     "build:docs": "pnpm --filter @ed/docs build",
     "deploy:functions": "cd scripts && ./deploy-gcp.sh",
@@ -18,6 +19,7 @@
   },
   "devDependencies": {
     "@edcalderon/versioning": "^1.0.11",
+    "concurrently": "^9.2.1",
     "pnpm": "latest"
   }
 }
