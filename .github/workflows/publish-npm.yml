@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
+      attestations: write
 
     steps:
       - name: Checkout code
@@ -36,6 +38,11 @@ jobs:
 
       - name: Run tests
         run: pnpm --filter @edcalderon/versioning test
+
+      - name: Generate build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: packages/versioning/package.json
 
       - name: Extract version from tag
         id: extract_version
