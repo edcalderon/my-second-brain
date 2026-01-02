@@ -18,7 +18,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      SUPERMEMORY_API_KEY: ${{ secrets.SUPERMEMORY_API_KEY }}
+      NEXT_PUBLIC_SUPERMEMORY_API_KEY: ${{ secrets.SUPERMEMORY_API_KEY }}
       NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
       NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
       NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
@@ -42,7 +42,7 @@ jobs:
       - name: Check Environment Variables
         run: |
           echo "Checking required environment variables..."
-          if [ -z "$SUPERMEMORY_API_KEY" ]; then echo "❌ SUPERMEMORY_API_KEY is not set"; exit 1; fi
+          if [ -z "$NEXT_PUBLIC_SUPERMEMORY_API_KEY" ]; then echo "❌ NEXT_PUBLIC_SUPERMEMORY_API_KEY is not set"; exit 1; fi
           echo "⚠️  Note: Firebase configuration is optional for GitHub Pages deployment"
           echo "✅ Required environment variables are set"
 

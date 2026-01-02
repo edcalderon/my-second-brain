@@ -6,9 +6,16 @@
   "scripts": {
     "dev": "pnpm --filter @ed/dashboard dev",
     "build": "pnpm --recursive build",
-    "deploy:functions": "cd scripts && ./deploy-gcp.sh"
+    "deploy:functions": "cd scripts && ./deploy-gcp.sh",
+    "version:patch": "versioning patch",
+    "version:minor": "versioning minor",
+    "version:major": "versioning major",
+    "version:validate": "versioning validate",
+    "version:sync": "versioning sync",
+    "version:changelog": "versioning changelog"
   },
   "devDependencies": {
+    "@edcalderon/versioning": "^1.0.11",
     "pnpm": "latest"
   }
 }
