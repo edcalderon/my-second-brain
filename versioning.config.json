@@ -1,6 +1,6 @@
 {
   "rootPackageJson": "package.json",
-  "packages": ["apps/dashboard"],
+  "packages": ["apps/dashboard", "apps/docs"],
   "changelogFile": "CHANGELOG.md",
   "conventionalCommits": true,
   "syncDependencies": true,

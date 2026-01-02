@@ -1,0 +1,8 @@
+{
+  "label": "Architecture & Setup",
+  "position": 2,
+  "link": {
+    "type": "generated-index",
+    "description": "Learn about the system architecture and how to set up the development environment."
+  }
+}

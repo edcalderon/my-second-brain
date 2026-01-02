@@ -5,7 +5,9 @@
   "description": "Monorepo for Edward's Second Brain and Knowledge Base",
   "scripts": {
     "dev": "pnpm --filter @ed/dashboard dev",
+    "dev:docs": "pnpm --filter @ed/docs start",
     "build": "pnpm --recursive build",
+    "build:docs": "pnpm --filter @ed/docs build",
     "deploy:functions": "cd scripts && ./deploy-gcp.sh",
     "version:patch": "versioning patch",
     "version:minor": "versioning minor",
