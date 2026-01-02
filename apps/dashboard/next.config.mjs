@@ -9,7 +9,7 @@ const nextConfig = {
       return [
         {
           source: '/documentation/:path*',
-          destination: 'http://localhost:3001/:path*',
+          destination: 'http://localhost:3001/my-second-brain/documentation/:path*',
           permanent: false,
         },
       ];
