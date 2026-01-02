@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const VERSION = "1.1.1"; // TODO: Read from package.json
+const VERSION = "1.1.3"; // TODO: Read from package.json
 
 export default function Footer() {
     return (
