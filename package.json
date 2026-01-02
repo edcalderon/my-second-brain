@@ -1,6 +1,6 @@
 {
   "name": "@ed/monorepo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Monorepo for Edward's Second Brain and Knowledge Base",
   "scripts": {

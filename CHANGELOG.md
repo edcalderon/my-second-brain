@@ -1,3 +1,14 @@
+## [1.0.3](https://github.com/edcalderon/my-second-brain/compare/v1.0.10...v1.0.3) (2026-01-02)
+
+
+### Features
+
+* integrate @edcalderon/versioning for monorepo management ([761f9a6](https://github.com/edcalderon/my-second-brain/commit/761f9a6648d3f98e6b51cad2d49e186a81823698))
+
+
+
+
+
 ## 1.0.2 (2026-01-01)
 
 
