@@ -1,4 +1,4 @@
-name: Deploy Dashboard to GitHub Pages
+name: Deploy Web to GitHub Pages
 
 on:
   push:
@@ -51,6 +51,14 @@ jobs:
 
       - name: Build dashboard
         run: pnpm --filter @ed/dashboard build
+
+      - name: Build docs
+        run: pnpm --filter @ed/docs build
+
+      - name: Combine builds
+        run: |
+          mkdir -p ./apps/dashboard/out/documentation
+          cp -r ./apps/docs/build/* ./apps/dashboard/out/documentation/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

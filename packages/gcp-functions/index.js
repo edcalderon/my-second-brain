@@ -18,7 +18,7 @@ const storage = new Storage({ projectId: PROJECT_ID });
 const vertexAI = new VertexAI({ project: PROJECT_ID, location: 'us-central1' });
 const model = vertexAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
     secure: false,

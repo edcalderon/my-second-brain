@@ -21,7 +21,7 @@ IMAP_USER=${IMAP_USER:-"edward@lealsystem.net"}
 echo "🚀 Deploying Rocketbook Knowledge Base to GCP..."
 
 echo "📝 Verifying authentication..."
-gcloud auth activate-service-account --key-file=config/private.json
+gcloud auth activate-service-account --key-file=../config/private.json
 gcloud config set project $PROJECT_ID -q
 
 echo "🔧 Enabling required APIs..."
@@ -64,7 +64,7 @@ gcloud iam service-accounts add-iam-policy-binding $SERVICE_ACCOUNT \
     --role="roles/iam.serviceAccountUser" || echo "Note: build SA user role already active or failed"
 
 echo "☁️ Deploying Cloud Functions..."
-cd rocketbook-webhook
+cd ../packages/gcp-functions
 
 if [ -z "$IMAP_PASSWORD" ]; then
     echo "⚠️  WARNING: IMAP_PASSWORD is not set. The fetch function will fail to connect until it is set in the GCP Console."
