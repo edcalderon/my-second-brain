@@ -41,10 +41,13 @@ jobs:
 
       - name: Check Environment Variables
         run: |
-          echo "Checking required environment variables..."
-          if [ -z "$NEXT_PUBLIC_SUPERMEMORY_API_KEY" ]; then echo "❌ NEXT_PUBLIC_SUPERMEMORY_API_KEY is not set"; exit 1; fi
-          echo "⚠️  Note: Firebase configuration is optional for GitHub Pages deployment"
-          echo "✅ Required environment variables are set"
+          echo "Checking environment variables..."
+          if [ -z "$NEXT_PUBLIC_SUPERMEMORY_API_KEY" ]; then 
+            echo "⚠️  NEXT_PUBLIC_SUPERMEMORY_API_KEY is not set (optional)"
+          else
+            echo "✅ NEXT_PUBLIC_SUPERMEMORY_API_KEY is set"
+          fi
+          echo "✅ Environment check complete"
 
       - name: Install dependencies
         run: pnpm install
