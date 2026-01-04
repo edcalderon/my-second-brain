@@ -22,12 +22,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 10.26.2
 
       - name: Get pnpm store directory
         id: pnpm-cache
@@ -71,7 +71,7 @@ jobs:
       - name: Deploy Cloud Functions
         run: |
           gcloud functions deploy knowledge \
-            --runtime nodejs20 \
+            --runtime nodejs22 \
             --trigger-http \
             --allow-unauthenticated \
             --entry-point=knowledge \
@@ -80,7 +80,7 @@ jobs:
             --region=${{ env.GCP_REGION }}
           
           gcloud functions deploy sync \
-            --runtime nodejs20 \
+            --runtime nodejs22 \
             --trigger-http \
             --allow-unauthenticated \
             --entry-point=sync \
@@ -89,7 +89,7 @@ jobs:
             --region=${{ env.GCP_REGION }}
           
           gcloud functions deploy status \
-            --runtime nodejs20 \
+            --runtime nodejs22 \
             --trigger-http \
             --allow-unauthenticated \
             --entry-point=status \

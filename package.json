@@ -4,8 +4,8 @@
   "private": true,
   "description": "Monorepo for Edward's Second Brain and Knowledge Base",
   "engines": {
-    "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
   },
   "scripts": {
     "dev": "pnpm --filter @ed/dashboard dev -p 3000",
