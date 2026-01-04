@@ -1,0 +1,98 @@
+name: Deploy Static Site & Cloud Functions
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  GCP_PROJECT_ID: second-brain-482901
+  GCP_REGION: us-central1
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build dashboard (static)
+        run: pnpm --filter @ed/dashboard build
+        env:
+          NEXT_PUBLIC_API_URL: https://second-brain-482901.web.app
+          NEXT_PUBLIC_CLOUD_FUNCTION_URL: https://us-central1-second-brain-482901.cloudfunctions.net
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy static site to Firebase Hosting
+        run: |
+          firebase deploy --only hosting:dashboard \
+            --project=${{ env.GCP_PROJECT_ID }} \
+            --token=${{ secrets.FIREBASE_TOKEN }}
+        working-directory: apps/dashboard
+
+      - name: Deploy Cloud Functions
+        run: |
+          gcloud functions deploy knowledge \
+            --runtime nodejs20 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --entry-point=knowledge \
+            --source=packages/gcp-functions \
+            --project=${{ env.GCP_PROJECT_ID }} \
+            --region=${{ env.GCP_REGION }}
+          
+          gcloud functions deploy sync \
+            --runtime nodejs20 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --entry-point=sync \
+            --source=packages/gcp-functions \
+            --project=${{ env.GCP_PROJECT_ID }} \
+            --region=${{ env.GCP_REGION }}
+          
+          gcloud functions deploy status \
+            --runtime nodejs20 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --entry-point=status \
+            --source=packages/gcp-functions \
+            --project=${{ env.GCP_PROJECT_ID }} \
+            --region=${{ env.GCP_REGION }}

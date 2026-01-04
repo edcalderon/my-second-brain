@@ -12,3 +12,4 @@ packages/gcp-functions/node_modules/
 dist/
 .config/gcloud*
 config/private.json
+apps/dashboard/bun.lock

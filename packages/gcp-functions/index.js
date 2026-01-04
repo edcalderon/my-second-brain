@@ -32,7 +32,11 @@ const transporter = nodemailer.createTransport({
  * MAIN ENTRY POINT: Triggered via Cloud Scheduler (or HTTP for testing)
  */
 exports.fetchFromHostinger = async (req, res) => {
+    const startTime = Date.now();
     console.log('🚀 Starting Hostinger IMAP Fetch...');
+    
+    const body = req.body || {};
+    const { force = false, trigger = 'scheduled' } = body;
 
     const client = new ImapFlow({
         host: process.env.IMAP_HOST || 'imap.hostinger.com',
@@ -53,69 +57,136 @@ exports.fetchFromHostinger = async (req, res) => {
         console.log('📬 Available mailboxes:', mailboxes.map(m => m.path).join(', '));
 
         let totalProcessed = 0;
+        let totalFailed = 0;
+        const failedEmails = [];
 
         for (const mailbox of mailboxes) {
             console.log(`🔍 Checking mailbox: ${mailbox.path}`);
             let lock;
             try {
                 lock = await client.getMailboxLock(mailbox.path);
-                const messages = await client.search({
-                    from: 'notes@email.getrocketbook.com',
-                    unseen: true
-                });
+                
+                const searchCriteria = force 
+                    ? { from: 'notes@email.getrocketbook.com' }
+                    : { from: 'notes@email.getrocketbook.com', unseen: true };
+                
+                const messages = await client.search(searchCriteria);
 
                 if (messages.length > 0) {
-                    console.log(`📩 Found ${messages.length} unread emails in ${mailbox.path}.`);
+                    console.log(`📩 Found ${messages.length} emails in ${mailbox.path} (${trigger}, force: ${force}).`);
 
                     for (const uid of messages) {
-                        let { content } = await client.download(uid);
-                        let parsed = await simpleParser(content);
+                        try {
+                            let { content } = await client.download(uid);
+                            let parsed = await simpleParser(content);
 
-                        const transcriptionAttachment = parsed.attachments.find(att =>
-                            att.filename && (att.filename.includes('transcription') || att.filename.endsWith('.txt'))
-                        );
+                            const transcriptionAttachments = parsed.attachments.filter(att =>
+                                att.filename && (att.filename.includes('transcription') || att.filename.endsWith('.txt'))
+                            );
 
-                        if (transcriptionAttachment) {
-                            const rawText = transcriptionAttachment.content.toString('utf-8');
-                            const subject = parsed.subject || 'Rocketbook Scan';
-                            const date = parsed.date || new Date();
+                            if (transcriptionAttachments.length > 0) {
+                                const subject = parsed.subject || 'Rocketbook Scan';
+                                const date = parsed.date || new Date();
 
-                            console.log(`📄 Processing: ${transcriptionAttachment.filename} from ${subject}`);
+                                console.log(`📄 Processing ${transcriptionAttachments.length} attachments from ${subject}`);
 
-                            const structuredData = await structureWithAI(rawText, subject);
+                                for (const transcriptionAttachment of transcriptionAttachments) {
+                                    try {
+                                        const rawText = transcriptionAttachment.content.toString('utf-8');
 
-                            await archiveToKnowledgeBase({
-                                rawText,
-                                structuredData,
-                                filename: transcriptionAttachment.filename,
-                                subject,
-                                date,
-                                messageId: parsed.messageId
+                                        console.log(`📄 Processing: ${transcriptionAttachment.filename}`);
+
+                                        const structuredData = await structureWithAI(rawText, subject);
+
+                                        await archiveToKnowledgeBase({
+                                            rawText,
+                                            structuredData,
+                                            filename: transcriptionAttachment.filename,
+                                            subject,
+                                            date,
+                                            messageId: parsed.messageId
+                                        });
+
+                                        await sendEntranceNotification({
+                                            filename: transcriptionAttachment.filename,
+                                            subject,
+                                            structuredData
+                                        });
+
+                                        totalProcessed++;
+                                    } catch (attachmentError) {
+                                        console.error(`❌ Failed to process attachment ${transcriptionAttachment.filename}:`, attachmentError);
+                                        totalFailed++;
+                                        failedEmails.push({
+                                            messageId: parsed.messageId,
+                                            subject,
+                                            filename: transcriptionAttachment.filename,
+                                            error: attachmentError.message
+                                        });
+                                    }
+                                }
+
+                                // Marcar como leído
+                                await client.messageFlagsAdd(uid, ['\\Seen']);
+
+                                // Mover email a Archives/rocketbook si está en Junk
+                                if (mailbox.path === 'INBOX.Junk') {
+                                    try {
+                                        await client.messageMove(uid, 'INBOX.Archives.rocketbook');
+                                        console.log(`✅ Moved email from Junk to Archives/rocketbook`);
+                                    } catch (moveError) {
+                                        console.warn(`⚠️ Failed to move email to Archives/rocketbook: ${moveError.message}`);
+                                        // Continuar aunque falle el movimiento
+                                    }
+                                }
+                            } else {
+                                console.log(`⚠️ No transcription attachments found in: ${subject}`);
+                            }
+                        } catch (emailError) {
+                            console.error(`❌ Failed to process email UID ${uid}:`, emailError);
+                            totalFailed++;
+                            failedEmails.push({
+                                uid,
+                                error: emailError.message
                             });
-
-                            await sendEntranceNotification({
-                                filename: transcriptionAttachment.filename,
-                                subject,
-                                structuredData
-                            });
-
-                            await client.messageFlagsAdd(uid, ['\\Seen']);
-                            totalProcessed++;
                         }
                     }
+                } else {
+                    console.log(`📭 No matching emails found in ${mailbox.path}`);
                 }
             } catch (e) {
-                console.log(`⚠️  Skipping ${mailbox.path}: ${e.message}`);
+                console.error(`❌ Error processing mailbox ${mailbox.path}:`, e);
             } finally {
                 if (lock) lock.release();
             }
         }
 
-        res.status(200).send(`Successfully processed ${totalProcessed} new notes across all folders.`);
+        const duration = Date.now() - startTime;
+        const result = {
+            success: true,
+            message: `Processed ${totalProcessed} notes, ${totalFailed} failed`,
+            totalProcessed,
+            totalFailed,
+            duration: `${duration}ms`,
+            trigger,
+            force,
+            failedEmails: failedEmails.slice(0, 10),
+            timestamp: new Date().toISOString()
+        };
+
+        console.log(`✅ IMAP Fetch completed: ${result.message} (${duration}ms)`);
+        res.status(200).json(result);
 
     } catch (error) {
+        const duration = Date.now() - startTime;
         console.error('❌ IMAP Error:', error);
-        res.status(500).send(`Error: ${error.message}`);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            duration: `${duration}ms`,
+            trigger,
+            timestamp: new Date().toISOString()
+        });
     } finally {
         await client.logout();
     }

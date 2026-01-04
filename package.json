@@ -3,6 +3,10 @@
   "version": "1.1.3",
   "private": true,
   "description": "Monorepo for Edward's Second Brain and Knowledge Base",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "pnpm --filter @ed/dashboard dev -p 3000",
     "dev:docs": "pnpm --filter @ed/docs start --port 3001",
@@ -10,6 +14,14 @@
     "build": "pnpm --recursive build",
     "build:docs": "pnpm --filter @ed/docs build",
     "deploy:functions": "cd scripts && ./deploy-gcp.sh",
+    "deploy:cloud-functions": "./scripts/deploy-cloud-functions.sh",
+    "deploy:cloud-functions:test": "./scripts/deploy-cloud-functions.sh --test",
+    "deploy:cloud-functions:dry-run": "./scripts/deploy-cloud-functions.sh --dry-run",
+    "test:api": "./scripts/test-api-setup.sh",
+    "test:api:prod": "./scripts/test-api-setup.sh --prod",
+    "test:api:verbose": "./scripts/test-api-setup.sh --verbose",
+    "deploy:full": "./scripts/full-deploy.sh",
+    "deploy:full:dry-run": "./scripts/full-deploy.sh --dry-run",
     "version:patch": "versioning patch",
     "version:minor": "versioning minor",
     "version:major": "versioning major",

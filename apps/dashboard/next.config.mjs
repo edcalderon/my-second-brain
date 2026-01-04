@@ -1,9 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  output: 'standalone',
   trailingSlash: true,
   basePath: '/my-second-brain',
   assetPrefix: '/my-second-brain/',
+  turbopack: {
+    root: '../../',
+  },
   async redirects() {
     if (process.env.NODE_ENV === 'development') {
       return [
