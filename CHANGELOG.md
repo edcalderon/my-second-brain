@@ -1,3 +1,19 @@
+## [1.1.4](https://github.com/edcalderon/my-second-brain/compare/v1.1.3...v1.1.4) (2026-01-04)
+
+
+### Bug Fixes
+
+* correct Docusaurus baseUrl for production deployment ([6e0252d](https://github.com/edcalderon/my-second-brain/commit/6e0252d4d12940ad2749aa3543ed1a12e5afdbba))
+
+
+### Features
+
+* implement email movement to Archives/rocketbook + clean sensitive data from docs ([6f49e29](https://github.com/edcalderon/my-second-brain/commit/6f49e291982d0f9984423f9fe54396a78e642d81))
+
+
+
+
+
 
 
 ## [1.1.3](https://github.com/edcalderon/my-second-brain/compare/v1.1.2...v1.1.3) (2026-01-02)
