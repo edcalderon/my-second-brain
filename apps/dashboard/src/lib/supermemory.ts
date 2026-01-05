@@ -1,11 +1,26 @@
 import { Supermemory } from "supermemory";
 
-const apiKey = process.env.NEXT_PUBLIC_SUPERMEMORY_API_KEY;
+const apiKey = process.env.NEXT_PUBLIC_SUPERMEMORY_API_KEY || "dummy-key-for-build";
 
-if (!apiKey) {
-    throw new Error("NEXT_PUBLIC_SUPERMEMORY_API_KEY is not defined in environment variables");
+let supermemoryInstance: Supermemory | null = null;
+
+export function getSupermemory() {
+    if (!supermemoryInstance) {
+        if (!process.env.NEXT_PUBLIC_SUPERMEMORY_API_KEY) {
+            throw new Error("NEXT_PUBLIC_SUPERMEMORY_API_KEY is not defined in environment variables");
+        }
+        supermemoryInstance = new Supermemory({
+            apiKey: process.env.NEXT_PUBLIC_SUPERMEMORY_API_KEY,
+        });
+    }
+    return supermemoryInstance;
 }
 
-export const supermemory = new Supermemory({
-    apiKey,
-});
+// For backward compatibility
+export const supermemory = {
+    memories: {
+        add: async (data: any) => {
+            return getSupermemory().memories.add(data);
+        },
+    },
+};
