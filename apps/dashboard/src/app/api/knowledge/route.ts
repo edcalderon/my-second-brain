@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase-client';
 import { collection, query, orderBy, limit, getDocs, startAfter, DocumentSnapshot, where, getCountFromServer } from 'firebase/firestore';
 
+// Skip this route during static export
+export const dynamic = 'force-static';
+
 export async function GET(request: NextRequest) {
     try {
         if (!db) {

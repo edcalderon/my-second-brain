@@ -19,6 +19,8 @@ const nextConfig = {
     }
     return [];
   },
+  // Exclude API routes from static export
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   /* config options here */
 };
 

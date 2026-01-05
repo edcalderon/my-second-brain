@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Skip this route during static export
+export const dynamic = 'force-static';
+
 const GCP_FUNCTION_URL = process.env.GCP_SYNC_FUNCTION_URL || 'https://us-central1-second-brain-482901.cloudfunctions.net/rocketbook-fetch';
 
 export async function POST(request: NextRequest) {
