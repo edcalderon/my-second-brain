@@ -1,0 +1,17 @@
+
+# Secrets & Env
+.env
+env.yaml
+
+# Dependencies
+node_modules/
+
+# Puppeteer Cache
+.cache/
+
+# Testing Artifacts
+debug-screenshot.png
+*.png
+
+# Build
+lib/

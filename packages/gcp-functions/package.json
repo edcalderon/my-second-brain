@@ -6,6 +6,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
+    "postinstall": "puppeteer browsers install chrome",
     "serve": "firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions"
   },
@@ -17,7 +18,9 @@
     "firebase-functions": "^4.8.0",
     "imapflow": "^1.1.0",
     "mailparser": "^3.6.0",
-    "nodemailer": "^6.9.0"
+    "nodemailer": "^6.9.0",
+    "puppeteer": "^24.34.0",
+    "twitter-api-v2": "^1.28.0"
   },
   "devDependencies": {
     "@types/mailparser": "^3.4.6",

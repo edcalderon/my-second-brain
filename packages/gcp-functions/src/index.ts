@@ -17,6 +17,7 @@ import nodemailer from 'nodemailer';
 import { handleKnowledge } from './handlers/knowledge';
 import { handleSync } from './handlers/sync';
 import { handleStatus } from './handlers/status';
+import { captureAndTweet } from './handlers/githubScreenshot';
 
 // CORS configuration
 const corsHeaders = {
@@ -39,7 +40,7 @@ const handleCors = (req: Request, res: Response) => {
 // Knowledge endpoint
 export const knowledge = functions.https.onRequest(async (req, res) => {
   if (handleCors(req, res)) return;
-  
+
   try {
     await handleKnowledge(req, res);
   } catch (error) {
@@ -51,7 +52,7 @@ export const knowledge = functions.https.onRequest(async (req, res) => {
 // Sync endpoint
 export const sync = functions.https.onRequest(async (req, res) => {
   if (handleCors(req, res)) return;
-  
+
   try {
     await handleSync(req, res);
   } catch (error) {
@@ -63,13 +64,22 @@ export const sync = functions.https.onRequest(async (req, res) => {
 // Status endpoint
 export const status = functions.https.onRequest(async (req, res) => {
   if (handleCors(req, res)) return;
-  
+
   try {
     await handleStatus(req, res);
   } catch (error) {
     console.error('Status function error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
+});
+
+// Daily GitHub Screenshot & Tweet
+export const dailyGithubScreenshot = functions.runWith({
+  memory: '2GB',
+  timeoutSeconds: 120,
+}).https.onRequest(async (req, res) => {
+  if (handleCors(req, res)) return;
+  await captureAndTweet(req, res);
 });
 
 // Configuration for Rocketbook IMAP Fetch
@@ -98,7 +108,7 @@ const transporter = nodemailer.createTransport({
 export const rocketbookFetch = functions.https.onRequest(async (req, res) => {
   const startTime = Date.now();
   console.log('🚀 Starting Hostinger IMAP Fetch...');
-  
+
   const body = req.body || {};
   const { force = false, trigger = 'scheduled' } = body;
 
@@ -129,11 +139,11 @@ export const rocketbookFetch = functions.https.onRequest(async (req, res) => {
       let lock;
       try {
         lock = await client.getMailboxLock(mailbox.path);
-        
-        const searchCriteria = force 
+
+        const searchCriteria = force
           ? { from: 'notes@email.getrocketbook.com' }
           : { from: 'notes@email.getrocketbook.com', unseen: true };
-        
+
         const messages = await client.search(searchCriteria);
         const messageList = Array.isArray(messages) ? messages : [];
 

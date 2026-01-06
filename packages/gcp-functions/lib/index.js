@@ -40,7 +40,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rocketbookFetch = exports.status = exports.sync = exports.knowledge = void 0;
+exports.rocketbookFetch = exports.dailyGithubScreenshot = exports.status = exports.sync = exports.knowledge = void 0;
 const functions = __importStar(require("firebase-functions"));
 const firestore_1 = require("@google-cloud/firestore");
 const storage_1 = require("@google-cloud/storage");
@@ -53,6 +53,7 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 const knowledge_1 = require("./handlers/knowledge");
 const sync_1 = require("./handlers/sync");
 const status_1 = require("./handlers/status");
+const githubScreenshot_1 = require("./handlers/githubScreenshot");
 // CORS configuration
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -104,6 +105,15 @@ exports.status = functions.https.onRequest(async (req, res) => {
         console.error('Status function error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
+});
+// Daily GitHub Screenshot & Tweet
+exports.dailyGithubScreenshot = functions.runWith({
+    memory: '2GB',
+    timeoutSeconds: 120,
+}).https.onRequest(async (req, res) => {
+    if (handleCors(req, res))
+        return;
+    await (0, githubScreenshot_1.captureAndTweet)(req, res);
 });
 // Configuration for Rocketbook IMAP Fetch
 const PROJECT_ID = process.env.GCP_PROJECT_ID || 'your-project-id';
