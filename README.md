@@ -1,5 +1,10 @@
 # My Second Brain
 
+![Deploy Web](https://github.com/edcalderon/my-second-brain/actions/workflows/deploy-web.yml/badge.svg)
+![Deploy Static](https://github.com/edcalderon/my-second-brain/actions/workflows/deploy-static.yml/badge.svg)
+![Publish NPM](https://github.com/edcalderon/my-second-brain/actions/workflows/publish-npm.yml/badge.svg)
+
+
 A personal knowledge laboratory leveraged by **Obsidian** as the markdown foundation, designed for agentic intelligence and deep reflection.
 
 ## 🏗️ High-Level Architecture
