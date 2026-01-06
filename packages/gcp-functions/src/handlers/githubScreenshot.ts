@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 import { TwitterApi } from 'twitter-api-v2';
-import * as functions from 'firebase-functions';
+// import * as functions from 'firebase-functions'; // Removed unused
 import { Storage } from '@google-cloud/storage';
 
 const storage = new Storage();
@@ -55,7 +55,7 @@ export const captureAndTweet = async (req: any, res: any) => {
 
         try {
             await page.waitForSelector(selector, { timeout: 10000 });
-        } catch (e) {
+        } catch (_e) {
             console.warn(`Selector ${selector} not found immediately, trying fallback or dumping html...`);
             // Fallback: capture a general area or the whole page if specific graph not found
         }

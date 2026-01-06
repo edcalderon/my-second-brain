@@ -32,6 +32,8 @@
   "devDependencies": {
     "@edcalderon/versioning": "^1.0.11",
     "concurrently": "^9.2.1",
+    "eslint": "^8.57.1",
+    "husky": "^9.1.7",
     "pnpm": "latest"
   }
 }

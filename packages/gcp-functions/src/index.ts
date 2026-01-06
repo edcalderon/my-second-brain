@@ -152,8 +152,8 @@ export const rocketbookFetch = functions.https.onRequest(async (req, res) => {
 
           for (const uid of messageList) {
             try {
-              let { content } = await client.download(uid);
-              let parsed = await simpleParser(content);
+              const { content } = await client.download(uid);
+              const parsed = await simpleParser(content);
 
               const transcriptionAttachments = parsed.attachments.filter((att: any) =>
                 att.filename && (att.filename.includes('transcription') || att.filename.endsWith('.txt'))
