@@ -3,3 +3,27 @@
 
 echo "Running pre-push checks..."
 pnpm --filter @ed/gcp-functions validate
+
+echo "Running secrets scan on tracked files..."
+tracked_files=$(git ls-files -z)
+
+if [ -z "$tracked_files" ]; then
+  echo "No tracked files to scan."
+  exit 0
+fi
+
+if echo "$tracked_files" | xargs -0 rg -n -S --no-heading --color never --no-messages \
+  -e 'AKIA[0-9A-Z]{16}' \
+  -e 'ASIA[0-9A-Z]{16}' \
+  -e 'AIza[0-9A-Za-z\-_]{35}' \
+  -e 'xox[baprs]-[0-9A-Za-z-]+' \
+  -e 'ghp_[A-Za-z0-9]{36}' \
+  -e 'gho_[A-Za-z0-9]{36}' \
+  -e 'github_pat_[A-Za-z0-9_]{82}' \
+  -e '-----BEGIN (RSA|EC|OPENSSH|PGP) PRIVATE KEY-----'; then
+  echo "❌ Potential secret detected in tracked files."
+  echo "Remove or rotate the secret before pushing."
+  exit 1
+fi
+
+echo "✅ Secrets scan passed."

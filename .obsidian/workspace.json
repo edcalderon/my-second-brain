@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Welcome.md",
+                "file": "docs/BUILD_AND_API_STATUS.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Welcome"
+              "title": "BUILD_AND_API_STATUS"
             }
           }
         ]
@@ -203,7 +203,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "337d5111d45a41bf",
+  "active": "ede2c7a271101655",
   "lastOpenFiles": [
     "Welcome.md",
     "daily/Socrates.md",
