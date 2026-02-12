@@ -15,6 +15,15 @@ jest.config.*
 tsconfig.json
 *.map
 
+# Exclude coverage output
+coverage/
+
+# Exclude installed deps
+node_modules/
+
+# Exclude tarballs
+*.tgz
+
 # Exclude documentation (will be in README)
 USAGE.md
 examples.md
