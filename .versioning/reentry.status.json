@@ -1,0 +1,33 @@
+{
+  "blockers": [],
+  "context": {
+    "gitInfo": {
+      "author": "",
+      "branch": "",
+      "commit": "",
+      "timestamp": "1970-01-01T00:00:00.000Z"
+    },
+    "trigger": "manual",
+    "versioningInfo": {}
+  },
+  "currentPhase": "planning",
+  "dependencies": [],
+  "lastUpdated": "1970-01-01T00:00:00.000Z",
+  "milestone": null,
+  "milestones": [],
+  "nextSteps": [],
+  "risks": [],
+  "roadmapFile": ".versioning/ROADMAP.md",
+  "schemaVersion": "1.1",
+  "syncMetadata": {
+    "lastSuccessfulSync": "1970-01-01T00:00:00.000Z",
+    "lastSyncAttempt": "1970-01-01T00:00:00.000Z"
+  },
+  "updatedBy": "unknown",
+  "version": "0.0.0",
+  "versioning": {
+    "currentVersion": "0.0.0",
+    "previousVersion": "0.0.0",
+    "versionType": "patch"
+  }
+}
