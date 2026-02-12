@@ -118,9 +118,20 @@ Features:
 Maintains a fast **re-entry** layer (current state + next micro-step) and a slow **roadmap/backlog** layer (long-term plan).
 
 Canonical files:
+
+Single-project (default):
 - `.versioning/reentry.status.json` (machine)
 - `.versioning/REENTRY.md` (generated, minimal diffs)
 - `.versioning/ROADMAP.md` (human-first; only a small managed header block is auto-updated)
+
+Multi-project (scoped by `--project <name>`):
+- `.versioning/projects/<project>/reentry.status.json`
+- `.versioning/projects/<project>/REENTRY.md`
+- `.versioning/projects/<project>/ROADMAP.md`
+
+Notes:
+- `--project` must match an existing workspace app/package (it can be a slug like `trader`, a scoped package name like `@ed/trader`, or a path like `apps/trader`).
+- The canonical project key is the last path segment (e.g. `@ed/trader` → `trader`).
 
 Commands:
 
@@ -129,11 +140,23 @@ Commands:
 versioning reentry init
 versioning reentry sync
 
+# Fast layer (scoped)
+versioning reentry init --project trader
+versioning reentry sync --project trader
+
 # Slow layer
 versioning roadmap init --title "My Project"
 versioning roadmap list
 versioning roadmap set-milestone --id "now-01" --title "Ship X"
-versioning roadmap add --section "Now (1–2 weeks)" --id "now-02" --item "Add observability"
+versioning roadmap add --section Now --id "now-02" --item "Add observability"
+
+# Slow layer (scoped)
+versioning roadmap init --project trader --title "Trader"
+versioning roadmap list --project trader
+versioning roadmap add --project trader --section Now --item "Wire user-data ORDER_* events"
+
+# Detect stale/mismatched scoped roadmaps
+versioning roadmap validate
 ```
 
 Backward compatibility:
