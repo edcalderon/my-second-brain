@@ -9,12 +9,15 @@ import { SyncManager } from './sync';
 import { ReleaseManager } from './release';
 import { loadExtensions, runExtensionHooks } from './extensions';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pkg = require('../package.json') as { version?: string };
+
 const program = new Command();
 
 program
   .name('versioning')
   .description('Comprehensive versioning and changelog management for monorepos')
-  .version('1.1.0');
+  .version(pkg.version || '0.0.0');
 
 program
   .command('bump <type>')
