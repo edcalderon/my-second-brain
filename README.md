@@ -88,8 +88,25 @@ Obsidian serves as the **Markdown Foundation** for this laboratory. While many t
 ## 🚀 Repository Structure
 
 - **`apps/dashboard`**: Next.js dashboard for visualizing the Knowledge Base.
+- **`apps/trader/executor`**: Live executor scaffold for the Binance Futures rewrite.
+- **`apps/trader/strategy`**: Strategy loop scaffold (starting with 3-minute intent generation).
+- **`apps/trader`**: Single-process trading app that composes market-data → strategy → executor for local dev.
 - **`packages/gcp-functions`**: Cloud Functions for IMAP ingestion and Gemini AI processing.
-- **`docs/`**: [Detailed Architecture](file:///home/ed/Documents/edward/docs/ARCHITECTURE.md) and [GCP Deployment Guide](file:///home/ed/Documents/edward/docs/archive/GCP_DEPLOYMENT_GUIDE.md).
+- **`packages/trading-core`**: Shared trading domain types, event bus, and baseline risk engine.
+- **`packages/exchange-binance-futures`**: Exchange adapter scaffold for Binance USDT-M Futures.
+- **`archive/node-binance-trader-legacy`**: Deprecated legacy trader repo kept as reference only.
+- **`docs/`**: Detailed architecture, deployment docs, and the [trading rewrite migration plan](docs/TRADING_REWRITE_MIGRATION.md).
+
+## ⚠️ Legacy Trader Deprecation
+
+`node-binance-trader` has been deprecated in this monorepo and moved to `archive/node-binance-trader-legacy`.
+Active development now happens in:
+
+- `apps/trader/executor`
+- `apps/trader/strategy`
+- `apps/trader`
+- `packages/trading-core`
+- `packages/exchange-binance-futures`
 
 ## 📄 License
 MIT

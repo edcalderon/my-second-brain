@@ -1,0 +1,31 @@
+secrets:
+  postgres_db:
+  # The database's name.
+    file: ./docker/secrets/postgres/db.secret
+  postgres_password:
+  # The database's password.
+    file: ./docker/secrets/postgres/password.secret
+  postgres_user:
+  # The database's default user.
+    file: ./docker/secrets/postgres/user.secret
+services:
+  postgres:
+  # This runs the database that everything else connects to
+    environment:
+      POSTGRES_DB_FILE: /run/secrets/postgres_db
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_USER_FILE: /run/secrets/postgres_user
+    image: postgres:13.2-alpine@sha256:59f48f15d037cc4ac87557cdb69fc9e5891b8a4b8d95254b7030dff561d6fd3a
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    secrets:
+    - postgres_db
+    - postgres_password
+    - postgres_user
+version: "3.7"
+volumes:
+  postgres_data:
+  # The database's data.
+    {}

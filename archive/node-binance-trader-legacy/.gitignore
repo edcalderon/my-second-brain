@@ -1,0 +1,19 @@
+# Node build artifacts
+node_modules
+npm-debug.log
+bun.lock
+bun.lockb
+dist
+coverage
+
+# Local development
+*.env
+*.dev
+
+.DS_Store
+*.lock
+*.log
+*.txt
+
+# Versioning/re-entry state
+.versioning/reentry.status.json

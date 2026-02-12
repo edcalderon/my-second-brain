@@ -1,0 +1,8 @@
+{
+  "rootPackageJson": "package.json",
+  "packages": ["packages/*", "apps/*"],
+  "changelogFile": "CHANGELOG.md",
+  "conventionalCommits": true,
+  "syncDependencies": true,
+  "ignorePackages": []
+}
