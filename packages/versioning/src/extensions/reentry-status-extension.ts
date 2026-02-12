@@ -1,8 +1,9 @@
 import { Command } from 'commander';
 import * as fs from 'fs-extra';
+import * as path from 'path';
 
 import { VersioningExtension } from '../extensions';
-import { ConfigManager } from './reentry-status/config-manager';
+import { canonicalProjectKey, ConfigManager } from './reentry-status/config-manager';
 import {
   REENTRY_EXTENSION_NAME,
   REENTRY_STATUS_DIRNAME,
@@ -23,7 +24,7 @@ import { ReentryStatusManager } from './reentry-status/reentry-status-manager';
 const extension: VersioningExtension = {
   name: REENTRY_EXTENSION_NAME,
   description: 'Maintains canonical re-entry status and synchronizes to files, GitHub Issues, and Obsidian notes',
-  version: '1.1.0',
+  version: '1.1.2',
 
   hooks: {
     postVersion: async (type: string, version: string, options: any) => {
@@ -80,6 +81,84 @@ const extension: VersioningExtension = {
     const fileManager = new FileManager();
     const manager = new ReentryStatusManager({ fileManager });
 
+    const discoverWorkspaceProjects = async (configPath: string): Promise<{ slugs: Set<string>; names: Set<string> }> => {
+      const rootDir = path.dirname(configPath);
+
+      const slugs = new Set<string>();
+      const names = new Set<string>();
+
+      const considerPackageJson = async (packageJsonPath: string): Promise<void> => {
+        try {
+          if (!(await fs.pathExists(packageJsonPath))) return;
+          const pkg = await fs.readJson(packageJsonPath);
+          const name = typeof pkg?.name === 'string' ? String(pkg.name).trim() : '';
+          if (!name) return;
+          names.add(name);
+          const slug = name.includes('/') ? name.split('/').pop() : name;
+          if (slug) slugs.add(String(slug));
+        } catch {
+          // ignore
+        }
+      };
+
+      const scanOneLevel = async (baseDir: string): Promise<void> => {
+        const abs = path.join(rootDir, baseDir);
+        if (!(await fs.pathExists(abs))) return;
+        const entries = await fs.readdir(abs, { withFileTypes: true });
+        for (const entry of entries) {
+          if (!entry.isDirectory()) continue;
+          const dirName = entry.name;
+          if (dirName === 'node_modules' || dirName === 'dist' || dirName === '.git' || dirName === 'archive') continue;
+          slugs.add(dirName);
+          await considerPackageJson(path.join(abs, dirName, 'package.json'));
+        }
+      };
+
+      const scanTwoLevelsUnderApps = async (): Promise<void> => {
+        const absApps = path.join(rootDir, 'apps');
+        if (!(await fs.pathExists(absApps))) return;
+        const entries = await fs.readdir(absApps, { withFileTypes: true });
+        for (const entry of entries) {
+          if (!entry.isDirectory()) continue;
+          const groupDir = path.join(absApps, entry.name);
+          if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.git' || entry.name === 'archive') continue;
+
+          const nested = await fs.readdir(groupDir, { withFileTypes: true });
+          for (const n of nested) {
+            if (!n.isDirectory()) continue;
+            if (n.name === 'node_modules' || n.name === 'dist' || n.name === '.git' || n.name === 'archive') continue;
+            slugs.add(n.name);
+            await considerPackageJson(path.join(groupDir, n.name, 'package.json'));
+          }
+        }
+      };
+
+      await scanOneLevel('apps');
+      await scanTwoLevelsUnderApps();
+      await scanOneLevel('packages');
+
+      return { slugs, names };
+    };
+
+    const validateProjectOption = async (configPath: string, project?: string): Promise<string | undefined> => {
+      const canonical = canonicalProjectKey(project);
+      if (!canonical) return undefined;
+
+      const { slugs, names } = await discoverWorkspaceProjects(configPath);
+      const raw = String(project ?? '').trim();
+
+      const ok = slugs.has(canonical) || names.has(raw) || names.has(`@ed/${canonical}`) || names.has(`@edcalderon/${canonical}`);
+      if (!ok) {
+        const available = Array.from(slugs).sort().slice(0, 40);
+        const suffix = slugs.size > 40 ? '…' : '';
+        throw new Error(
+          `Unknown project scope: '${raw}'. Expected an existing workspace app/package (try one of: ${available.join(', ')}${suffix}).`
+        );
+      }
+
+      return canonical;
+    };
+
     const loadRootConfigFile = async (configPath: string): Promise<any> => {
       if (!(await fs.pathExists(configPath))) {
         throw new Error(`Config file not found: ${configPath}. Run 'versioning init' to create one.`);
@@ -87,10 +166,22 @@ const extension: VersioningExtension = {
       return await fs.readJson(configPath);
     };
 
-    const ensureReentryInitialized = async (configPath: string, migrate: boolean): Promise<ReentryStatus> => {
-      const cfg = await loadRootConfigFile(configPath);
-      const reentryCfg = ConfigManager.loadConfig(cfg);
-      await fs.ensureDir(REENTRY_STATUS_DIRNAME);
+    const ensureReentryInitialized = async (configPath: string, migrate: boolean, project?: string): Promise<{ cfg: any; status: ReentryStatus }> => {
+      const validatedProject = await validateProjectOption(configPath, project);
+      const rawCfg = await loadRootConfigFile(configPath);
+      const resolved = ConfigManager.loadConfig(rawCfg, validatedProject);
+      const cfg = {
+        ...rawCfg,
+        reentryStatus: {
+          ...((rawCfg as any).reentryStatus ?? {}),
+          files: resolved.files,
+        },
+      };
+
+      const reentryCfg = ConfigManager.loadConfig(cfg, validatedProject);
+      await fs.ensureDir(path.dirname(reentryCfg.files.jsonPath));
+
+      const defaultRoadmapPath = path.join(path.dirname(reentryCfg.files.jsonPath), ROADMAP_MD_FILENAME);
 
       const existingJson = await fileManager.readFileIfExists(reentryCfg.files.jsonPath);
       if (existingJson) {
@@ -101,12 +192,17 @@ const extension: VersioningExtension = {
             ...parsed,
             schemaVersion: '1.1',
             milestone: parsed.milestone ?? null,
-            roadmapFile: parsed.roadmapFile || RoadmapRenderer.defaultRoadmapPath()
+            roadmapFile: defaultRoadmapPath
           };
           await fileManager.writeStatusJson(cfg, migrated);
-          return migrated;
+          return { cfg, status: migrated };
         }
-        return parsed;
+        const normalized: ReentryStatus = {
+          ...parsed,
+          schemaVersion: '1.1',
+          roadmapFile: parsed.roadmapFile || defaultRoadmapPath,
+        };
+        return { cfg, status: normalized };
       }
 
       const initial: ReentryStatus = {
@@ -121,7 +217,7 @@ const extension: VersioningExtension = {
         },
 
         milestone: null,
-        roadmapFile: RoadmapRenderer.defaultRoadmapPath(),
+        roadmapFile: defaultRoadmapPath,
 
         currentPhase: 'planning',
         milestones: [],
@@ -143,7 +239,7 @@ const extension: VersioningExtension = {
       };
 
       await fileManager.writeStatusFiles(cfg, initial);
-      return initial;
+      return { cfg, status: initial };
     };
 
     program
@@ -153,9 +249,10 @@ const extension: VersioningExtension = {
         new Command('init')
           .description('Initialize re-entry status files')
           .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope (separate ROADMAP/REENTRY/status per project)')
           .option('--migrate', 'rewrite v1.0 schema to v1.1 (no semantic changes)', false)
           .action(async (options) => {
-            const status = await ensureReentryInitialized(options.config, Boolean(options.migrate));
+            const { status } = await ensureReentryInitialized(options.config, Boolean(options.migrate), options.project);
             console.log(`✅ Initialized re-entry status (schema ${status.schemaVersion})`);
           })
       )
@@ -165,10 +262,10 @@ const extension: VersioningExtension = {
           .option('--phase <phase>', 'Set current phase')
           .option('--next <text>', 'Set next micro-step (replaces first nextSteps entry)')
           .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope (separate ROADMAP/REENTRY/status per project)')
           .option('--migrate', 'rewrite v1.0 schema to v1.1 (no semantic changes)', false)
           .action(async (options) => {
-            const cfg = await loadRootConfigFile(options.config);
-            const status = await ensureReentryInitialized(options.config, Boolean(options.migrate));
+            const { cfg, status } = await ensureReentryInitialized(options.config, Boolean(options.migrate), options.project);
 
             const nextStepText = typeof options.next === 'string' ? options.next.trim() : '';
             const phase = typeof options.phase === 'string' ? options.phase.trim() : '';
@@ -191,11 +288,11 @@ const extension: VersioningExtension = {
         new Command('sync')
           .description('Ensure generated status files exist and are up to date (idempotent)')
           .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope (separate ROADMAP/REENTRY/status per project)')
           .option('--migrate', 'rewrite v1.0 schema to v1.1 (no semantic changes)', false)
           .action(async (options) => {
-            const cfg = await loadRootConfigFile(options.config);
-            const reentryCfg = ConfigManager.loadConfig(cfg);
-            const status = await ensureReentryInitialized(options.config, Boolean(options.migrate));
+            const { cfg, status } = await ensureReentryInitialized(options.config, Boolean(options.migrate), options.project);
+            const reentryCfg = ConfigManager.loadConfig(cfg, options.project);
 
             // Ensure ROADMAP exists (light touch: only managed block is updated).
             const roadmapPath = status.roadmapFile || RoadmapRenderer.defaultRoadmapPath();
@@ -298,17 +395,24 @@ const extension: VersioningExtension = {
         new Command('init')
           .description(`Create ${REENTRY_STATUS_DIRNAME}/${ROADMAP_MD_FILENAME} if missing and ensure managed header block`)
           .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope (separate ROADMAP/REENTRY/status per project)')
           .option('-t, --title <title>', 'project title for ROADMAP.md template', 'Untitled')
           .action(async (options) => {
-            const cfg = await loadRootConfigFile(options.config);
-            const status = await ensureReentryInitialized(options.config, false);
+            const projectKey = await validateProjectOption(options.config, options.project);
+            const { cfg, status } = await ensureReentryInitialized(options.config, false, projectKey);
             const roadmapPath = status.roadmapFile || RoadmapRenderer.defaultRoadmapPath();
+
+            // If a project is specified and title is left default, prefer a non-stale title.
+            const title =
+              projectKey && String(options.title).trim() === 'Untitled'
+                ? String(options.project ?? projectKey)
+                : String(options.title);
 
             const existing = await fileManager.readFileIfExists(roadmapPath);
             if (!existing) {
               await fileManager.writeFileIfChanged(
                 roadmapPath,
-                RoadmapRenderer.renderTemplate({ projectTitle: options.title }, { milestone: status.milestone, roadmapFile: roadmapPath })
+                RoadmapRenderer.renderTemplate({ projectTitle: title }, { milestone: status.milestone, roadmapFile: roadmapPath })
               );
               console.log(`✅ Created ${roadmapPath}`);
               return;
@@ -327,11 +431,45 @@ const extension: VersioningExtension = {
           })
       )
       .addCommand(
+        new Command('validate')
+          .description('Validate that project roadmaps correspond to existing workspaces (detect stale roadmaps)')
+          .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .action(async (options) => {
+            const { slugs } = await discoverWorkspaceProjects(String(options.config));
+
+            const projectsDir = path.join(path.dirname(String(options.config)), REENTRY_STATUS_DIRNAME, 'projects');
+            if (!(await fs.pathExists(projectsDir))) {
+              console.log('✅ No project roadmaps found');
+              return;
+            }
+
+            const entries = await fs.readdir(projectsDir, { withFileTypes: true });
+            const stale: string[] = [];
+
+            for (const entry of entries) {
+              if (!entry.isDirectory()) continue;
+              const key = entry.name;
+              if (!slugs.has(key)) {
+                stale.push(key);
+              }
+            }
+
+            if (stale.length === 0) {
+              console.log('✅ All project roadmaps match a workspace');
+              return;
+            }
+
+            console.warn(`⚠️  Stale project roadmaps found (no matching workspace): ${stale.join(', ')}`);
+            process.exitCode = 1;
+          })
+      )
+      .addCommand(
         new Command('list')
           .description('List roadmap milestones parsed from ROADMAP.md')
           .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope (separate ROADMAP/REENTRY/status per project)')
           .action(async (options) => {
-            const status = await ensureReentryInitialized(options.config, false);
+            const { status } = await ensureReentryInitialized(options.config, false, options.project);
             const roadmapPath = status.roadmapFile || RoadmapRenderer.defaultRoadmapPath();
             const content = await fileManager.readFileIfExists(roadmapPath);
             if (!content) {
@@ -359,9 +497,9 @@ const extension: VersioningExtension = {
           .requiredOption('--id <id>', 'Milestone id (must match a [id] in ROADMAP.md)')
           .requiredOption('--title <title>', 'Milestone title')
           .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope (separate ROADMAP/REENTRY/status per project)')
           .action(async (options) => {
-            const cfg = await loadRootConfigFile(options.config);
-            const status = await ensureReentryInitialized(options.config, false);
+            const { cfg, status } = await ensureReentryInitialized(options.config, false, options.project);
             const next: ReentryStatus = {
               ...status,
               schemaVersion: '1.1',
@@ -380,8 +518,9 @@ const extension: VersioningExtension = {
           .requiredOption('--item <item>', 'Item text')
           .option('--id <id>', 'Optional explicit id (e.g., now-02)')
           .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope (separate ROADMAP/REENTRY/status per project)')
           .action(async (options) => {
-            const status = await ensureReentryInitialized(options.config, false);
+            const { status } = await ensureReentryInitialized(options.config, false, options.project);
             const roadmapPath = status.roadmapFile || RoadmapRenderer.defaultRoadmapPath();
             const content = await fileManager.readFileIfExists(roadmapPath);
             if (!content) {

@@ -17,6 +17,14 @@ export interface ValidationResult {
   errors: string[];
 }
 
+type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends Array<infer U>
+    ? Array<DeepPartial<U>>
+    : T[K] extends object
+      ? DeepPartial<T[K]>
+      : T[K];
+};
+
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
 }
@@ -28,16 +36,95 @@ function defaultFilesConfig(): ReentryStatusConfig['files'] {
   };
 }
 
-export class ConfigManager {
-  static loadConfig(rootConfig: any): ReentryStatusConfig {
-    const partial = (rootConfig && typeof rootConfig === 'object' ? rootConfig.reentryStatus : undefined) as
-      | Partial<ReentryStatusConfig>
-      | undefined;
+export function canonicalProjectKey(project?: string): string | undefined {
+  const raw = typeof project === 'string' ? project.trim() : '';
+  if (!raw) return undefined;
 
-    return ConfigManager.mergeWithDefaults(partial ?? {});
+  // Prefer the last segment for scoped package names (e.g. "@ed/trader" -> "trader").
+  if (raw.startsWith('@') && raw.includes('/')) {
+    const parts = raw.split('/').filter(Boolean);
+    const last = parts[parts.length - 1]?.trim();
+    return last || undefined;
   }
 
-  static mergeWithDefaults(partial: Partial<ReentryStatusConfig>): ReentryStatusConfig {
+  // Also handle path-like inputs (e.g. "apps/trader" -> "trader").
+  if (raw.includes('/')) {
+    const parts = raw.split('/').filter(Boolean);
+    const last = parts[parts.length - 1]?.trim();
+    return last || undefined;
+  }
+
+  return raw;
+}
+
+function toProjectDir(project?: string): string {
+  const raw = canonicalProjectKey(project) ?? '';
+  if (!raw) return REENTRY_STATUS_DIRNAME;
+
+  const safe = raw
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return path.join(REENTRY_STATUS_DIRNAME, 'projects', safe || 'project');
+}
+
+function defaultFilesConfigForProject(project?: string): ReentryStatusConfig['files'] {
+  const dir = toProjectDir(project);
+  return {
+    jsonPath: path.join(dir, REENTRY_STATUS_JSON_FILENAME),
+    markdownPath: path.join(dir, REENTRY_STATUS_MD_FILENAME),
+  };
+}
+
+export class ConfigManager {
+  static loadConfig(rootConfig: any, project?: string): ReentryStatusConfig {
+    const canonicalProject = canonicalProjectKey(project);
+
+    const raw = (rootConfig && typeof rootConfig === 'object' ? (rootConfig as any).reentryStatus : undefined) as
+      | (DeepPartial<ReentryStatusConfig> & { projects?: Record<string, DeepPartial<ReentryStatusConfig>> })
+      | undefined;
+
+    const basePartial: DeepPartial<ReentryStatusConfig> = { ...(raw ?? {}) };
+    delete (basePartial as any).projects;
+
+    const projectPartial: DeepPartial<ReentryStatusConfig> | undefined =
+      canonicalProject && raw && typeof raw === 'object' && (raw as any).projects && typeof (raw as any).projects === 'object'
+        ? (raw as any).projects[String(canonicalProject)] ?? (raw as any).projects[String(project)]
+        : undefined;
+
+    if (!projectPartial) {
+      return ConfigManager.mergeWithDefaults(basePartial, canonicalProject);
+    }
+
+    const merged: DeepPartial<ReentryStatusConfig> = {
+      ...basePartial,
+      ...projectPartial,
+      hooks: {
+        ...basePartial.hooks,
+        ...projectPartial.hooks,
+      },
+      files: {
+        ...basePartial.files,
+        ...projectPartial.files,
+      },
+      template: projectPartial.template
+        ? {
+            includeSections: projectPartial.template.includeSections ?? basePartial.template?.includeSections ?? [],
+            excludeSections: projectPartial.template.excludeSections ?? basePartial.template?.excludeSections ?? [],
+            customSections: projectPartial.template.customSections ?? basePartial.template?.customSections,
+          }
+        : basePartial.template,
+      github: (projectPartial as any).github ?? (basePartial as any).github,
+      obsidian: (projectPartial as any).obsidian ?? (basePartial as any).obsidian,
+    };
+
+    return ConfigManager.mergeWithDefaults(merged, canonicalProject);
+  }
+
+  static mergeWithDefaults(partial: DeepPartial<ReentryStatusConfig>, project?: string): ReentryStatusConfig {
+    const defaults = defaultFilesConfigForProject(project);
+
     const merged: ReentryStatusConfig = {
       enabled: partial.enabled ?? true,
       autoSync: partial.autoSync ?? true,
@@ -49,8 +136,8 @@ export class ConfigManager {
       },
 
       files: {
-        jsonPath: partial.files?.jsonPath ?? defaultFilesConfig().jsonPath,
-        markdownPath: partial.files?.markdownPath ?? defaultFilesConfig().markdownPath
+        jsonPath: partial.files?.jsonPath ?? defaults.jsonPath,
+        markdownPath: partial.files?.markdownPath ?? defaults.markdownPath
       },
 
       github: partial.github as GitHubConfig | undefined,

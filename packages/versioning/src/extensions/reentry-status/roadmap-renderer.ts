@@ -9,8 +9,8 @@ export interface RoadmapRenderOptions {
 }
 
 export class RoadmapRenderer {
-  static defaultRoadmapPath(): string {
-    return `${REENTRY_STATUS_DIRNAME}/${ROADMAP_MD_FILENAME}`;
+  static defaultRoadmapPath(baseDir: string = REENTRY_STATUS_DIRNAME): string {
+    return `${baseDir}/${ROADMAP_MD_FILENAME}`;
   }
 
   static renderManagedBlock(status?: Pick<ReentryStatus, 'milestone' | 'roadmapFile'>): string {
