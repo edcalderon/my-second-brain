@@ -30,7 +30,7 @@
     "version:changelog": "versioning changelog"
   },
   "devDependencies": {
-    "@edcalderon/versioning": "^1.0.11",
+    "@edcalderon/versioning": "^1.1.0",
     "concurrently": "^9.2.1",
     "eslint": "^8.57.1",
     "husky": "^9.1.7",

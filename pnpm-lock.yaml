@@ -9,8 +9,8 @@ importers:
   .:
     devDependencies:
       '@edcalderon/versioning':
-        specifier: ^1.0.11
-        version: 1.0.11
+        specifier: ^1.1.0
+        version: 1.1.0
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
@@ -1625,8 +1625,8 @@ packages:
     resolution: {integrity: sha512-lBSBiRruFurFKXr5Hbsl2thmGweAPmddhF3jb99U4EMDA5L+e5Y1rAkOS07Nvrup7HUMBDrCV45meaxZnt28nQ==}
     engines: {node: '>=20.0'}
 
-  '@edcalderon/versioning@1.0.11':
-    resolution: {integrity: sha512-JooN/jOAtVPp2tzcaRKeAUJ3AcOqSmPtokXXCpIjPEKxgXuUQCfcjNw3kKa3Bo2DIz7gUhzD9i3J0LVDUhAexA==}
+  '@edcalderon/versioning@1.1.0':
+    resolution: {integrity: sha512-S5nRVb9BsK0RH0FApscGKwKX+q04DNtyY+j8pQtNp6Bd6wYDp214KdU6vZk6QurHCqsqLy2bIKVurLVEApUDjA==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
@@ -11658,7 +11658,7 @@ snapshots:
       - uglify-js
       - webpack-cli
 
-  '@edcalderon/versioning@1.0.11':
+  '@edcalderon/versioning@1.1.0':
     dependencies:
       commander: 12.1.0
       conventional-changelog: 5.1.0
