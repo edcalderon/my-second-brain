@@ -113,6 +113,33 @@ Features:
 - Local registry support
 - Dry-run mode
 
+#### Re-entry Status + Roadmap Extension
+
+Maintains a fast **re-entry** layer (current state + next micro-step) and a slow **roadmap/backlog** layer (long-term plan).
+
+Canonical files:
+- `.versioning/reentry.status.json` (machine)
+- `.versioning/REENTRY.md` (generated, minimal diffs)
+- `.versioning/ROADMAP.md` (human-first; only a small managed header block is auto-updated)
+
+Commands:
+
+```bash
+# Fast layer
+versioning reentry init
+versioning reentry sync
+
+# Slow layer
+versioning roadmap init --title "My Project"
+versioning roadmap list
+versioning roadmap set-milestone --id "now-01" --title "Ship X"
+versioning roadmap add --section "Now (1–2 weeks)" --id "now-02" --item "Add observability"
+```
+
+Backward compatibility:
+- v1.0 status files load safely.
+- Schema migrates to v1.1 only when you actually modify status, or explicitly via `versioning reentry sync --migrate`.
+
 ### External Extensions
 
 To use external extensions, add them to your `versioning.config.json`:

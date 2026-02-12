@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.1",
+  "version": "0.1.0",
+  "lastUpdated": "2026-02-11T00:00:00.000Z",
+  "updatedBy": "dev",
+  "context": {
+    "trigger": "manual",
+    "gitInfo": {
+      "branch": "main",
+      "commit": "abc123",
+      "author": "dev",
+      "timestamp": "2026-02-11T00:00:00.000Z"
+    },
+    "versioningInfo": {}
+  },
+  "milestone": {
+    "id": "now-01",
+    "title": "Ship stable integration"
+  },
+  "roadmapFile": ".versioning/ROADMAP.md",
+  "currentPhase": "development",
+  "milestones": [],
+  "blockers": [],
+  "nextSteps": [
+    {
+      "id": "next",
+      "description": "Run sync + verify ROADMAP managed block",
+      "priority": 1
+    }
+  ],
+  "risks": [],
+  "dependencies": [],
+  "versioning": {
+    "currentVersion": "0.1.0",
+    "previousVersion": "0.0.9",
+    "versionType": "patch"
+  },
+  "syncMetadata": {
+    "lastSyncAttempt": "2026-02-11T00:00:00.000Z",
+    "lastSuccessfulSync": "2026-02-11T00:00:00.000Z"
+  }
+}

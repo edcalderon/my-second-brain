@@ -17,3 +17,12 @@ dist/
 .config/gcloud*
 config/private.json
 apps/dashboard/bun.lock
+
+# Local tooling / specs
+.kiro/
+
+# Temporary workspaces
+tmp/
+
+# Test coverage output
+packages/versioning/coverage/

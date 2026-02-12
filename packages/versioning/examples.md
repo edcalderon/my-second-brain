@@ -30,6 +30,36 @@ versioning minor --packages "apps/dashboard" --message "Dashboard improvements"
 versioning validate
 ```
 
+## Re-entry Status + Roadmap (v1.1)
+
+Enable the extension (built-in) via `versioning.config.json`:
+
+```json
+{
+  "extensions": [],
+  "reentryStatus": {
+    "enabled": true,
+    "autoSync": true,
+    "failHard": false,
+    "files": {
+      "jsonPath": ".versioning/reentry.status.json",
+      "markdownPath": ".versioning/REENTRY.md"
+    }
+  }
+}
+```
+
+Roadmap/backlog commands:
+
+```bash
+versioning reentry init
+versioning roadmap init --title "My Project"
+versioning roadmap add --section "Now (1–2 weeks)" --id "now-01" --item "Ship stable integration"
+versioning roadmap list
+versioning roadmap set-milestone --id "now-01" --title "Ship stable integration"
+versioning reentry sync
+```
+
 ### Standalone Versioning for Versioning Package
 
 The versioning package itself maintains independent versioning:

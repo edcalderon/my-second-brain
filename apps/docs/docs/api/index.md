@@ -117,6 +117,35 @@ npx @edcalderon/versioning validate # Check version sync
 
 # Changelog
 npx @edcalderon/versioning changelog # Generate changelog
+
+# Re-entry + Roadmap
+npx @edcalderon/versioning reentry init
+npx @edcalderon/versioning reentry set --phase development --next "Verify sync idempotence"
+npx @edcalderon/versioning reentry sync
+
+npx @edcalderon/versioning roadmap init --title "My Project"
+npx @edcalderon/versioning roadmap list
+npx @edcalderon/versioning roadmap set-milestone --id "now-01" --title "Ship stable integration"
+npx @edcalderon/versioning roadmap add --section "Now (1–2 weeks)" --id "now-02" --item "Add observability"
+```
+
+### ROADMAP.md format (copy/paste)
+
+Only the block between these markers is auto-managed:
+
+- `<!-- roadmap:managed:start -->`
+- `<!-- roadmap:managed:end -->`
+
+Milestone items are parsed from bullets that match:
+
+- `/^\s*-\s*\[(.+?)\]\s*(.+)$/`
+
+Example:
+
+```md
+## Now (1–2 weeks)
+
+- [now-01] Ship stable integration
 ```
 
 ### Configuration

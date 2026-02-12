@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('versioning')
   .description('Comprehensive versioning and changelog management for monorepos')
-  .version('1.0.4');
+  .version('1.1.0');
 
 program
   .command('bump <type>')

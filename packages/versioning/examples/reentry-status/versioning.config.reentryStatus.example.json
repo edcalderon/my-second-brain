@@ -1,0 +1,44 @@
+{
+  "rootPackageJson": "package.json",
+  "packages": [],
+  "changelogFile": "CHANGELOG.md",
+  "conventionalCommits": true,
+  "syncDependencies": false,
+  "ignorePackages": [],
+  "extensions": [],
+  "reentryStatus": {
+    "enabled": true,
+    "autoSync": true,
+    "failHard": false,
+    "hooks": {
+      "postVersion": true,
+      "postRelease": false
+    },
+    "files": {
+      "jsonPath": ".versioning/reentry.status.json",
+      "markdownPath": ".versioning/REENTRY.md"
+    },
+    "github": {
+      "enabled": false,
+      "owner": "ORG_OR_USER",
+      "repo": "REPO",
+      "issue": {
+        "title": "Re-entry Status",
+        "labels": ["status", "reentry"],
+        "assignees": []
+      },
+      "auth": {
+        "token": "${GITHUB_TOKEN}"
+      }
+    },
+    "obsidian": {
+      "enabled": false,
+      "vaultPath": "/absolute/path/to/vault",
+      "notePath": "Ops/Re-entry Status.md",
+      "frontmatter": {
+        "tags": ["reentry", "roadmap"],
+        "source": "versioning"
+      }
+    }
+  }
+}

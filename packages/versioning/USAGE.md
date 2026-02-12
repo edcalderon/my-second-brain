@@ -7,6 +7,7 @@ This guide provides comprehensive examples of using the versioning system for bo
 - [Quick Start](#quick-start)
 - [Single Repository Usage](#single-repository-usage)
 - [Monorepo Usage](#monorepo-usage)
+- [Re-entry + Roadmap](#re-entry--roadmap)
 - [Advanced Examples](#advanced-examples)
 - [CI/CD Integration](#cicd-integration)
 - [Troubleshooting](#troubleshooting)
@@ -198,6 +199,41 @@ Or exclude during release:
 # This will sync all except ignored packages
 versioning patch
 ```
+
+## Re-entry + Roadmap
+
+The re-entry extension adds a two-layer status system:
+
+- **Fast layer**: current state + next micro-step (`.versioning/reentry.status.json`, `.versioning/REENTRY.md`)
+- **Slow layer**: long-term roadmap/backlog (`.versioning/ROADMAP.md`)
+
+### Initialize files
+
+```bash
+versioning reentry init
+versioning roadmap init --title "My Project"
+```
+
+### Manage roadmap items
+
+```bash
+versioning roadmap add --section "Now (1–2 weeks)" --id "now-01" --item "Ship stable integration"
+versioning roadmap list
+versioning roadmap set-milestone --id "now-01" --title "Ship stable integration"
+```
+
+### Update fast-layer status
+
+```bash
+versioning reentry set --phase development --next "Verify sync idempotence"
+versioning reentry sync
+```
+
+### Notes
+
+- `ROADMAP.md` is human-first; only the managed marker block is auto-updated.
+- Sync uses diff-based publishing for GitHub/Obsidian to avoid API/CLI spam.
+- Existing v1.0 status files load safely; migrate to v1.1 explicitly with `--migrate` when needed.
 
 ## Advanced Examples
 

@@ -1,3 +1,11 @@
+## [1.1.0](https://github.com/edcalderon/my-second-brain/compare/v1.0.11...v1.1.0) (2026-02-11)
+
+
+### Features
+
+* add re-entry status + roadmap (slow layer) extension with idempotent file sync, dirty-detection publishing, and v1.0→v1.1 compatibility
+
+
 ## [1.0.11](https://github.com/edcalderon/my-second-brain/compare/v1.0.10...v1.0.11) (2026-01-02)
 
 

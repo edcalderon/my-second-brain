@@ -1,0 +1,14 @@
+# Re-entry Status
+
+Schema: 1.1
+Version: 0.1.0
+Phase: development
+
+Next micro-step: Run sync + verify ROADMAP managed block
+
+Milestone: Ship stable integration (id: now-01)
+Roadmap: .versioning/ROADMAP.md
+
+## Notes
+
+- This file is generated for stable diffs. Edit ROADMAP.md for long-term planning.
