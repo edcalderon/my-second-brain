@@ -20,16 +20,16 @@ import { parseRoadmapMilestones } from './reentry-status/roadmap-parser';
 import { RoadmapRenderer } from './reentry-status/roadmap-renderer';
 import { StatusRenderer } from './reentry-status/status-renderer';
 import { ReentryStatusManager } from './reentry-status/reentry-status-manager';
+import { collectGitContext, inferPhase, suggestNextStep } from './reentry-status/git-context';
 
 const extension: VersioningExtension = {
   name: REENTRY_EXTENSION_NAME,
   description: 'Maintains canonical re-entry status and synchronizes to files, GitHub Issues, and Obsidian notes',
-  version: '1.1.2',
+  version: '1.2.0',
 
   hooks: {
     postVersion: async (type: string, version: string, options: any) => {
       try {
-        // Extensions are loaded before the CLI reads config per-command; use global config snapshot.
         const configPath = options?.config ?? 'versioning.config.json';
         if (!(await fs.pathExists(configPath))) return;
         const cfg = await fs.readJson(configPath);
@@ -38,15 +38,47 @@ const extension: VersioningExtension = {
         if (!reentryCfg.enabled || !reentryCfg.autoSync) return;
         if (reentryCfg.hooks?.postVersion === false) return;
 
+        // Auto-collect real git context
+        const gitCtx = await collectGitContext();
+
         const manager = new ReentryStatusManager({ fileManager: new FileManager() });
         await manager.applyContext(cfg, {
           trigger: 'postVersion',
           command: 'versioning bump',
           options,
-          gitInfo: { branch: '', commit: '', author: '', timestamp: new Date().toISOString() },
+          gitInfo: {
+            branch: gitCtx.branch,
+            commit: gitCtx.commit,
+            author: gitCtx.author,
+            timestamp: gitCtx.timestamp,
+          },
           versioningInfo: { versionType: type, oldVersion: undefined, newVersion: version }
         });
+
+        // Auto-update phase and suggest next step
+        const current = await manager.loadOrInit(cfg);
+        const phase = inferPhase(gitCtx, version);
+        const nextStep = suggestNextStep(gitCtx);
+
+        const updated: ReentryStatus = {
+          ...current,
+          schemaVersion: '1.1',
+          currentPhase: phase as any,
+          nextSteps: [{ id: 'next', description: nextStep, priority: 1 }],
+          version: version,
+          versioning: {
+            ...current.versioning,
+            currentVersion: version,
+            previousVersion: current.versioning.currentVersion,
+            versionType: type as any,
+          },
+          lastUpdated: new Date().toISOString(),
+        };
+
+        await manager.updateStatus(cfg, () => updated);
         await manager.syncAll(cfg);
+
+        console.log(`📋 Re-entry auto-updated: phase=${phase}, next="${nextStep}"`);
       } catch (error) {
         console.warn('⚠️  reentry-status postVersion hook failed:', error instanceof Error ? error.message : String(error));
       }
@@ -62,12 +94,20 @@ const extension: VersioningExtension = {
         if (!reentryCfg.enabled || !reentryCfg.autoSync) return;
         if (reentryCfg.hooks?.postRelease !== true) return;
 
+        // Auto-collect real git context
+        const gitCtx = await collectGitContext();
+
         const manager = new ReentryStatusManager({ fileManager: new FileManager() });
         await manager.applyContext(cfg, {
           trigger: 'postRelease',
           command: 'versioning release',
           options,
-          gitInfo: { branch: '', commit: '', author: '', timestamp: new Date().toISOString() },
+          gitInfo: {
+            branch: gitCtx.branch,
+            commit: gitCtx.commit,
+            author: gitCtx.author,
+            timestamp: gitCtx.timestamp,
+          },
           versioningInfo: { newVersion: version }
         });
         await manager.syncAll(cfg);
@@ -187,7 +227,6 @@ const extension: VersioningExtension = {
       if (existingJson) {
         const parsed = StatusRenderer.parseJson(existingJson);
         if (migrate && parsed.schemaVersion === '1.0') {
-          // Explicit migration: rewrite as 1.1 without changing semantics.
           const migrated: ReentryStatus = {
             ...parsed,
             schemaVersion: '1.1',
@@ -242,6 +281,10 @@ const extension: VersioningExtension = {
       return { cfg, status: initial };
     };
 
+    // ─────────────────────────────────────────────
+    //  REENTRY COMMANDS
+    // ─────────────────────────────────────────────
+
     program
       .command('reentry')
       .description('Manage re-entry status (fast layer)')
@@ -282,6 +325,129 @@ const extension: VersioningExtension = {
 
             await manager.updateStatus(cfg, () => updated);
             console.log('✅ Re-entry status updated');
+          })
+      )
+      .addCommand(
+        new Command('update')
+          .description('Auto-fill re-entry status from last commit and current version (smart reentry)')
+          .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope')
+          .option('--phase <phase>', 'Override inferred phase')
+          .option('--next <text>', 'Override suggested next step')
+          .option('--dry-run', 'Show what would be updated without writing', false)
+          .action(async (options) => {
+            const { cfg, status } = await ensureReentryInitialized(options.config, false, options.project);
+
+            // Auto-collect git context
+            const gitCtx = await collectGitContext();
+
+            // Read current version from package.json
+            let currentVersion = status.versioning.currentVersion;
+            try {
+              const rootPkg = await fs.readJson('package.json');
+              currentVersion = rootPkg.version || currentVersion;
+            } catch { /* keep existing */ }
+
+            // Infer phase or use override
+            const phase = options.phase || inferPhase(gitCtx, currentVersion);
+
+            // Suggest next step or use override
+            const nextStep = options.next || suggestNextStep(gitCtx);
+
+            const updated: ReentryStatus = {
+              ...status,
+              schemaVersion: '1.1',
+              version: currentVersion,
+              currentPhase: phase as any,
+              nextSteps: [{ id: 'next', description: nextStep, priority: 1 }],
+              context: {
+                trigger: 'auto',
+                command: 'versioning reentry update',
+                gitInfo: {
+                  branch: gitCtx.branch,
+                  commit: gitCtx.commit,
+                  author: gitCtx.author,
+                  timestamp: gitCtx.timestamp,
+                },
+                versioningInfo: {
+                  newVersion: currentVersion,
+                },
+              },
+              versioning: {
+                ...status.versioning,
+                currentVersion: currentVersion,
+                previousVersion: status.versioning.currentVersion !== currentVersion
+                  ? status.versioning.currentVersion
+                  : status.versioning.previousVersion,
+              },
+              lastUpdated: new Date().toISOString(),
+              updatedBy: gitCtx.author || 'auto',
+            };
+
+            if (options.dryRun) {
+              console.log('\n📋 Re-entry Update Preview (dry-run)\n');
+              console.log(`  Branch:       ${gitCtx.branch}`);
+              console.log(`  Commit:       ${gitCtx.commit}`);
+              console.log(`  Message:      ${gitCtx.commitMessage}`);
+              console.log(`  Author:       ${gitCtx.author}`);
+              console.log(`  Version:      ${currentVersion}`);
+              console.log(`  Phase:        ${phase}`);
+              console.log(`  Next step:    ${nextStep}`);
+              console.log(`  Files changed: ${gitCtx.diffSummary.filesChanged} (+${gitCtx.diffSummary.insertions}/-${gitCtx.diffSummary.deletions})`);
+              console.log('\n  Use without --dry-run to apply.\n');
+              return;
+            }
+
+            await manager.updateStatus(cfg, () => updated);
+
+            console.log('\n📋 Re-entry Status Auto-Updated\n');
+            console.log(`  ├─ Branch:       ${gitCtx.branch}`);
+            console.log(`  ├─ Commit:       ${gitCtx.commit} — ${gitCtx.commitMessage}`);
+            console.log(`  ├─ Version:      ${currentVersion}`);
+            console.log(`  ├─ Phase:        ${phase}`);
+            console.log(`  ├─ Next step:    ${nextStep}`);
+            console.log(`  └─ Updated by:   ${gitCtx.author || 'auto'}\n`);
+
+            console.log('  🔜 Suggested workflow:');
+            console.log('     1. Review next step above');
+            console.log('     2. Work on the task');
+            console.log('     3. Commit & push');
+            console.log('     4. Run `versioning reentry update` again\n');
+          })
+      )
+      .addCommand(
+        new Command('show')
+          .description('Show current re-entry status summary')
+          .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope')
+          .option('--json', 'Output as JSON', false)
+          .action(async (options) => {
+            const { status } = await ensureReentryInitialized(options.config, false, options.project);
+
+            if (options.json) {
+              console.log(JSON.stringify(status, null, 2));
+              return;
+            }
+
+            const milestoneText = status.milestone
+              ? `${status.milestone.title} (${status.milestone.id})`
+              : '—';
+            const nextStep = status.nextSteps?.[0]?.description ?? '—';
+            const gitCommit = status.context?.gitInfo?.commit || '—';
+            const gitBranch = status.context?.gitInfo?.branch || '—';
+
+            console.log('\n┌───────────────────────────────────────────┐');
+            console.log('│         📋 Re-entry Status Summary         │');
+            console.log('├───────────────────────────────────────────┤');
+            console.log(`│  Version:     ${status.version.padEnd(28)}│`);
+            console.log(`│  Phase:       ${status.currentPhase.padEnd(28)}│`);
+            console.log(`│  Branch:      ${gitBranch.padEnd(28)}│`);
+            console.log(`│  Commit:      ${gitCommit.padEnd(28)}│`);
+            console.log(`│  Milestone:   ${milestoneText.padEnd(28).substring(0, 28)}│`);
+            console.log(`│  Next step:   ${nextStep.padEnd(28).substring(0, 28)}│`);
+            console.log(`│  Updated:     ${status.lastUpdated.substring(0, 19).padEnd(28)}│`);
+            console.log(`│  Roadmap:     ${status.roadmapFile.padEnd(28).substring(0, 28)}│`);
+            console.log('└───────────────────────────────────────────┘\n');
           })
       )
       .addCommand(
@@ -387,6 +553,10 @@ const extension: VersioningExtension = {
             console.log('✅ Re-entry sync complete');
           })
       );
+
+    // ─────────────────────────────────────────────
+    //  ROADMAP COMMANDS (expanded with project identification)
+    // ─────────────────────────────────────────────
 
     program
       .command('roadmap')

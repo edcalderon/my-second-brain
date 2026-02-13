@@ -9,5 +9,6 @@ export * from './obsidian-sync-adapter';
 export * from './obsidian-cli-client';
 export * from './roadmap-parser';
 export * from './roadmap-renderer';
+export * from './git-context';
 export * from './reentry-status-manager';
 export * from './status-renderer';

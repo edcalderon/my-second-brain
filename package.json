@@ -31,7 +31,13 @@
     "version:major": "versioning major",
     "version:validate": "versioning validate",
     "version:sync": "versioning sync",
-    "version:changelog": "versioning changelog"
+    "version:changelog": "versioning changelog",
+    "reentry:update": "versioning reentry update",
+    "reentry:show": "versioning reentry show",
+    "reentry:sync": "versioning reentry sync",
+    "cleanup:scan": "versioning cleanup scan",
+    "cleanup:move": "versioning cleanup move",
+    "cleanup:husky": "versioning cleanup husky"
   },
   "devDependencies": {
     "@edcalderon/versioning": "workspace:*",

@@ -1,8 +1,59 @@
 {
   "rootPackageJson": "package.json",
-  "packages": ["apps/dashboard", "apps/docs"],
+  "packages": [
+    "apps/dashboard",
+    "apps/docs"
+  ],
   "changelogFile": "CHANGELOG.md",
   "conventionalCommits": true,
   "syncDependencies": true,
-  "ignorePackages": ["packages/versioning"]
+  "ignorePackages": [
+    "packages/versioning"
+  ],
+  "reentryStatus": {
+    "enabled": true,
+    "autoSync": true,
+    "failHard": false,
+    "hooks": {
+      "postVersion": true,
+      "postRelease": false
+    },
+    "projects": {
+      "trader": {
+        "enabled": true
+      }
+    }
+  },
+  "cleanup": {
+    "enabled": true,
+    "defaultDestination": "docs",
+    "allowlist": [
+      "CHANGELOG.md",
+      "TODO"
+    ],
+    "denylist": [],
+    "extensions": [
+      ".md",
+      ".sh",
+      ".json",
+      ".yaml",
+      ".yml",
+      ".txt",
+      ".log"
+    ],
+    "routes": {
+      ".md": "docs",
+      ".sh": "scripts",
+      ".json": "config",
+      ".yaml": "config",
+      ".yml": "config",
+      ".txt": "archive",
+      ".log": "archive"
+    },
+    "husky": {
+      "enabled": false,
+      "hook": "pre-commit",
+      "mode": "scan"
+    }
+  }
 }

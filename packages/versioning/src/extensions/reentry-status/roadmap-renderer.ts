@@ -6,11 +6,23 @@ export const ROADMAP_MANAGED_END = '<!-- roadmap:managed:end -->';
 
 export interface RoadmapRenderOptions {
   projectTitle?: string;
+  projectSlug?: string;
+  monorepoName?: string;
 }
 
 export class RoadmapRenderer {
   static defaultRoadmapPath(baseDir: string = REENTRY_STATUS_DIRNAME): string {
     return `${baseDir}/${ROADMAP_MD_FILENAME}`;
+  }
+
+  /**
+   * Extract the project name from the roadmap file path for auto-identification.
+   * e.g. ".versioning/projects/trader/ROADMAP.md" → "trader"
+   */
+  static extractProjectFromPath(roadmapFile: string): string | null {
+    const normalized = roadmapFile.replace(/\\/g, '/');
+    const match = /\.versioning\/projects\/([^/]+)\/ROADMAP\.md$/.exec(normalized);
+    return match ? match[1] : null;
   }
 
   static renderManagedBlock(status?: Pick<ReentryStatus, 'milestone' | 'roadmapFile'>): string {
@@ -19,26 +31,48 @@ export class RoadmapRenderer {
       : '—';
 
     const roadmapFile = status?.roadmapFile ?? RoadmapRenderer.defaultRoadmapPath();
+    const projectSlug = RoadmapRenderer.extractProjectFromPath(roadmapFile);
 
-    // Keep this block stable: no timestamps.
-    return [
+    // Build the managed block with project identification
+    const lines = [
       ROADMAP_MANAGED_START,
       '> Managed by `@edcalderon/versioning` reentry-status-extension.',
       `> Canonical roadmap file: ${roadmapFile}`,
+    ];
+
+    if (projectSlug) {
+      lines.push(`> Project: **${projectSlug}**`);
+    }
+
+    lines.push(
       `> Active milestone: ${milestoneText}`,
       '> ',
       '> Everything outside this block is user-editable.',
       ROADMAP_MANAGED_END,
       ''
-    ].join('\n');
+    );
+
+    return lines.join('\n');
   }
 
   static renderTemplate(options: RoadmapRenderOptions = {}, status?: Pick<ReentryStatus, 'milestone' | 'roadmapFile'>): string {
     const title = options.projectTitle?.trim() ? options.projectTitle.trim() : 'Untitled';
+    const roadmapFile = status?.roadmapFile ?? RoadmapRenderer.defaultRoadmapPath();
+    const projectSlug = options.projectSlug || RoadmapRenderer.extractProjectFromPath(roadmapFile);
+    const monorepo = options.monorepoName || '@ed/monorepo';
+
+    const headerLines = [`# Project Roadmap – ${title}`, ''];
+
+    // Add project metadata section
+    if (projectSlug) {
+      headerLines.push(
+        `> 📦 **Project:** \`${projectSlug}\` | **Monorepo:** \`${monorepo}\``,
+        ''
+      );
+    }
 
     return [
-      `# Project Roadmap – ${title}`,
-      '',
+      ...headerLines,
       RoadmapRenderer.renderManagedBlock(status),
       '## North Star',
       '',
