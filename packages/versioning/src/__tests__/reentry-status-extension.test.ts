@@ -1,4 +1,4 @@
-import extension from '../extensions/reentry-status-extension';
+import extension from '../extensions/reentry-status/index';
 import {
   REENTRY_EXTENSION_NAME,
   ROADMAP_MD_FILENAME,
@@ -10,7 +10,7 @@ import {
 describe('reentry-status-extension scaffolding', () => {
   test('exports a VersioningExtension-compatible shape', () => {
     expect(extension).toBeDefined();
-    expect(extension.name).toBe(REENTRY_EXTENSION_NAME);
+    expect(extension.name).toBe('reentry-status');
     expect(typeof extension.description).toBe('string');
     expect(typeof extension.version).toBe('string');
     expect(typeof extension.register).toBe('function');

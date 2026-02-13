@@ -1,0 +1,12 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# === cleanup-repo: start ===
+echo "🔍 Running root cleanup scan…"
+npx versioning cleanup scan 2>/dev/null || true
+# === cleanup-repo: end ===
+
+# === secrets-check: start ===
+echo "🔒 Running secrets check…"
+npx versioning check-secrets 2>/dev/null
+# === secrets-check: end ===

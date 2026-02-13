@@ -19,10 +19,10 @@ export interface ValidationResult {
 
 type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends Array<infer U>
-    ? Array<DeepPartial<U>>
-    : T[K] extends object
-      ? DeepPartial<T[K]>
-      : T[K];
+  ? Array<DeepPartial<U>>
+  : T[K] extends object
+  ? DeepPartial<T[K]>
+  : T[K];
 };
 
 function isNonEmptyString(value: unknown): value is string {
@@ -81,7 +81,9 @@ export class ConfigManager {
   static loadConfig(rootConfig: any, project?: string): ReentryStatusConfig {
     const canonicalProject = canonicalProjectKey(project);
 
-    const raw = (rootConfig && typeof rootConfig === 'object' ? (rootConfig as any).reentryStatus : undefined) as
+    // Try new extensionConfig location first, then fallback to root-level property
+    const extensionConfig = rootConfig?.extensionConfig?.['reentry-status'];
+    const raw = (extensionConfig ?? (rootConfig && typeof rootConfig === 'object' ? (rootConfig as any).reentryStatus : undefined)) as
       | (DeepPartial<ReentryStatusConfig> & { projects?: Record<string, DeepPartial<ReentryStatusConfig>> })
       | undefined;
 
@@ -110,10 +112,10 @@ export class ConfigManager {
       },
       template: projectPartial.template
         ? {
-            includeSections: projectPartial.template.includeSections ?? basePartial.template?.includeSections ?? [],
-            excludeSections: projectPartial.template.excludeSections ?? basePartial.template?.excludeSections ?? [],
-            customSections: projectPartial.template.customSections ?? basePartial.template?.customSections,
-          }
+          includeSections: projectPartial.template.includeSections ?? basePartial.template?.includeSections ?? [],
+          excludeSections: projectPartial.template.excludeSections ?? basePartial.template?.excludeSections ?? [],
+          customSections: projectPartial.template.customSections ?? basePartial.template?.customSections,
+        }
         : basePartial.template,
       github: (projectPartial as any).github ?? (basePartial as any).github,
       obsidian: (projectPartial as any).obsidian ?? (basePartial as any).obsidian,
@@ -144,10 +146,10 @@ export class ConfigManager {
       obsidian: partial.obsidian as ObsidianConfig | undefined,
       template: partial.template
         ? {
-            includeSections: partial.template.includeSections ?? [],
-            excludeSections: partial.template.excludeSections ?? [],
-            customSections: partial.template.customSections
-          }
+          includeSections: partial.template.includeSections ?? [],
+          excludeSections: partial.template.excludeSections ?? [],
+          customSections: partial.template.customSections
+        }
         : undefined
     };
 

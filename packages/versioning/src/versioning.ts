@@ -8,6 +8,7 @@ export interface VersionConfig {
   packages: string[];
   changelogFile?: string;
   conventionalCommits?: boolean;
+  extensionConfig?: Record<string, any>;
 }
 
 export class VersionManager {

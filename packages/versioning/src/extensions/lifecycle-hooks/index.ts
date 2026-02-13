@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { VersioningExtension } from '../extensions';
+import { VersioningExtension } from '../../extensions';
 
 const extension: VersioningExtension = {
   name: 'lifecycle-hooks',

@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { VersioningExtension } from '../extensions';
+import { VersioningExtension } from '../../extensions';
 import { execSync } from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';

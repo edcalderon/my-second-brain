@@ -32,12 +32,14 @@
     "version:validate": "versioning validate",
     "version:sync": "versioning sync",
     "version:changelog": "versioning changelog",
+    "version:check-secrets": "versioning check-secrets",
     "reentry:update": "versioning reentry update",
     "reentry:show": "versioning reentry show",
     "reentry:sync": "versioning reentry sync",
     "cleanup:scan": "versioning cleanup scan",
     "cleanup:move": "versioning cleanup move",
-    "cleanup:husky": "versioning cleanup husky"
+    "cleanup:husky": "versioning cleanup husky",
+    "secrets:husky": "versioning check-secrets husky"
   },
   "devDependencies": {
     "@edcalderon/versioning": "workspace:*",

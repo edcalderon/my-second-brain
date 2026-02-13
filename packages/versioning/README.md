@@ -11,7 +11,9 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 - 📦 NPM publishable
 - 🏷️ Git tagging and committing
 - ✅ Validation of version sync
-- 🔌 **Extensible plugin system** for custom business logic
+- 🔌 **Extensible plugin system** for subdirectory-based extensions
+- 🔒 **Security Checks** with automatic Husky integration
+- 🧹 **Repository Cleanup** to keep root directory organized
 
 ## Installation
 
@@ -33,7 +35,7 @@ The versioning tool supports a **composable extension system** that allows you t
 - Implement custom versioning strategies
 
 Extensions are loaded automatically from:
-- Built-in extensions in the `src/extensions/` directory
+- Built-in extensions in subdirectories of `src/extensions/` (e.g. `src/extensions/reentry-status/index.ts`)
 - External packages listed in `versioning.config.json`
 
 ### Creating Extensions
@@ -172,20 +174,56 @@ versioning cleanup scan          # Dry-run scan of root
 versioning cleanup move          # Move files to configured destinations
 versioning cleanup restore       # Restore a moved file
 versioning cleanup config        # View/manage configuration
-versioning cleanup husky         # Setup git hook
+versioning cleanup husky         # Setup git hook (scan-only by default)
 ```
 
 Configuration (`versioning.config.json`):
 
 ```json
 {
-  "cleanup": {
-    "enabled": true,
-    "defaultDestination": "docs",
-    "allowlist": ["CHANGELOG.md"],
-    "routes": {
-      ".sh": "scripts",
-      ".json": "config"
+  "extensionConfig": {
+    "cleanup-repo": {
+      "enabled": true,
+      "defaultDestination": "docs",
+      "allowlist": ["CHANGELOG.md"],
+      "routes": {
+        ".sh": "scripts",
+        ".json": "config"
+      }
+    }
+  }
+}
+```
+
+#### Secrets Check Extension
+
+Prevents sensitive data (private keys, tokens, mnemonics) from being committed to the repository.
+
+Features:
+- **Pre-defined Patterns:** Detects AWS, GitHub, NPM tokens, private keys, and EVM mnemonics.
+- **Allowlist:** Ignore false positives or specific test keys.
+- **Husky Integration:** Easy CLI setup to block commits containing secrets.
+
+Commands:
+
+```bash
+versioning check-secrets         # Scan staged files for secrets
+versioning check-secrets husky   # Add blocking secrets check to pre-commit hook
+```
+
+Configuration (`versioning.config.json`):
+
+```json
+{
+  "extensionConfig": {
+    "secrets-check": {
+      "enabled": true,
+      "patterns": [
+        "CUSTOM_API_KEY=[0-9a-f]{32}"
+      ],
+      "allowlist": [
+        "ETHERSCAN_API_KEY=YOUR_KEY"
+      ]
     }
   }
 }

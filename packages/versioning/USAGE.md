@@ -264,25 +264,26 @@ versioning roadmap set-milestone --id "now-01" --title "Ship stable integration"
  ### Configuration
  
  Configure behavior in `versioning.config.json`:
- 
- ```json
- {
-   "cleanup": {
-     "enabled": true,
-     "defaultDestination": "docs",
-     "allowlist": ["CHANGELOG.md", "README.md"],
-     "routes": {
-       ".sh": "scripts",
-       ".json": "config",
-       ".log": "archive"
-     },
-     "husky": {
-       "enabled": true,
-       "mode": "scan"
-     }
-   }
- }
- ```
+  ```json
+  {
+    "extensionConfig": {
+      "cleanup-repo": {
+        "enabled": true,
+        "defaultDestination": "docs",
+        "allowlist": ["CHANGELOG.md", "README.md"],
+        "routes": {
+          ".sh": "scripts",
+          ".json": "config",
+          ".log": "archive"
+        },
+        "husky": {
+          "enabled": true,
+          "mode": "scan"
+        }
+      }
+    }
+  }
+  ```
  
  ### Git Hook Integration
  
@@ -293,8 +294,62 @@ versioning roadmap set-milestone --id "now-01" --title "Ship stable integration"
  versioning cleanup husky
  
  # Enforce auto-cleanup on pre-commit
- versioning cleanup husky --no-scan-only
- ```
+ # Enforce auto-cleanup on pre-commit
+versioning cleanup husky --no-scan-only
+
+## Security Checks
+
+The versioning tool includes a built-in security check extension to prevent hardcoded secrets and private keys from being committed.
+
+### Usage
+
+```bash
+# Scan staged files for secrets
+versioning check-secrets
+```
+
+This command scans all staged files (added, copied, modified, renamed) for potential patterns like:
+- Private keys (PEM, RSA, JSON)
+- Cloud/API tokens (AWS, GitHub, npm)
+- Ethereum/EVM private keys and addresses
+- Seed phrases / Mnemonics
+
+### Integration with Git Hooks
+
+You can add this check to your pre-commit hook to automatically block commits with secrets.
+
+Using CLI (recommended):
+
+```bash
+# Add blocking secrets-check to pre-commit hook
+versioning check-secrets husky
+```
+
+This will automatically add a block to your `.husky/pre-commit` file that rejects the commit if secrets are found.
+
+Manual Integration:
+
+```bash
+# .husky/pre-commit
+npx versioning check-secrets
+```
+
+If any secret is found, the commit will be rejected with an error message indicating the file and line number.
+
+### Configuration
+
+Recommended configuration in `versioning.config.json`:
+
+```json
+{
+  "extensionConfig": {
+    "secrets-check": {
+      "enabled": true,
+      "allowlist": ["ETHERSCAN_API_KEY=YOUR_KEY_HERE"]
+    }
+  }
+}
+```
 
 ## Advanced Examples
 

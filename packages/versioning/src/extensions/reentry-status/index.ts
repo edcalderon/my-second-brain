@@ -12,3 +12,5 @@ export * from './roadmap-renderer';
 export * from './git-context';
 export * from './reentry-status-manager';
 export * from './status-renderer';
+import extension from './extension';
+export default extension;

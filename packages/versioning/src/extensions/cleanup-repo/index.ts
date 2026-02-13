@@ -3,7 +3,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import simpleGit from 'simple-git';
 
-import { VersioningExtension } from '../extensions';
+import { VersioningExtension } from '../../extensions';
 
 const CLEANUP_EXTENSION_NAME = 'cleanup-repo';
 
@@ -142,7 +142,7 @@ const DEFAULT_ROUTES: Record<string, string> = {
 // ─────────────────────────────────────────────────────────────────
 
 function loadCleanupConfig(rootConfig: any): CleanupRepoConfig {
-    const raw = rootConfig?.cleanup ?? {};
+    const raw = rootConfig?.extensionConfig?.['cleanup-repo'] ?? rootConfig?.cleanup ?? {};
 
     return {
         enabled: raw.enabled !== false,
@@ -319,7 +319,7 @@ const extension: VersioningExtension = {
                     }
 
                     console.log('\n🔍 Repository Root Cleanup Scan\n');
-                    console.log(`  Config: versioning.config.json → cleanup`);
+                    console.log(`  Config: versioning.config.json → extensionConfig['cleanup-repo']`);
                     console.log(`  Default destination: ${cfg.defaultDestination}/`);
                     console.log(`  Extensions monitored: ${cfg.extensions.join(', ')}`);
                     console.log(`  Allowlist (custom): ${cfg.allowlist.length > 0 ? cfg.allowlist.join(', ') : '—'}`);
@@ -474,20 +474,24 @@ const extension: VersioningExtension = {
                         rawCfg = await fs.readJson(configPath);
                     }
 
-                    // Ensure cleanup section exists
-                    if (!rawCfg.cleanup) rawCfg.cleanup = {};
-                    if (!Array.isArray(rawCfg.cleanup.allowlist)) rawCfg.cleanup.allowlist = [];
-                    if (!Array.isArray(rawCfg.cleanup.denylist)) rawCfg.cleanup.denylist = [];
-                    if (!rawCfg.cleanup.routes) rawCfg.cleanup.routes = { ...DEFAULT_ROUTES };
-                    if (!rawCfg.cleanup.extensions) rawCfg.cleanup.extensions = [...DEFAULT_EXTENSIONS];
+                    // Ensure extensionConfig section exists
+                    if (!rawCfg.extensionConfig) rawCfg.extensionConfig = {};
+                    if (!rawCfg.extensionConfig['cleanup-repo']) {
+                        rawCfg.extensionConfig['cleanup-repo'] = rawCfg.cleanup || {};
+                    }
+                    const extensionCfg = rawCfg.extensionConfig['cleanup-repo'];
+                    if (!Array.isArray(extensionCfg.allowlist)) extensionCfg.allowlist = [];
+                    if (!Array.isArray(extensionCfg.denylist)) extensionCfg.denylist = [];
+                    if (!extensionCfg.routes) extensionCfg.routes = { ...DEFAULT_ROUTES };
+                    if (!extensionCfg.extensions) extensionCfg.extensions = [...DEFAULT_EXTENSIONS];
 
                     let modified = false;
 
                     // ── --allow
                     if (options.allow) {
                         const file = String(options.allow).trim();
-                        if (!rawCfg.cleanup.allowlist.includes(file)) {
-                            rawCfg.cleanup.allowlist.push(file);
+                        if (!extensionCfg.allowlist.includes(file)) {
+                            extensionCfg.allowlist.push(file);
                             modified = true;
                             console.log(`✅ Added "${file}" to cleanup.allowlist`);
                         } else {
@@ -498,8 +502,8 @@ const extension: VersioningExtension = {
                     // ── --deny
                     if (options.deny) {
                         const file = String(options.deny).trim();
-                        if (!rawCfg.cleanup.denylist.includes(file)) {
-                            rawCfg.cleanup.denylist.push(file);
+                        if (!extensionCfg.denylist.includes(file)) {
+                            extensionCfg.denylist.push(file);
                             modified = true;
                             console.log(`✅ Added "${file}" to cleanup.denylist`);
                         } else {
@@ -510,9 +514,9 @@ const extension: VersioningExtension = {
                     // ── --unallow
                     if (options.unallow) {
                         const file = String(options.unallow).trim();
-                        const idx = rawCfg.cleanup.allowlist.indexOf(file);
+                        const idx = extensionCfg.allowlist.indexOf(file);
                         if (idx !== -1) {
-                            rawCfg.cleanup.allowlist.splice(idx, 1);
+                            extensionCfg.allowlist.splice(idx, 1);
                             modified = true;
                             console.log(`✅ Removed "${file}" from cleanup.allowlist`);
                         } else {
@@ -523,9 +527,9 @@ const extension: VersioningExtension = {
                     // ── --undeny
                     if (options.undeny) {
                         const file = String(options.undeny).trim();
-                        const idx = rawCfg.cleanup.denylist.indexOf(file);
+                        const idx = extensionCfg.denylist.indexOf(file);
                         if (idx !== -1) {
-                            rawCfg.cleanup.denylist.splice(idx, 1);
+                            extensionCfg.denylist.splice(idx, 1);
                             modified = true;
                             console.log(`✅ Removed "${file}" from cleanup.denylist`);
                         } else {
@@ -544,16 +548,16 @@ const extension: VersioningExtension = {
                         let ext = mapping.slice(0, eqIdx).trim();
                         const dest = mapping.slice(eqIdx + 1).trim();
                         if (!ext.startsWith('.')) ext = `.${ext}`;
-                        rawCfg.cleanup.routes[ext] = dest;
+                        extensionCfg.routes[ext] = dest;
                         modified = true;
                         console.log(`✅ Added route: ${ext} → ${dest}/`);
                     }
 
                     // ── --set-dest
                     if (options.setDest) {
-                        rawCfg.cleanup.defaultDestination = String(options.setDest).trim();
+                        extensionCfg.defaultDestination = String(options.setDest).trim();
                         modified = true;
-                        console.log(`✅ Default destination set to "${rawCfg.cleanup.defaultDestination}"`);
+                        console.log(`✅ Default destination set to "${extensionCfg.defaultDestination}"`);
                     }
 
                     // Write config if modified
@@ -729,12 +733,17 @@ async function updateHuskyConfig(configPath: string, enabled: boolean, hook?: st
     if (await fs.pathExists(fullPath)) {
         rawCfg = await fs.readJson(fullPath);
     }
-    if (!rawCfg.cleanup) rawCfg.cleanup = {};
-    if (!rawCfg.cleanup.husky) rawCfg.cleanup.husky = {};
 
-    rawCfg.cleanup.husky.enabled = enabled;
-    if (hook) rawCfg.cleanup.husky.hook = hook;
-    if (mode) rawCfg.cleanup.husky.mode = mode;
+    if (!rawCfg.extensionConfig) rawCfg.extensionConfig = {};
+    if (!rawCfg.extensionConfig['cleanup-repo']) {
+        rawCfg.extensionConfig['cleanup-repo'] = rawCfg.cleanup || {};
+    }
+    const extensionCfg = rawCfg.extensionConfig['cleanup-repo'];
+    if (!extensionCfg.husky) extensionCfg.husky = {};
+
+    extensionCfg.husky.enabled = enabled;
+    if (hook) extensionCfg.husky.hook = hook;
+    if (mode) extensionCfg.husky.mode = mode;
 
     await fs.writeJson(fullPath, rawCfg, { spaces: 2 });
 }

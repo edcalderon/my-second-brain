@@ -95,6 +95,7 @@ Obsidian serves as the **Markdown Foundation** for this laboratory. While many t
 - **`packages/trading-core`**: Shared trading domain types, event bus, and baseline risk engine.
 - **`packages/exchange-binance-futures`**: Exchange adapter scaffold for Binance USDT-M Futures.
 - **`archive/node-binance-trader-legacy`**: Deprecated legacy trader repo kept as reference only.
+- **`packages/versioning`**: Composable versioning tool with extension system (reentry, cleanup, secrets).
 - **`docs/`**: Detailed architecture, deployment docs, and the [trading rewrite migration plan](docs/TRADING_REWRITE_MIGRATION.md).
 
 ## ⚠️ Legacy Trader Deprecation

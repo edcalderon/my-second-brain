@@ -1,4 +1,4 @@
-export const REENTRY_EXTENSION_NAME = 'reentry-status-extension';
+export const REENTRY_EXTENSION_NAME = 'reentry-status';
 
 export const REENTRY_STATUS_DIRNAME = '.versioning';
 export const REENTRY_STATUS_JSON_FILENAME = 'reentry.status.json';

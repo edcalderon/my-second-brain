@@ -77,25 +77,37 @@ export async function loadExtensions(program: Command): Promise<void> {
     if (await fs.pathExists(extensionsDir)) {
       const extensionFiles = await fs.readdir(extensionsDir);
       for (const file of extensionFiles) {
-        if (file.endsWith('.js')) {
-          try {
-            const extensionPath = path.join(extensionsDir, file);
-            const extensionModule = require(extensionPath);
-            const extension: VersioningExtension = extensionModule.default || extensionModule;
+        let extensionPath = path.join(extensionsDir, file);
+        const stats = await fs.stat(extensionPath);
 
-            if (extension && typeof extension.register === 'function') {
-              await extension.register(program, config);
-
-              // Register hooks if available
-              if (extension.hooks) {
-                context.hooks.push(extension.hooks);
-              }
-
-              console.log(`✅ Loaded extension: ${extension.name}@${extension.version}`);
-            }
-          } catch (error) {
-            console.warn(`⚠️  Failed to load extension ${file}:`, error instanceof Error ? error.message : String(error));
+        if (stats.isDirectory()) {
+          // Check for index.js in directory
+          const indexPath = path.join(extensionPath, 'index.js');
+          if (await fs.pathExists(indexPath)) {
+            extensionPath = indexPath;
+          } else {
+            continue;
           }
+        } else if (!file.endsWith('.js')) {
+          continue;
+        }
+
+        try {
+          const extensionModule = require(extensionPath);
+          const extension: VersioningExtension = extensionModule.default || extensionModule;
+
+          if (extension && typeof extension.register === 'function') {
+            await extension.register(program, config);
+
+            // Register hooks if available
+            if (extension.hooks) {
+              context.hooks.push(extension.hooks);
+            }
+
+            console.log(`✅ Loaded extension: ${extension.name}@${extension.version}`);
+          }
+        } catch (error) {
+          console.warn(`⚠️  Failed to load extension ${file}:`, error instanceof Error ? error.message : String(error));
         }
       }
     }

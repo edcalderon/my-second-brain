@@ -2,25 +2,25 @@ import { Command } from 'commander';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-import { VersioningExtension } from '../extensions';
-import { canonicalProjectKey, ConfigManager } from './reentry-status/config-manager';
+import { VersioningExtension } from '../../extensions';
+import { canonicalProjectKey, ConfigManager } from './config-manager';
 import {
   REENTRY_EXTENSION_NAME,
   REENTRY_STATUS_DIRNAME,
   ROADMAP_MD_FILENAME
-} from './reentry-status/constants';
-import { FileManager } from './reentry-status/file-manager';
-import { sha256 } from './reentry-status/dirty-detection';
-import { GitHubRestClient } from './reentry-status/github-rest-client';
-import { GitHubSyncAdapter } from './reentry-status/github-sync-adapter';
-import { ObsidianCliClient } from './reentry-status/obsidian-cli-client';
-import { ObsidianSyncAdapter } from './reentry-status/obsidian-sync-adapter';
-import { ReentryStatus } from './reentry-status/models';
-import { parseRoadmapMilestones } from './reentry-status/roadmap-parser';
-import { RoadmapRenderer } from './reentry-status/roadmap-renderer';
-import { StatusRenderer } from './reentry-status/status-renderer';
-import { ReentryStatusManager } from './reentry-status/reentry-status-manager';
-import { collectGitContext, inferPhase, suggestNextStep } from './reentry-status/git-context';
+} from './constants';
+import { FileManager } from './file-manager';
+import { sha256 } from './dirty-detection';
+import { GitHubRestClient } from './github-rest-client';
+import { GitHubSyncAdapter } from './github-sync-adapter';
+import { ObsidianCliClient } from './obsidian-cli-client';
+import { ObsidianSyncAdapter } from './obsidian-sync-adapter';
+import { ReentryStatus } from './models';
+import { parseRoadmapMilestones } from './roadmap-parser';
+import { RoadmapRenderer } from './roadmap-renderer';
+import { StatusRenderer } from './status-renderer';
+import { ReentryStatusManager } from './reentry-status-manager';
+import { collectGitContext, inferPhase, suggestNextStep } from './git-context';
 
 const extension: VersioningExtension = {
   name: REENTRY_EXTENSION_NAME,

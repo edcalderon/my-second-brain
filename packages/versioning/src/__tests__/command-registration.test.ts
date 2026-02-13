@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import extension from '../extensions/reentry-status-extension';
+import extension from '../extensions/reentry-status/index';
 
 describe('Property 8: Command Registration and Execution (shape)', () => {
   test('register adds reentry and roadmap commands', async () => {

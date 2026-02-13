@@ -10,50 +10,59 @@
   "ignorePackages": [
     "packages/versioning"
   ],
-  "reentryStatus": {
-    "enabled": true,
-    "autoSync": true,
-    "failHard": false,
-    "hooks": {
-      "postVersion": true,
-      "postRelease": false
-    },
-    "projects": {
-      "trader": {
-        "enabled": true
+  "extensionConfig": {
+    "reentry-status": {
+      "enabled": true,
+      "autoSync": true,
+      "failHard": false,
+      "hooks": {
+        "postVersion": true,
+        "postRelease": false
+      },
+      "projects": {
+        "trader": {
+          "enabled": true
+        }
       }
-    }
-  },
-  "cleanup": {
-    "enabled": true,
-    "defaultDestination": "docs",
-    "allowlist": [
-      "CHANGELOG.md",
-      "TODO"
-    ],
-    "denylist": [],
-    "extensions": [
-      ".md",
-      ".sh",
-      ".json",
-      ".yaml",
-      ".yml",
-      ".txt",
-      ".log"
-    ],
-    "routes": {
-      ".md": "docs",
-      ".sh": "scripts",
-      ".json": "config",
-      ".yaml": "config",
-      ".yml": "config",
-      ".txt": "archive",
-      ".log": "archive"
     },
-    "husky": {
-      "enabled": false,
-      "hook": "pre-commit",
-      "mode": "scan"
+    "secrets-check": {
+      "enabled": true,
+      "patterns": [],
+      "allowlist": [
+        "SAFE_TEST_KEY"
+      ]
+    },
+    "cleanup-repo": {
+      "enabled": true,
+      "defaultDestination": "docs",
+      "allowlist": [
+        "CHANGELOG.md",
+        "TODO"
+      ],
+      "denylist": [],
+      "extensions": [
+        ".md",
+        ".sh",
+        ".json",
+        ".yaml",
+        ".yml",
+        ".txt",
+        ".log"
+      ],
+      "routes": {
+        ".md": "docs",
+        ".sh": "scripts",
+        ".json": "config",
+        ".yaml": "config",
+        ".yml": "config",
+        ".txt": "archive",
+        ".log": "archive"
+      },
+      "husky": {
+        "enabled": true,
+        "hook": "pre-commit",
+        "mode": "scan"
+      }
     }
   }
 }
