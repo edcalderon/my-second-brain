@@ -1,21 +1,30 @@
 {
   "blockers": [],
   "context": {
+    "command": "versioning reentry update",
     "gitInfo": {
-      "author": "",
-      "branch": "",
-      "commit": "",
-      "timestamp": "1970-01-01T00:00:00.000Z"
+      "author": "edcalderon",
+      "branch": "main",
+      "commit": "07c1868",
+      "timestamp": "2026-02-12T23:14:46-05:00"
     },
-    "trigger": "manual",
-    "versioningInfo": {}
+    "trigger": "auto",
+    "versioningInfo": {
+      "newVersion": "1.1.5"
+    }
   },
-  "currentPhase": "planning",
+  "currentPhase": "development",
   "dependencies": [],
-  "lastUpdated": "1970-01-01T00:00:00.000Z",
+  "lastUpdated": "2026-02-13T04:20:20.803Z",
   "milestone": null,
   "milestones": [],
-  "nextSteps": [],
+  "nextSteps": [
+    {
+      "description": "Review changes from: feat(versioning): enhanced reentry flow via git context, pro",
+      "id": "next",
+      "priority": 1
+    }
+  ],
   "risks": [],
   "roadmapFile": ".versioning/ROADMAP.md",
   "schemaVersion": "1.1",
@@ -23,10 +32,10 @@
     "lastSuccessfulSync": "1970-01-01T00:00:00.000Z",
     "lastSyncAttempt": "1970-01-01T00:00:00.000Z"
   },
-  "updatedBy": "unknown",
-  "version": "0.0.0",
+  "updatedBy": "edcalderon",
+  "version": "1.1.5",
   "versioning": {
-    "currentVersion": "0.0.0",
+    "currentVersion": "1.1.5",
     "previousVersion": "0.0.0",
     "versionType": "patch"
   }
