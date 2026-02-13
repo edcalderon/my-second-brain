@@ -223,17 +223,78 @@ versioning roadmap set-milestone --id "now-01" --title "Ship stable integration"
 ```
 
 ### Update fast-layer status
-
-```bash
-versioning reentry set --phase development --next "Verify sync idempotence"
-versioning reentry sync
-```
-
-### Notes
-
-- `ROADMAP.md` is human-first; only the managed marker block is auto-updated.
-- Sync uses diff-based publishing for GitHub/Obsidian to avoid API/CLI spam.
-- Existing v1.0 status files load safely; migrate to v1.1 explicitly with `--migrate` when needed.
+ 
+ ```bash
+ # Auto-update from latest git commit (infers phase & next step)
+ versioning reentry update
+ 
+ # Show current status
+ versioning reentry show
+ 
+ # Manual override
+ versioning reentry update --phase development --next "Verify sync idempotence"
+ ```
+ 
+ ### Project-Specific Status
+ 
+ Managing status for a specific app (e.g. `apps/trader`):
+ 
+ ```bash
+ versioning reentry update --project trader
+ versioning reentry show --project trader
+ ```
+ 
+ ## Repository Cleanup
+ 
+ The `cleanup-repo` extension helps maintain a clean repository root by moving stray files (`.md`, `.sh`, `.json`, etc.) to designated folders.
+ 
+ ### Scanning & Moving
+ 
+ ```bash
+ # 1. See what would be moved (Dry Run)
+ versioning cleanup scan
+ 
+ # 2. Move files to suggested destinations
+ versioning cleanup move
+ 
+ # 3. Restore a file back to root
+ versioning cleanup restore --file "MY_DOC.md"
+ ```
+ 
+ ### Configuration
+ 
+ Configure behavior in `versioning.config.json`:
+ 
+ ```json
+ {
+   "cleanup": {
+     "enabled": true,
+     "defaultDestination": "docs",
+     "allowlist": ["CHANGELOG.md", "README.md"],
+     "routes": {
+       ".sh": "scripts",
+       ".json": "config",
+       ".log": "archive"
+     },
+     "husky": {
+       "enabled": true,
+       "mode": "scan"
+     }
+   }
+ }
+ ```
+ 
+ ### Git Hook Integration
+ 
+ Automatically scan or clean up on every commit:
+ 
+ ```bash
+ # Add scan-only warning to pre-commit hook
+ versioning cleanup husky
+ 
+ # Enforce auto-cleanup on pre-commit
+ versioning cleanup husky --no-scan-only
+ ```
 
 ## Advanced Examples
 

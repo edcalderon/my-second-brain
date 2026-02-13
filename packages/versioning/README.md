@@ -113,7 +113,7 @@ Features:
 - Local registry support
 - Dry-run mode
 
-#### Re-entry Status + Roadmap Extension
+### Re-entry Status + Roadmap Extension
 
 Maintains a fast **re-entry** layer (current state + next micro-step) and a slow **roadmap/backlog** layer (long-term plan).
 
@@ -129,39 +129,67 @@ Multi-project (scoped by `--project <name>`):
 - `.versioning/projects/<project>/REENTRY.md`
 - `.versioning/projects/<project>/ROADMAP.md`
 
-Notes:
-- `--project` must match an existing workspace app/package (it can be a slug like `trader`, a scoped package name like `@ed/trader`, or a path like `apps/trader`).
-- The canonical project key is the last path segment (e.g. `@ed/trader` → `trader`).
+**Smart Features:**
+- **Auto-Update:** `versioning reentry update` infers the project phase and next step from your last git commit.
+  - `feat: ...` → **Phase: development**
+  - `fix: ...` → **Phase: maintenance**
+- **Git Context:** Automatically links status to the latest branch, commit, and author.
 
 Commands:
 
 ```bash
 # Fast layer
 versioning reentry init
+versioning reentry update        # Auto-update status from git commit
+versioning reentry show          # Show current status summary
 versioning reentry sync
 
 # Fast layer (scoped)
 versioning reentry init --project trader
-versioning reentry sync --project trader
+versioning reentry update --project trader
+versioning reentry show --project trader
 
 # Slow layer
 versioning roadmap init --title "My Project"
 versioning roadmap list
 versioning roadmap set-milestone --id "now-01" --title "Ship X"
-versioning roadmap add --section Now --id "now-02" --item "Add observability"
-
-# Slow layer (scoped)
-versioning roadmap init --project trader --title "Trader"
-versioning roadmap list --project trader
-versioning roadmap add --project trader --section Now --item "Wire user-data ORDER_* events"
-
-# Detect stale/mismatched scoped roadmaps
-versioning roadmap validate
 ```
 
-Backward compatibility:
-- v1.0 status files load safely.
-- Schema migrates to v1.1 only when you actually modify status, or explicitly via `versioning reentry sync --migrate`.
+#### Cleanup Repo Extension
+
+Keeps your repository root clean by organizing stray files into appropriate directories (docs, scripts, config, archive).
+
+Features:
+- **Smart Scanning:** Identifies files that don't belong in the root.
+- **Configurable Routes:** Map extensions to folders (e.g. `.sh` → `scripts/`).
+- **Safety:** Allowlist for root files and Denylist for forced moves.
+- **Husky Integration:** Auto-scan or auto-move on commit.
+
+Commands:
+
+```bash
+versioning cleanup scan          # Dry-run scan of root
+versioning cleanup move          # Move files to configured destinations
+versioning cleanup restore       # Restore a moved file
+versioning cleanup config        # View/manage configuration
+versioning cleanup husky         # Setup git hook
+```
+
+Configuration (`versioning.config.json`):
+
+```json
+{
+  "cleanup": {
+    "enabled": true,
+    "defaultDestination": "docs",
+    "allowlist": ["CHANGELOG.md"],
+    "routes": {
+      ".sh": "scripts",
+      ".json": "config"
+    }
+  }
+}
+```
 
 ### External Extensions
 
