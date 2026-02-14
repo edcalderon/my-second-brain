@@ -29,22 +29,27 @@ export class ReleaseManager {
     message?: string;
     packages?: string[];
     skipSync?: boolean;
+    branchAware?: boolean;
   } = {}): Promise<void> {
-    const { message, packages, skipSync } = options;
+    const { message, packages, skipSync, branchAware } = options;
 
-    // Update versions
-    await this.config.versionManager.updateVersion(version);
+    // In branch-aware mode, version files have already been updated by bumpVersionBranchAware
+    // So we skip the updateVersion and syncVersions calls
+    if (!branchAware) {
+      // Update versions (standard mode)
+      await this.config.versionManager.updateVersion(version);
 
-    // Sync specific packages if specified
-    if (!skipSync && packages && packages.length > 0) {
-      for (const pkg of packages) {
-        const packageJsonPath = path.join(pkg, 'package.json');
-        if (await fs.pathExists(packageJsonPath)) {
-          await this.config.versionManager.updateVersion(version); // This needs to be package-specific
+      // Sync specific packages if specified
+      if (!skipSync && packages && packages.length > 0) {
+        for (const pkg of packages) {
+          const packageJsonPath = path.join(pkg, 'package.json');
+          if (await fs.pathExists(packageJsonPath)) {
+            await this.config.versionManager.updateVersion(version); // This needs to be package-specific
+          }
         }
+      } else if (!skipSync) {
+        await this.config.syncManager.syncVersions(version);
       }
-    } else if (!skipSync) {
-      await this.config.syncManager.syncVersions(version);
     }
 
     // Generate changelog
@@ -74,19 +79,19 @@ export class ReleaseManager {
   async patchRelease(options: { packages?: string[]; message?: string; branchAwareOptions?: BranchAwareOptions } = {}): Promise<string> {
     const currentVersion = await this.config.versionManager.getCurrentVersion();
     const newVersion = await this.config.versionManager.bumpVersion('patch', undefined, options.branchAwareOptions);
-    await this.release(newVersion, options);
+    await this.release(newVersion, { ...options, branchAware: !!options.branchAwareOptions });
     return newVersion;
   }
 
   async minorRelease(options: { packages?: string[]; message?: string; branchAwareOptions?: BranchAwareOptions } = {}): Promise<string> {
     const newVersion = await this.config.versionManager.bumpVersion('minor', undefined, options.branchAwareOptions);
-    await this.release(newVersion, options);
+    await this.release(newVersion, { ...options, branchAware: !!options.branchAwareOptions });
     return newVersion;
   }
 
   async majorRelease(options: { packages?: string[]; message?: string; branchAwareOptions?: BranchAwareOptions } = {}): Promise<string> {
     const newVersion = await this.config.versionManager.bumpVersion('major', undefined, options.branchAwareOptions);
-    await this.release(newVersion, options);
+    await this.release(newVersion, { ...options, branchAware: !!options.branchAwareOptions });
     return newVersion;
   }
 }
