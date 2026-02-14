@@ -80,7 +80,9 @@
       "defaultDestination": "docs",
       "allowlist": [
         "CHANGELOG.md",
-        "TODO"
+        "TODO",
+        "version.development.json",
+        "version.production.json"
       ],
       "denylist": [],
       "extensions": [
