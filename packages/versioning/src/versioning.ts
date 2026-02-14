@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as semver from 'semver';
 import simpleGit from 'simple-git';
-import { BranchAwarenessConfig, BranchAwareManager, BranchAwareOptions } from './branch-aware';
+import { BranchAwarenessConfig, BranchAwareManager, BranchAwareOptions, BranchConfig } from './branch-aware';
 
 export interface VersionConfig {
   rootPackageJson: string;
@@ -87,7 +87,7 @@ export class VersionManager {
   /**
    * Update version files based on branch configuration
    */
-  async updateVersionBranchAware(newVersion: string, branchConfig: import('./branch-aware').BranchConfig): Promise<void> {
+  async updateVersionBranchAware(newVersion: string, branchConfig: BranchConfig): Promise<void> {
     const syncFiles = branchConfig.syncFiles || [];
 
     for (const file of syncFiles) {
@@ -110,7 +110,6 @@ export class VersionManager {
     interface VersionFileData {
       version: string;
       updatedAt: string;
-      [key: string]: any;
     }
 
     let versionData: VersionFileData = {
@@ -120,12 +119,20 @@ export class VersionManager {
 
     // Read existing file if it exists
     if (await fs.pathExists(filePath)) {
-      versionData = await fs.readJson(filePath);
+      const existingData = await fs.readJson(filePath);
+      // Preserve existing fields, but update version and updatedAt
+      versionData = {
+        ...existingData,
+        version,
+        updatedAt: new Date().toISOString()
+      };
+    } else {
+      // Create new version data
+      versionData = {
+        version,
+        updatedAt: new Date().toISOString()
+      };
     }
-
-    // Update version
-    versionData.version = version;
-    versionData.updatedAt = new Date().toISOString();
 
     // Write back
     await fs.writeJson(filePath, versionData, { spaces: 2 });
