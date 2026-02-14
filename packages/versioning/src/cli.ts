@@ -147,6 +147,11 @@ program
   .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
   .option('-m, --message <message>', 'Release commit message')
   .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--branch-aware', 'Enable branch-aware versioning')
+  .option('--force-branch-aware', 'Force branch-aware mode even if disabled in config')
+  .option('--target-branch <branch>', 'Explicit branch to apply branch-aware rules')
+  .option('--format <format>', 'Override version format (semantic, dev, feature, hotfix)')
+  .option('--build <number>', 'Override build number for non-semantic formats', parseBuildOption)
   .option('--no-tag', 'Do not create git tag')
   .option('--no-commit', 'Do not commit changes')
   .action(async (options) => {
@@ -166,7 +171,12 @@ program
       const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
       const newVersion = await releaseManager.patchRelease({
         packages,
-        message: options.message
+        message: options.message,
+        branchAware: options.branchAware,
+        forceBranchAware: options.forceBranchAware,
+        targetBranch: options.targetBranch,
+        format: options.format,
+        build: options.build
       });
 
       console.log(`✅ Patch release v${newVersion} completed`);
@@ -182,6 +192,11 @@ program
   .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
   .option('-m, --message <message>', 'Release commit message')
   .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--branch-aware', 'Enable branch-aware versioning')
+  .option('--force-branch-aware', 'Force branch-aware mode even if disabled in config')
+  .option('--target-branch <branch>', 'Explicit branch to apply branch-aware rules')
+  .option('--format <format>', 'Override version format (semantic, dev, feature, hotfix)')
+  .option('--build <number>', 'Override build number for non-semantic formats', parseBuildOption)
   .option('--no-tag', 'Do not create git tag')
   .option('--no-commit', 'Do not commit changes')
   .action(async (options) => {
@@ -201,7 +216,12 @@ program
       const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
       const newVersion = await releaseManager.minorRelease({
         packages,
-        message: options.message
+        message: options.message,
+        branchAware: options.branchAware,
+        forceBranchAware: options.forceBranchAware,
+        targetBranch: options.targetBranch,
+        format: options.format,
+        build: options.build
       });
 
       console.log(`✅ Minor release v${newVersion} completed`);
@@ -215,7 +235,13 @@ program
   .command('major')
   .description('Create a major release')
   .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
+  .option('-m, --message <message>', 'Release commit message')
   .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--branch-aware', 'Enable branch-aware versioning')
+  .option('--force-branch-aware', 'Force branch-aware mode even if disabled in config')
+  .option('--target-branch <branch>', 'Explicit branch to apply branch-aware rules')
+  .option('--format <format>', 'Override version format (semantic, dev, feature, hotfix)')
+  .option('--build <number>', 'Override build number for non-semantic formats', parseBuildOption)
   .option('--no-tag', 'Do not create git tag')
   .option('--no-commit', 'Do not commit changes')
   .action(async (options) => {
@@ -235,7 +261,12 @@ program
       const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
       const newVersion = await releaseManager.majorRelease({
         packages,
-        message: options.message
+        message: options.message,
+        branchAware: options.branchAware,
+        forceBranchAware: options.forceBranchAware,
+        targetBranch: options.targetBranch,
+        format: options.format,
+        build: options.build
       });
 
       console.log(`✅ Major release v${newVersion} completed`);
@@ -301,7 +332,41 @@ program
         conventionalCommits: true,
         syncDependencies: false,
         ignorePackages: [],
-        extensions: [] // Add extensions array to config
+        extensions: [], // Add extensions array to config
+        branchAwareness: {
+          enabled: false,
+          defaultBranch: 'main',
+          branches: {
+            main: {
+              versionFormat: 'semantic',
+              tagFormat: 'v{version}',
+              syncFiles: ['package.json'],
+              environment: 'production',
+              bumpStrategy: 'semantic'
+            },
+            develop: {
+              versionFormat: 'dev',
+              tagFormat: 'v{version}',
+              syncFiles: ['version.development.json'],
+              environment: 'development',
+              bumpStrategy: 'dev-build'
+            },
+            'feature/*': {
+              versionFormat: 'feature',
+              tagFormat: 'v{version}',
+              syncFiles: ['version.development.json'],
+              environment: 'development',
+              bumpStrategy: 'feature-branch'
+            },
+            'hotfix/*': {
+              versionFormat: 'hotfix',
+              tagFormat: 'v{version}',
+              syncFiles: ['version.development.json'],
+              environment: 'development',
+              bumpStrategy: 'hotfix'
+            }
+          }
+        }
       };
 
       await fs.writeJson(configPath, defaultConfig, { spaces: 2 });
@@ -317,6 +382,14 @@ async function loadConfig(configPath: string): Promise<any> {
     throw new Error(`Config file not found: ${configPath}. Run 'versioning init' to create one.`);
   }
   return await fs.readJson(configPath);
+}
+
+function parseBuildOption(value: string): number {
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isInteger(parsed) || parsed < 0) {
+    throw new Error(`Invalid build number "${value}". Use a non-negative integer.`);
+  }
+  return parsed;
 }
 
 async function main() {

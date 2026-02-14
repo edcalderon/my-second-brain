@@ -5,6 +5,7 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 ## Features
 
 - 🚀 Automated version bumping (patch, minor, major, prerelease)
+- 🌿 Optional branch-aware versioning (`main`, `develop`, `feature/*`, `hotfix/*`)
 - 📝 Conventional commit-based changelog generation
 - 🔄 Version synchronization across monorepo packages
 - 🎯 Works with both monorepos and single repositories
@@ -407,7 +408,41 @@ For single repositories:
   "changelogFile": "CHANGELOG.md",
   "conventionalCommits": true,
   "syncDependencies": false,
-  "ignorePackages": []
+  "ignorePackages": [],
+  "branchAwareness": {
+    "enabled": false,
+    "defaultBranch": "main",
+    "branches": {
+      "main": {
+        "versionFormat": "semantic",
+        "tagFormat": "v{version}",
+        "syncFiles": ["package.json", "version.production.json"],
+        "environment": "production",
+        "bumpStrategy": "semantic"
+      },
+      "develop": {
+        "versionFormat": "dev",
+        "tagFormat": "v{version}",
+        "syncFiles": ["version.development.json"],
+        "environment": "development",
+        "bumpStrategy": "dev-build"
+      },
+      "feature/*": {
+        "versionFormat": "feature",
+        "tagFormat": "v{version}",
+        "syncFiles": ["version.development.json"],
+        "environment": "development",
+        "bumpStrategy": "feature-branch"
+      },
+      "hotfix/*": {
+        "versionFormat": "hotfix",
+        "tagFormat": "v{version}",
+        "syncFiles": ["version.development.json"],
+        "environment": "development",
+        "bumpStrategy": "hotfix"
+      }
+    }
+  }
 }
 ```
 
@@ -431,6 +466,28 @@ For monorepos:
 - `conventionalCommits`: Whether to use conventional commits for changelog
 - `syncDependencies`: Whether to sync internal dependencies
 - `ignorePackages`: Array of package names to ignore during sync
+- `branchAwareness`: Optional branch-aware release rules and file sync targets
+- `branchAwareness.branches.<pattern>.versionFormat`: `semantic`, `dev`, `feature`, `hotfix`, or custom
+- `branchAwareness.branches.<pattern>.syncFiles`: Only these files are updated when branch-aware mode is enabled
+
+### Branch-Aware Releases
+
+Enable branch-aware mode per command:
+
+```bash
+versioning patch --branch-aware
+versioning patch --branch-aware --target-branch develop
+versioning patch --branch-aware --format dev --build 396
+versioning minor --branch-aware
+versioning major --branch-aware
+```
+
+Behavior summary:
+- Exact branch names are checked first (e.g. `main`, `develop`)
+- Wildcard patterns are checked next (e.g. `feature/*`, `hotfix/*`)
+- If no match is found, the `defaultBranch` rule is used
+- `--force-branch-aware` enables branch-aware behavior even when `branchAwareness.enabled` is `false`
+- Full config template: `packages/versioning/examples/versioning.config.branch-aware.json`
 
 ## Commands
 
@@ -471,13 +528,25 @@ versioning release 1.2.3 --message "Custom release"
 versioning release 2.0.0-beta.1 --skip-sync
 ```
 
-**Options for release commands:**
+**Options for `patch`, `minor`, and `major`:**
+- `-p, --packages <packages>`: Comma-separated list of packages to sync
+- `-m, --message <message>`: Release commit message
+- `-c, --config <file>`: Config file path (default: versioning.config.json)
+- `--branch-aware`: Enable branch-aware release behavior
+- `--force-branch-aware`: Force branch-aware mode even if disabled in config
+- `--target-branch <branch>`: Explicit branch to resolve branch rules
+- `--format <format>`: Override the configured branch version format
+- `--build <number>`: Override build number for non-semantic branch formats
+- `--no-tag`: Do not create git tag
+- `--no-commit`: Do not commit changes
+
+**Options for `release <version>`:**
 - `-p, --packages <packages>`: Comma-separated list of packages to sync
 - `-m, --message <message>`: Release commit message
 - `-c, --config <file>`: Config file path (default: versioning.config.json)
 - `--no-tag`: Do not create git tag
 - `--no-commit`: Do not commit changes
-- `--skip-sync`: Skip version synchronization (for `release` command)
+- `--skip-sync`: Skip version synchronization
 
 ### Other Commands
 

@@ -10,6 +10,49 @@
   "ignorePackages": [
     "packages/versioning"
   ],
+  "branchAwareness": {
+    "enabled": true,
+    "defaultBranch": "main",
+    "branches": {
+      "main": {
+        "versionFormat": "semantic",
+        "tagFormat": "v{version}",
+        "syncFiles": [
+          "package.json",
+          "version.production.json"
+        ],
+        "environment": "production",
+        "bumpStrategy": "semantic"
+      },
+      "develop": {
+        "versionFormat": "dev",
+        "tagFormat": "v{version}",
+        "syncFiles": [
+          "version.development.json"
+        ],
+        "environment": "development",
+        "bumpStrategy": "dev-build"
+      },
+      "feature/*": {
+        "versionFormat": "feature",
+        "tagFormat": "v{version}",
+        "syncFiles": [
+          "version.development.json"
+        ],
+        "environment": "development",
+        "bumpStrategy": "feature-branch"
+      },
+      "hotfix/*": {
+        "versionFormat": "hotfix",
+        "tagFormat": "v{version}",
+        "syncFiles": [
+          "version.development.json"
+        ],
+        "environment": "development",
+        "bumpStrategy": "hotfix"
+      }
+    }
+  },
   "extensionConfig": {
     "reentry-status": {
       "enabled": true,

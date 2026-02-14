@@ -200,6 +200,62 @@ Or exclude during release:
 versioning patch
 ```
 
+### Branch-Aware Releases
+
+Use branch-aware mode to apply branch-specific version formats and file sync targets.
+
+```json
+{
+  "branchAwareness": {
+    "enabled": true,
+    "defaultBranch": "main",
+    "branches": {
+      "main": {
+        "versionFormat": "semantic",
+        "tagFormat": "v{version}",
+        "syncFiles": ["package.json", "version.production.json"],
+        "bumpStrategy": "semantic"
+      },
+      "develop": {
+        "versionFormat": "dev",
+        "tagFormat": "v{version}",
+        "syncFiles": ["version.development.json"],
+        "bumpStrategy": "dev-build"
+      },
+      "feature/*": {
+        "versionFormat": "feature",
+        "tagFormat": "v{version}",
+        "syncFiles": ["version.development.json"],
+        "bumpStrategy": "feature-branch"
+      },
+      "hotfix/*": {
+        "versionFormat": "hotfix",
+        "tagFormat": "v{version}",
+        "syncFiles": ["version.development.json"],
+        "bumpStrategy": "hotfix"
+      }
+    }
+  }
+}
+```
+
+Examples:
+
+```bash
+# Auto-detect current branch
+versioning patch --branch-aware
+
+# Explicit branch targeting
+versioning patch --branch-aware --target-branch develop
+versioning patch --branch-aware --target-branch main
+
+# Force mode (works even when branchAwareness.enabled=false)
+versioning patch --force-branch-aware
+
+# Explicit format/build override
+versioning patch --branch-aware --format dev --build 396
+```
+
 ## Re-entry + Roadmap
 
 The re-entry extension adds a two-layer status system:

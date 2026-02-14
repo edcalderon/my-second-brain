@@ -6,7 +6,7 @@
   "syncDependencies": false,
   "ignorePackages": [],
   "branchAwareness": {
-    "enabled": false,
+    "enabled": true,
     "defaultBranch": "main",
     "branches": {
       "main": {
@@ -47,12 +47,5 @@
         "bumpStrategy": "hotfix"
       }
     }
-  },
-  "changelog": {
-    "preset": "angular",
-    "releaseCount": 0
-  },
-  "sync": {
-    "includeRoot": true
   }
 }

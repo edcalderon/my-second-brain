@@ -2,6 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { VersionManager } from './index';
 import { ChangelogManager } from './changelog';
+import * as semver from 'semver';
 
 export interface ReleaseConfig {
   versionManager: VersionManager;
@@ -70,22 +71,80 @@ export class ReleaseManager {
     console.log('Publishing packages:', packages || 'all');
   }
 
-  async patchRelease(options: { packages?: string[]; message?: string } = {}): Promise<string> {
-    const currentVersion = await this.config.versionManager.getCurrentVersion();
+  async patchRelease(options: ReleaseOptions = {}): Promise<string> {
+    if (this.shouldUseBranchAwareFlow(options)) {
+      return await this.releaseBranchAware('patch', options);
+    }
+
     const newVersion = await this.config.versionManager.bumpVersion('patch');
     await this.release(newVersion, options);
     return newVersion;
   }
 
-  async minorRelease(options: { packages?: string[]; message?: string } = {}): Promise<string> {
+  async minorRelease(options: ReleaseOptions = {}): Promise<string> {
+    if (this.shouldUseBranchAwareFlow(options)) {
+      return await this.releaseBranchAware('minor', options);
+    }
+
     const newVersion = await this.config.versionManager.bumpVersion('minor');
     await this.release(newVersion, options);
     return newVersion;
   }
 
-  async majorRelease(options: { packages?: string[]; message?: string } = {}): Promise<string> {
+  async majorRelease(options: ReleaseOptions = {}): Promise<string> {
+    if (this.shouldUseBranchAwareFlow(options)) {
+      return await this.releaseBranchAware('major', options);
+    }
+
     const newVersion = await this.config.versionManager.bumpVersion('major');
     await this.release(newVersion, options);
     return newVersion;
   }
+
+  private shouldUseBranchAwareFlow(options: ReleaseOptions): boolean {
+    return options.branchAware === true
+      || options.forceBranchAware === true
+      || typeof options.targetBranch === 'string'
+      || typeof options.format === 'string'
+      || typeof options.build === 'number';
+  }
+
+  private async releaseBranchAware(
+    releaseType: semver.ReleaseType,
+    options: ReleaseOptions
+  ): Promise<string> {
+    const result = await this.config.versionManager.bumpVersionBranchAware(releaseType, {
+      targetBranch: options.targetBranch,
+      forceBranchAware: options.forceBranchAware,
+      format: options.format,
+      build: options.build
+    });
+
+    await this.config.changelogManager.generate();
+
+    if (this.config.createCommit) {
+      await this.config.versionManager.commitChanges(result.version);
+    }
+
+    if (this.config.createTag) {
+      await this.config.versionManager.createGitTagWithFormat(result.version, result.tagFormat, options.message);
+    }
+
+    if (this.config.publish) {
+      await this.publishPackages(options.packages);
+    }
+
+    return result.version;
+  }
+}
+
+interface ReleaseOptions {
+  message?: string;
+  packages?: string[];
+  skipSync?: boolean;
+  branchAware?: boolean;
+  forceBranchAware?: boolean;
+  targetBranch?: string;
+  format?: string;
+  build?: number;
 }
