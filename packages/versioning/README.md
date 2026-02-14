@@ -5,6 +5,7 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 ## Features
 
 - 🚀 Automated version bumping (patch, minor, major, prerelease)
+- 🌿 **Branch-aware versioning** with different formats per branch
 - 📝 Conventional commit-based changelog generation
 - 🔄 Version synchronization across monorepo packages
 - 🎯 Works with both monorepos and single repositories
@@ -423,6 +424,111 @@ For monorepos:
 }
 ```
 
+### Branch-Aware Versioning
+
+Branch-aware versioning allows different version formats and file synchronization strategies based on the current git branch. This is ideal for multi-branch development workflows where you want to:
+
+- Keep production versions clean on the `main` branch
+- Use development versions (with build numbers) on `develop` branch
+- Embed branch names in versions for feature and hotfix branches
+- Update only specific files based on the branch
+
+#### Configuration
+
+Add `branchAwareness` to your `versioning.config.json`:
+
+```json
+{
+  "rootPackageJson": "package.json",
+  "packages": [],
+  "changelogFile": "CHANGELOG.md",
+  "conventionalCommits": true,
+  "branchAwareness": {
+    "enabled": true,
+    "defaultBranch": "main",
+    "branches": {
+      "main": {
+        "versionFormat": "semantic",
+        "tagFormat": "v{version}",
+        "syncFiles": ["package.json", "version.production.json"],
+        "environment": "production",
+        "bumpStrategy": "semantic"
+      },
+      "develop": {
+        "versionFormat": "dev",
+        "tagFormat": "v{version}",
+        "syncFiles": ["version.development.json"],
+        "environment": "development",
+        "bumpStrategy": "dev-build"
+      },
+      "feature/*": {
+        "versionFormat": "feature",
+        "tagFormat": "v{version}",
+        "syncFiles": ["version.development.json"],
+        "environment": "development",
+        "bumpStrategy": "feature-branch"
+      },
+      "hotfix/*": {
+        "versionFormat": "hotfix",
+        "tagFormat": "v{version}",
+        "syncFiles": ["version.development.json"],
+        "environment": "development",
+        "bumpStrategy": "hotfix"
+      }
+    }
+  }
+}
+```
+
+#### Version Formats
+
+- **semantic**: Standard semantic version (e.g., `1.8.173`)
+- **dev**: Development version with build number (e.g., `1.8.173-dev.395`)
+- **feature**: Feature version with branch name (e.g., `1.8.173-feature/new-ui.10`)
+- **hotfix**: Hotfix version with branch name (e.g., `1.8.173-hotfix/critical-bug.5`)
+
+#### Usage Examples
+
+**On main branch** (production):
+```bash
+# Bumps 1.8.172 → 1.8.173
+# Updates: package.json, version.production.json
+versioning patch --branch-aware
+```
+
+**On develop branch**:
+```bash
+# Creates 1.8.173-dev.1
+# Updates: version.development.json only
+# Preserves: package.json at 1.8.173
+versioning patch --branch-aware
+```
+
+**On feature/new-ui branch**:
+```bash
+# Creates 1.8.173-feature/new-ui.1
+# Updates: version.development.json only
+versioning patch --branch-aware
+```
+
+**Explicit branch targeting**:
+```bash
+# Override current branch detection
+versioning patch --branch-aware --target-branch=develop
+
+# Custom build number
+versioning patch --branch-aware --build=42
+```
+
+#### Backward Compatibility
+
+Branch-aware versioning is opt-in. Without the `--branch-aware` flag, all commands continue to work as before:
+
+```bash
+# Standard behavior (updates all files)
+versioning patch
+```
+
 ### Configuration Options
 
 - `rootPackageJson`: Path to the root package.json file
@@ -443,6 +549,7 @@ Create a patch release (bumps 1.0.0 → 1.0.1)
 ```bash
 versioning patch
 versioning patch --packages "packages/app1,packages/app2" --message "Fix critical bug"
+versioning patch --branch-aware  # Use branch-aware versioning
 ```
 
 #### `versioning minor [options]`
@@ -452,6 +559,7 @@ Create a minor release (bumps 1.0.0 → 1.1.0)
 ```bash
 versioning minor
 versioning minor --packages "apps/dashboard" --message "Add new features"
+versioning minor --branch-aware  # Use branch-aware versioning
 ```
 
 #### `versioning major [options]`
@@ -460,6 +568,7 @@ Create a major release (bumps 1.0.0 → 2.0.0)
 
 ```bash
 versioning major --message "Breaking changes"
+versioning major --branch-aware  # Use branch-aware versioning
 ```
 
 #### `versioning release <version> [options]`
@@ -475,6 +584,10 @@ versioning release 2.0.0-beta.1 --skip-sync
 - `-p, --packages <packages>`: Comma-separated list of packages to sync
 - `-m, --message <message>`: Release commit message
 - `-c, --config <file>`: Config file path (default: versioning.config.json)
+- `--branch-aware`: Enable branch-aware versioning (requires branchAwareness config)
+- `--target-branch <branch>`: Override current branch for version format detection
+- `--format <format>`: Version format (semantic, dev, feature, hotfix)
+- `--build <number>`: Build number for dev/feature/hotfix versions
 - `--no-tag`: Do not create git tag
 - `--no-commit`: Do not commit changes
 - `--skip-sync`: Skip version synchronization (for `release` command)
