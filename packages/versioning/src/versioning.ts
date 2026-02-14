@@ -13,6 +13,11 @@ export interface VersionConfig {
   branchAwareness?: BranchAwarenessConfig;
 }
 
+export interface VersionFileData {
+  version: string;
+  updatedAt: string;
+}
+
 export class VersionManager {
   private config: VersionConfig;
   private git = simpleGit();
@@ -107,11 +112,6 @@ export class VersionManager {
    * Update or create a version JSON file
    */
   async updateVersionFile(filePath: string, version: string): Promise<void> {
-    interface VersionFileData {
-      version: string;
-      updatedAt: string;
-    }
-
     let versionData: VersionFileData = {
       version: '',
       updatedAt: ''
