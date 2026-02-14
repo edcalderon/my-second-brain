@@ -77,7 +77,6 @@ export class ReleaseManager {
   }
 
   async patchRelease(options: { packages?: string[]; message?: string; branchAwareOptions?: BranchAwareOptions } = {}): Promise<string> {
-    const currentVersion = await this.config.versionManager.getCurrentVersion();
     const newVersion = await this.config.versionManager.bumpVersion('patch', undefined, options.branchAwareOptions);
     await this.release(newVersion, { ...options, branchAware: !!options.branchAwareOptions });
     return newVersion;
