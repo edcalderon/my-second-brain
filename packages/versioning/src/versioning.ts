@@ -87,7 +87,7 @@ export class VersionManager {
   /**
    * Update version files based on branch configuration
    */
-  async updateVersionBranchAware(newVersion: string, branchConfig: any): Promise<void> {
+  async updateVersionBranchAware(newVersion: string, branchConfig: import('./branch-aware').BranchConfig): Promise<void> {
     const syncFiles = branchConfig.syncFiles || [];
 
     for (const file of syncFiles) {
@@ -107,7 +107,16 @@ export class VersionManager {
    * Update or create a version JSON file
    */
   async updateVersionFile(filePath: string, version: string): Promise<void> {
-    let versionData: any = {};
+    interface VersionFileData {
+      version: string;
+      updatedAt: string;
+      [key: string]: any;
+    }
+
+    let versionData: VersionFileData = {
+      version: '',
+      updatedAt: ''
+    };
 
     // Read existing file if it exists
     if (await fs.pathExists(filePath)) {
