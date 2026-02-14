@@ -2,6 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { VersionManager } from './index';
 import { ChangelogManager } from './changelog';
+import { BranchAwareOptions } from './branch-aware';
 
 export interface ReleaseConfig {
   versionManager: VersionManager;
@@ -70,21 +71,21 @@ export class ReleaseManager {
     console.log('Publishing packages:', packages || 'all');
   }
 
-  async patchRelease(options: { packages?: string[]; message?: string } = {}): Promise<string> {
+  async patchRelease(options: { packages?: string[]; message?: string; branchAwareOptions?: BranchAwareOptions } = {}): Promise<string> {
     const currentVersion = await this.config.versionManager.getCurrentVersion();
-    const newVersion = await this.config.versionManager.bumpVersion('patch');
+    const newVersion = await this.config.versionManager.bumpVersion('patch', undefined, options.branchAwareOptions);
     await this.release(newVersion, options);
     return newVersion;
   }
 
-  async minorRelease(options: { packages?: string[]; message?: string } = {}): Promise<string> {
-    const newVersion = await this.config.versionManager.bumpVersion('minor');
+  async minorRelease(options: { packages?: string[]; message?: string; branchAwareOptions?: BranchAwareOptions } = {}): Promise<string> {
+    const newVersion = await this.config.versionManager.bumpVersion('minor', undefined, options.branchAwareOptions);
     await this.release(newVersion, options);
     return newVersion;
   }
 
-  async majorRelease(options: { packages?: string[]; message?: string } = {}): Promise<string> {
-    const newVersion = await this.config.versionManager.bumpVersion('major');
+  async majorRelease(options: { packages?: string[]; message?: string; branchAwareOptions?: BranchAwareOptions } = {}): Promise<string> {
+    const newVersion = await this.config.versionManager.bumpVersion('major', undefined, options.branchAwareOptions);
     await this.release(newVersion, options);
     return newVersion;
   }

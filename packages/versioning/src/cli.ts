@@ -147,6 +147,10 @@ program
   .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
   .option('-m, --message <message>', 'Release commit message')
   .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--branch-aware', 'Enable branch-aware versioning')
+  .option('--target-branch <branch>', 'Target specific branch for versioning')
+  .option('--format <format>', 'Version format (semantic, dev, feature, hotfix)')
+  .option('--build <number>', 'Build number for dev/feature/hotfix versions', parseInt)
   .option('--no-tag', 'Do not create git tag')
   .option('--no-commit', 'Do not commit changes')
   .action(async (options) => {
@@ -164,9 +168,19 @@ program
       });
 
       const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
+      
+      // Build branch-aware options if needed
+      const branchAwareOptions = options.branchAware ? {
+        branchAware: true,
+        targetBranch: options.targetBranch,
+        format: options.format,
+        build: options.build
+      } : undefined;
+
       const newVersion = await releaseManager.patchRelease({
         packages,
-        message: options.message
+        message: options.message,
+        branchAwareOptions
       });
 
       console.log(`✅ Patch release v${newVersion} completed`);
@@ -182,6 +196,10 @@ program
   .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
   .option('-m, --message <message>', 'Release commit message')
   .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--branch-aware', 'Enable branch-aware versioning')
+  .option('--target-branch <branch>', 'Target specific branch for versioning')
+  .option('--format <format>', 'Version format (semantic, dev, feature, hotfix)')
+  .option('--build <number>', 'Build number for dev/feature/hotfix versions', parseInt)
   .option('--no-tag', 'Do not create git tag')
   .option('--no-commit', 'Do not commit changes')
   .action(async (options) => {
@@ -199,9 +217,19 @@ program
       });
 
       const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
+      
+      // Build branch-aware options if needed
+      const branchAwareOptions = options.branchAware ? {
+        branchAware: true,
+        targetBranch: options.targetBranch,
+        format: options.format,
+        build: options.build
+      } : undefined;
+
       const newVersion = await releaseManager.minorRelease({
         packages,
-        message: options.message
+        message: options.message,
+        branchAwareOptions
       });
 
       console.log(`✅ Minor release v${newVersion} completed`);
@@ -216,6 +244,10 @@ program
   .description('Create a major release')
   .option('-p, --packages <packages>', 'Comma-separated list of packages to sync')
   .option('-c, --config <file>', 'Config file path', 'versioning.config.json')
+  .option('--branch-aware', 'Enable branch-aware versioning')
+  .option('--target-branch <branch>', 'Target specific branch for versioning')
+  .option('--format <format>', 'Version format (semantic, dev, feature, hotfix)')
+  .option('--build <number>', 'Build number for dev/feature/hotfix versions', parseInt)
   .option('--no-tag', 'Do not create git tag')
   .option('--no-commit', 'Do not commit changes')
   .action(async (options) => {
@@ -233,9 +265,19 @@ program
       });
 
       const packages = options.packages ? options.packages.split(',').map((p: string) => p.trim()) : undefined;
+      
+      // Build branch-aware options if needed
+      const branchAwareOptions = options.branchAware ? {
+        branchAware: true,
+        targetBranch: options.targetBranch,
+        format: options.format,
+        build: options.build
+      } : undefined;
+
       const newVersion = await releaseManager.majorRelease({
         packages,
-        message: options.message
+        message: options.message,
+        branchAwareOptions
       });
 
       console.log(`✅ Major release v${newVersion} completed`);

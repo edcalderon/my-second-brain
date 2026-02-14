@@ -2,6 +2,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as semver from 'semver';
 import simpleGit from 'simple-git';
+import { BranchAwarenessConfig, BranchAwareManager, BranchAwareOptions } from './branch-aware';
 
 export interface VersionConfig {
   rootPackageJson: string;
@@ -9,11 +10,13 @@ export interface VersionConfig {
   changelogFile?: string;
   conventionalCommits?: boolean;
   extensionConfig?: Record<string, any>;
+  branchAwareness?: BranchAwarenessConfig;
 }
 
 export class VersionManager {
   private config: VersionConfig;
   private git = simpleGit();
+  private branchAwareManager?: BranchAwareManager;
 
   constructor(config: VersionConfig) {
     this.config = {
@@ -21,6 +24,11 @@ export class VersionManager {
       conventionalCommits: true,
       ...config
     };
+
+    // Initialize branch awareness if enabled
+    if (this.config.branchAwareness?.enabled) {
+      this.branchAwareManager = new BranchAwareManager(this.config.branchAwareness);
+    }
   }
 
   async getCurrentVersion(): Promise<string> {
@@ -28,8 +36,15 @@ export class VersionManager {
     return packageJson.version;
   }
 
-  async bumpVersion(releaseType: semver.ReleaseType, preRelease?: string): Promise<string> {
+  async bumpVersion(releaseType: semver.ReleaseType, preRelease?: string, options?: BranchAwareOptions): Promise<string> {
     const currentVersion = await this.getCurrentVersion();
+
+    // Check if branch-aware mode is enabled
+    if (options?.branchAware && this.branchAwareManager && this.branchAwareManager.isEnabled()) {
+      return this.bumpVersionBranchAware(releaseType, options);
+    }
+
+    // Standard version bump (existing behavior)
     const newVersion = preRelease
       ? semver.inc(currentVersion, releaseType, preRelease)
       : semver.inc(currentVersion, releaseType);
@@ -40,6 +55,71 @@ export class VersionManager {
 
     await this.updateVersion(newVersion);
     return newVersion;
+  }
+
+  /**
+   * Bump version with branch awareness
+   */
+  async bumpVersionBranchAware(releaseType: semver.ReleaseType, options: BranchAwareOptions): Promise<string> {
+    if (!this.branchAwareManager) {
+      throw new Error('Branch awareness is not enabled');
+    }
+
+    const currentVersion = await this.getCurrentVersion();
+    const branchConfig = await this.branchAwareManager.detectBranchConfig(options.targetBranch);
+    const currentBranch = options.targetBranch || await this.branchAwareManager.getCurrentBranch();
+
+    // Bump version according to branch strategy
+    const newVersion = await this.branchAwareManager.bumpVersionBranchAware(
+      currentVersion,
+      releaseType,
+      branchConfig,
+      currentBranch,
+      options.build
+    );
+
+    // Update only the files specified for this branch
+    await this.updateVersionBranchAware(newVersion, branchConfig);
+
+    return newVersion;
+  }
+
+  /**
+   * Update version files based on branch configuration
+   */
+  async updateVersionBranchAware(newVersion: string, branchConfig: any): Promise<void> {
+    const syncFiles = branchConfig.syncFiles || [];
+
+    for (const file of syncFiles) {
+      const filePath = path.resolve(file);
+
+      // Check if it's a package.json file
+      if (file.endsWith('package.json')) {
+        await this.updatePackageJson(filePath, newVersion);
+      } else if (file.endsWith('.json')) {
+        // For version.*.json files, create or update them
+        await this.updateVersionFile(filePath, newVersion);
+      }
+    }
+  }
+
+  /**
+   * Update or create a version JSON file
+   */
+  async updateVersionFile(filePath: string, version: string): Promise<void> {
+    let versionData: any = {};
+
+    // Read existing file if it exists
+    if (await fs.pathExists(filePath)) {
+      versionData = await fs.readJson(filePath);
+    }
+
+    // Update version
+    versionData.version = version;
+    versionData.updatedAt = new Date().toISOString();
+
+    // Write back
+    await fs.writeJson(filePath, versionData, { spaces: 2 });
   }
 
   async updateVersion(newVersion: string): Promise<void> {
