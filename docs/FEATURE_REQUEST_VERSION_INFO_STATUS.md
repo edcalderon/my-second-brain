@@ -48,7 +48,7 @@ This is especially painful in monorepos where sync state and dependency relation
    - Drift detection summary (in-sync/out-of-sync)
 
 4. **Dependency Graph of Synced Apps**
-   - Graph view (text tree by default)
+   - Graph view section (rendered as a table by default; optional text-tree view via a flag)
    - Optional machine-readable formats (`--json` initially, future: `--dot`, `--mermaid`)
    - Highlights:
      - stale internal dependency links
