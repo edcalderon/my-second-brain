@@ -14,6 +14,8 @@
 :root {
   --background: #f7f3ea;
   --foreground: #14161a;
+  --muted-foreground: #5a5a60;
+  --subtle-foreground: #79798c;
   --accent: #0f766e;
   --accent-foreground: #ffffff;
   --card: #ffffff;
@@ -26,6 +28,8 @@
 html.dark {
   --background: #0f1117;
   --foreground: #e6edf3;
+  --muted-foreground: #8b949e;
+  --subtle-foreground: #6e7681;
   --accent: #1f9e89;
   --accent-foreground: #ffffff;
   --card: #161b22;
@@ -65,7 +69,25 @@ body::before {
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border transition-colors duration-300;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-foreground;
+  }
+
+  p, span, label, div {
+    @apply text-foreground;
+  }
+
+  /* Semantic text colors using CSS variables */
+  .text-secondary, .subtitle, .description {
+    color: var(--muted-foreground);
+  }
+
+  /* Muted text for hints and helper text */
+  .text-muted, .hint, .helper-text {
+    color: var(--subtle-foreground);
   }
 }
 
