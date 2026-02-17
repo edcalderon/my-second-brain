@@ -8,6 +8,7 @@ import { ChangelogManager } from './changelog';
 import { SyncManager } from './sync';
 import { ReleaseManager } from './release';
 import { loadExtensions, runExtensionHooks } from './extensions';
+import { StatusManager } from './status';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json') as { version?: string };
@@ -371,6 +372,56 @@ program
 
       await fs.writeJson(configPath, defaultConfig, { spaces: 2 });
       console.log('✅ Initialized versioning config at versioning.config.json');
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('info')
+  .description('Display installation health, version info, sync status, and dependency graph')
+  .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+  .option('--json', 'output in JSON format')
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const statusManager = new StatusManager(config);
+
+      const report = await statusManager.getStatus();
+      const output = statusManager.formatStatus(report, { json: options.json });
+      
+      console.log(output);
+
+      // Exit with non-zero if config is invalid
+      if (!report.installation.configValid) {
+        process.exit(1);
+      }
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('status')
+  .description('Alias for info command')
+  .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+  .option('--json', 'output in JSON format')
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const statusManager = new StatusManager(config);
+
+      const report = await statusManager.getStatus();
+      const output = statusManager.formatStatus(report, { json: options.json });
+      
+      console.log(output);
+
+      // Exit with non-zero if config is invalid
+      if (!report.installation.configValid) {
+        process.exit(1);
+      }
     } catch (error) {
       console.error('❌ Error:', error instanceof Error ? error.message : String(error));
       process.exit(1);
