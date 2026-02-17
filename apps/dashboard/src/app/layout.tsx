@@ -32,13 +32,23 @@ export default function RootLayout({
                 <script
                     dangerouslySetInnerHTML={{
                         __html: `
-                            try {
-                                const theme = localStorage.getItem("theme");
-                                const isDark = theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
-                                if (isDark) {
-                                    document.documentElement.classList.add("dark");
+                            (function() {
+                                try {
+                                    const theme = localStorage.getItem("theme");
+                                    const isDark = theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+                                    
+                                    // Apply dark class to html element BEFORE CSS is loaded
+                                    if (isDark) {
+                                        document.documentElement.classList.add("dark");
+                                        document.documentElement.style.colorScheme = "dark";
+                                    } else {
+                                        document.documentElement.classList.remove("dark");
+                                        document.documentElement.style.colorScheme = "light";
+                                    }
+                                } catch (e) {
+                                    console.error("Theme init error:", e);
                                 }
-                            } catch (e) {}
+                            })();
                         `,
                     }}
                 />

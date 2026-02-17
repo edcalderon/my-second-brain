@@ -43,8 +43,14 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         const html = document.documentElement;
         if (dark) {
             html.classList.add("dark");
+            html.style.colorScheme = "dark";
+            document.body.style.backgroundColor = "#0f1117";
+            document.body.style.color = "#e6edf3";
         } else {
             html.classList.remove("dark");
+            html.style.colorScheme = "light";
+            document.body.style.backgroundColor = "#f7f3ea";
+            document.body.style.color = "#14161a";
         }
     };
 

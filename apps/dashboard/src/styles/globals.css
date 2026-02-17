@@ -69,25 +69,50 @@ body::before {
 
 @layer base {
   * {
-    @apply border-border transition-colors duration-300;
+    @apply transition-colors duration-300;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply text-foreground;
+  html, body {
+    color: #14161a;
+    background-color: #f7f3ea;
   }
 
-  p, span, label, div {
-    @apply text-foreground;
+  html.dark, html.dark body {
+    color: #e6edf3;
+    background-color: #0f1117;
   }
 
-  /* Semantic text colors using CSS variables */
-  .text-secondary, .subtitle, .description {
-    color: var(--muted-foreground);
+  /* Ensure text is visible in dark mode */
+  html.dark h1, 
+  html.dark h2, 
+  html.dark h3, 
+  html.dark h4, 
+  html.dark h5, 
+  html.dark h6,
+  html.dark p,
+  html.dark span,
+  html.dark label,
+  html.dark div {
+    color: inherit;
   }
 
-  /* Muted text for hints and helper text */
-  .text-muted, .hint, .helper-text {
-    color: var(--subtle-foreground);
+  /* Specific text colors for form elements in dark mode */
+  html.dark label,
+  html.dark .label {
+    color: #d1d5db;
+  }
+
+  html.dark input,
+  html.dark textarea,
+  html.dark select {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
+  }
+
+  html.dark input::placeholder,
+  html.dark textarea::placeholder {
+    color: #9ca3af;
   }
 }
 
@@ -99,9 +124,10 @@ body::before {
 }
 
 html.dark .glass-panel {
-  background: rgba(22, 27, 34, 0.8);
-  border: 1px solid rgba(230, 237, 243, 0.1);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+  background: rgba(22, 27, 34, 0.95);
+  border: 1px solid rgba(230, 237, 243, 0.15);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+  color: #e6edf3;
 }
 
 .premium-gradient {
