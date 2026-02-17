@@ -8,7 +8,7 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.4.4)
+## 📋 Latest Changes (v1.4.5)
 
 **Extension Versions:**
 - `cleanup-repo`: 1.1.0
@@ -17,6 +17,10 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 - `reentry-status`: 1.2.0
 - `sample-extension`: 1.0.1
 - `secrets-check`: 1.1.0
+
+**From v1.4.4:**
+- 📝 Corrected extension version listing in documentation to reflect actual per-extension versions
+- 🔧 Improved version tracking accuracy for extensions
 
 **From v1.4.3:**
 - 📝 Added pre-commit linter to ensure README updates with version changes
