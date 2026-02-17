@@ -43,7 +43,7 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className={`${spaceGrotesk.variable} ${plexMono.variable} bg-background text-foreground antialiased transition-colors duration-300`}>
+            <body className={`${spaceGrotesk.variable} ${plexMono.variable} bg-white dark:bg-gray-950 text-gray-900 dark:text-white antialiased transition-colors duration-300`}>
                 <ThemeProvider>
                     <AuthProvider>
                         <AppShell>{children}</AppShell>

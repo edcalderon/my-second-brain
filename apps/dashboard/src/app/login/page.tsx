@@ -47,20 +47,20 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-6 bg-background text-foreground transition-colors duration-300">
+        <div className="min-h-screen flex items-center justify-center px-6 bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-300">
             <div className="w-full max-w-md glass-panel rounded-3xl p-8 shadow-xl">
                 <div className="flex items-center space-x-3 mb-6">
                     <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center">
                         <ShieldCheck className="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-semibold text-foreground">A-Quant Ops</h1>
+                        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">A-Quant Ops</h1>
                         <p className="text-sm text-gray-600 dark:text-gray-400">Secure access required</p>
                     </div>
                 </div>
 
                 <form onSubmit={handleEmailSignIn} className="space-y-4">
-                    <label className="block text-xs font-semibold text-foreground dark:text-gray-300">Email</label>
+                    <label className="block text-xs font-semibold text-gray-900 dark:text-gray-300">Email</label>
                     <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                         <input
@@ -68,18 +68,18 @@ export default function LoginPage() {
                             required
                             value={email}
                             onChange={(event) => setEmail(event.target.value)}
-                            className="w-full rounded-xl border border-border bg-white dark:bg-gray-800 text-foreground dark:text-gray-100 px-10 py-2 text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-accent dark:border-gray-700 transition-colors"
+                            className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-10 py-2 text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-accent transition-colors"
                             placeholder="trader@a-quant.ai"
                         />
                     </div>
 
-                    <label className="block text-xs font-semibold text-foreground dark:text-gray-300">Password</label>
+                    <label className="block text-xs font-semibold text-gray-900 dark:text-gray-300">Password</label>
                     <input
                         type="password"
                         required
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
-                        className="w-full rounded-xl border border-border bg-white dark:bg-gray-800 text-foreground dark:text-gray-100 px-4 py-2 text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-accent dark:border-gray-700 transition-colors"
+                        className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-4 py-2 text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-accent transition-colors"
                         placeholder="••••••••"
                     />
 
@@ -102,15 +102,15 @@ export default function LoginPage() {
                 </form>
 
                 <div className="my-6 flex items-center space-x-3">
-                    <div className="h-px flex-1 bg-border dark:bg-gray-700 transition-colors" />
-                    <span className="text-xs text-gray-400 dark:text-gray-500">or</span>
-                    <div className="h-px flex-1 bg-border dark:bg-gray-700 transition-colors" />
+                    <div className="h-px flex-1 bg-gray-300 dark:bg-gray-700 transition-colors" />
+                    <span className="text-xs text-gray-500 dark:text-gray-500">or</span>
+                    <div className="h-px flex-1 bg-gray-300 dark:bg-gray-700 transition-colors" />
                 </div>
 
                 <button
                     onClick={handleGoogleSignIn}
                     disabled={loading}
-                    className="w-full rounded-xl border border-border dark:border-gray-700 bg-white dark:bg-gray-800 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all hover:border-accent/40 dark:hover:border-accent/40 dark:hover:bg-gray-750 duration-300"
+                    className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 text-sm font-semibold text-gray-700 dark:text-gray-200 transition-all hover:border-accent/40 dark:hover:border-accent/40 hover:bg-gray-50 dark:hover:bg-gray-750 duration-300"
                 >
                     Continue with Google
                 </button>

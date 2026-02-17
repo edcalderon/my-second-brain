@@ -85,7 +85,7 @@ export default function OverviewPage() {
             {/* Header */}
             <header className="space-y-3">
                 <p className="text-xs uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 transition-colors">Knowledge + Trading Hub</p>
-                <h1 className="text-4xl font-semibold text-foreground dark:text-gray-100">
+                <h1 className="text-4xl font-semibold text-gray-900 dark:text-white transition-colors">
                     Second Brain Dashboard
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400 max-w-2xl transition-colors">
@@ -104,7 +104,7 @@ export default function OverviewPage() {
                 {/* Second Brain Quick Actions */}
                 <div className="glass-panel rounded-3xl p-6 border border-emerald-200/40 dark:border-emerald-900/30 transition-colors">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-foreground dark:text-gray-100 flex items-center gap-2 transition-colors">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
                             <Brain className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                             Knowledge Management
                         </h2>
@@ -137,7 +137,7 @@ export default function OverviewPage() {
                 {/* Trading Operations Quick Status */}
                 <div className="glass-panel rounded-3xl p-6 border border-amber-200/40 dark:border-amber-900/30 transition-colors">
                     <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-foreground dark:text-gray-100 flex items-center gap-2 transition-colors">
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
                             <CandlestickChart className="h-5 w-5 text-amber-700 dark:text-amber-400 transition-colors" />
                             Trading Operations
                         </h2>
@@ -166,7 +166,7 @@ export default function OverviewPage() {
             {/* Detailed Trading Metrics */}
             {summary && (
                 <section className="space-y-4">
-                    <h2 className="text-lg font-semibold text-foreground dark:text-gray-100 transition-colors">Live Execution Feed</h2>
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Live Execution Feed</h2>
                     <div className="grid gap-4 md:grid-cols-3">
                         <MetricCard
                             title="Market Activity"
@@ -198,7 +198,7 @@ export default function OverviewPage() {
                 >
                     <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400 transition-colors">
                         <p>
-                            <strong className="text-foreground dark:text-gray-100 transition-colors">Second Brain</strong> is your personal knowledge management system. Store insights, track learning, and visualize connections in your knowledge graph.
+                            <strong className="text-gray-900 dark:text-white transition-colors">Second Brain</strong> is your personal knowledge management system. Store insights, track learning, and visualize connections in your knowledge graph.
                         </p>
                         <p>
                             Use the sidebar to explore your memory network, manage documents, and review analytics.
@@ -228,7 +228,7 @@ function Card({ title, icon, children }: { title: string; icon: ReactNode; child
     return (
         <div className="glass-panel rounded-3xl p-6 transition-colors">
             <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-foreground dark:text-gray-100 transition-colors">{title}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">{title}</h3>
                 <div className="text-emerald-700 dark:text-emerald-400 transition-colors">{icon}</div>
             </div>
             <div className="mt-4">{children}</div>
@@ -253,7 +253,7 @@ function MetricCard({
                 <span>{title}</span>
                 <div className="text-emerald-700 dark:text-emerald-400 transition-colors">{icon}</div>
             </div>
-            <div className="mt-3 text-2xl font-semibold text-foreground dark:text-gray-100 transition-colors">{value}</div>
+            <div className="mt-3 text-2xl font-semibold text-gray-900 dark:text-white transition-colors">{value}</div>
             <div className="mt-1 text-xs text-gray-500 dark:text-gray-500 transition-colors">{detail}</div>
         </div>
     );
@@ -263,7 +263,7 @@ function MetricRow({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex items-center justify-between rounded-xl border border-border dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm transition-colors">
             <span className="text-gray-600 dark:text-gray-400 transition-colors">{label}</span>
-            <span className="font-semibold text-foreground dark:text-gray-100 transition-colors">{value}</span>
+            <span className="font-semibold text-gray-900 dark:text-white transition-colors">{value}</span>
         </div>
     );
 }
@@ -284,7 +284,7 @@ function ActionLink({ href, icon, title, description }: ActionLinkProps) {
                         {icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-sm text-foreground dark:text-gray-100 transition-colors">{title}</p>
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white transition-colors">{title}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate transition-colors">{description}</p>
                     </div>
                     <div className="text-gray-400 dark:text-gray-500 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors flex-shrink-0">

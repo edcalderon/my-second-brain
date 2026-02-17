@@ -36,7 +36,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
     return (
         <TradingAuthGate>
-            <div className="flex h-screen overflow-hidden bg-background">
+            <div className="flex h-screen overflow-hidden bg-white dark:bg-gray-950 transition-colors duration-300">
                 {/* Sidebar */}
                 <Sidebar isCollapsed={isCollapsed} onToggle={toggleSidebar} />
 
@@ -45,7 +45,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                     <Header onSidebarToggle={toggleSidebar} isSidebarCollapsed={isCollapsed} />
                     
                     {/* Main Content - Responsive padding */}
-                    <main className="flex-1 overflow-y-auto bg-background">
+                    <main className="flex-1 overflow-y-auto bg-white dark:bg-gray-950 transition-colors duration-300">
                         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-7xl mx-auto w-full">
                             {children}
                         </div>
