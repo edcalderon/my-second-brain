@@ -1,6 +1,40 @@
 # @edcalderon/versioning
 
+[![npm version](https://img.shields.io/npm/v/@edcalderon/versioning?style=flat-square&color=0ea5e9)](https://www.npmjs.com/package/@edcalderon/versioning)
+[![npm downloads](https://img.shields.io/npm/dm/@edcalderon/versioning?style=flat-square&color=10b981)](https://www.npmjs.com/package/@edcalderon/versioning)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square&logo=github)](https://github.com/edcalderon/my-second-brain/tree/main/packages/versioning)
+
 A comprehensive versioning and changelog management tool designed for monorepos and single repositories. It provides automated version bumping, changelog generation using conventional commits, and version synchronization across multiple packages.
+
+---
+
+## 📋 Latest Changes (v1.4.1)
+
+**Patch Fixes & Updates:**
+- 🐛 Fix pnpm audit vulnerabilities with override configuration
+- 🔧 Improve error handling in StatusManager
+- 📝 Add comprehensive documentation with badges
+- 🔗 Add direct GitHub repository links in docs
+- 📊 Enhanced status command formatting and error messages
+
+**From v1.4.0:**
+- ✨ New `versioning status` (aliased as `info`) command for health reporting
+- 📈 Sync status across all apps and packages with detailed reporting
+- 🎯 Support `--json` and `--dot` (Graphviz) output formats
+- 🔍 Environment health checks (Node.js, pnpm, Git)
+- 🎬 Last release info with suggested next version
+
+**Quick Test:**
+```bash
+npm install -g @edcalderon/versioning@latest
+versioning status
+versioning status --json
+versioning status --dot | dot -Tsvg > deps.svg
+```
+
+For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
+
+---
 
 ## Features
 
