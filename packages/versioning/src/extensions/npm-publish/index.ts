@@ -7,7 +7,7 @@ import * as path from 'path';
 const extension: VersioningExtension = {
   name: 'npm-publish',
   description: 'Extension for NPM publishing with custom logic',
-  version: '1.0.0',
+  version: '1.4.2',
 
   register: async (program: Command, config: any) => {
     // Add publish command
