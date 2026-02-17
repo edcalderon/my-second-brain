@@ -65,9 +65,11 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
 
-    const normalizedPath = pathname?.startsWith("/my-second-brain")
-        ? pathname.replace("/my-second-brain", "") || "/"
-        : pathname || "/";
+    const normalizedPath = pathname
+        ? (pathname.startsWith("/my-second-brain")
+            ? pathname.replace("/my-second-brain", "") || "/"
+            : pathname)
+        : "/";
 
     // Mobile: hidden by default unless expanded; Desktop: always visible
     if (isMobile && isCollapsed) {

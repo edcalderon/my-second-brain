@@ -38,11 +38,11 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <TradingAuthGate>
             <div className="flex h-screen overflow-hidden bg-background">
                 {/* Sidebar */}
-                <Sidebar isCollapsed={isMobile ? isCollapsed : false} onToggle={toggleSidebar} />
+                <Sidebar isCollapsed={isCollapsed} onToggle={toggleSidebar} />
 
                 {/* Main Content Area */}
                 <div className="flex flex-col flex-1 overflow-hidden min-w-0">
-                    <Header onSidebarToggle={toggleSidebar} isSidebarCollapsed={isMobile ? isCollapsed : false} />
+                    <Header onSidebarToggle={toggleSidebar} isSidebarCollapsed={isCollapsed} />
                     
                     {/* Main Content - Responsive padding */}
                     <main className="flex-1 overflow-y-auto bg-background">
