@@ -1,13 +1,24 @@
 import { ReactNode } from "react";
-import Sidebar from "@/components/layout/Sidebar";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import AppShell from "@/components/layout/AppShell";
 import "@/styles/globals.css";
 
 export const metadata = {
-    title: "Supermemory Agent Dashboard",
-    description: "Manage your AI agents and memory graph",
+    title: "A-Quant Ops Dashboard",
+    description: "Operational visibility into the A-Quant trading stack",
 };
+
+const spaceGrotesk = Space_Grotesk({
+    subsets: ["latin"],
+    variable: "--font-sans",
+});
+
+const plexMono = IBM_Plex_Mono({
+    subsets: ["latin"],
+    weight: ["400", "500", "700"],
+    variable: "--font-mono",
+});
 
 export default function RootLayout({
     children,
@@ -16,15 +27,10 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body className="flex h-screen overflow-hidden">
-                <Sidebar />
-                <div className="flex flex-col flex-1 overflow-hidden">
-                    <Header />
-                    <main className="flex-1 overflow-y-auto p-6 bg-background">
-                        {children}
-                    </main>
-                    <Footer />
-                </div>
+            <body className={`${spaceGrotesk.variable} ${plexMono.variable} bg-background text-foreground antialiased`}>
+                <AuthProvider>
+                    <AppShell>{children}</AppShell>
+                </AuthProvider>
             </body>
         </html>
     );
