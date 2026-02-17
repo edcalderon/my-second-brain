@@ -20,7 +20,7 @@
     "firebase-functions": "^4.8.0",
     "imapflow": "^1.1.0",
     "mailparser": "^3.6.0",
-    "nodemailer": "^6.9.0",
+    "nodemailer": "^8.0.1",
     "puppeteer": "^24.34.0",
     "twitter-api-v2": "^1.28.0"
   },
