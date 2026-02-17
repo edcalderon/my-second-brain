@@ -49,7 +49,7 @@ This is especially painful in monorepos where sync state and dependency relation
 
 4. **Dependency Graph of Synced Apps**
    - Graph view (text tree by default)
-   - Optional machine-readable formats (`--json`, `--dot`, future `--mermaid`)
+   - Optional machine-readable formats (`--json` initially, future: `--dot`, `--mermaid`)
    - Highlights:
      - stale internal dependency links
      - missing package references
@@ -84,6 +84,10 @@ Optional outputs:
 
 ```bash
 versioning info --json
+```
+
+Future enhancements (out of scope for initial release):
+```bash
 versioning info --dot > sync-graph.dot
 ```
 
@@ -97,6 +101,7 @@ versioning info --dot > sync-graph.dot
 - Add dependency graph generation for synced apps.
 
 ### Out of scope (initial release)
+- `--dot` and `--mermaid` output formats.
 - Automatic fix mode for sync drift.
 - Remote dashboard visualization.
 - Full historical trend analytics.
