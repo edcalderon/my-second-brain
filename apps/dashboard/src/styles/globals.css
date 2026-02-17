@@ -25,7 +25,7 @@
   --graph-line: rgba(15, 118, 110, 0.15);
 }
 
-html.dark {
+html.dark:root {
   --background: #0f1117;
   --foreground: #e6edf3;
   --muted-foreground: #8b949e;
@@ -39,20 +39,28 @@ html.dark {
   --graph-line: rgba(31, 158, 137, 0.1);
 }
 
+/* Light mode */
 body {
-  color: var(--foreground);
-  background: radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 45%),
-    radial-gradient(circle at 30% 20%, rgba(217, 119, 6, 0.12), transparent 35%),
-    var(--background);
+  background-color: #f7f3ea;
+  color: #14161a;
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+body {
+  background: radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 45%),
+    radial-gradient(circle at 30% 20%, rgba(217, 119, 6, 0.12), transparent 35%),
+    #f7f3ea;
+}
+
+/* Dark mode */
 html.dark body {
+  background-color: #0f1117;
+  color: #e6edf3;
   background: radial-gradient(circle at top left, rgba(31, 158, 137, 0.08), transparent 45%),
     radial-gradient(circle at 30% 20%, rgba(248, 113, 113, 0.08), transparent 35%),
-    var(--background);
+    #0f1117 !important;
 }
 
 body::before {
@@ -72,42 +80,34 @@ body::before {
     @apply transition-colors duration-300;
   }
 
-  html, body {
-    color: #14161a;
-    background-color: #f7f3ea;
-  }
-
-  html.dark, html.dark body {
-    color: #e6edf3;
-    background-color: #0f1117;
-  }
-
-  /* Ensure text is visible in dark mode */
-  html.dark h1, 
-  html.dark h2, 
-  html.dark h3, 
-  html.dark h4, 
-  html.dark h5, 
-  html.dark h6,
-  html.dark p,
-  html.dark span,
-  html.dark label,
-  html.dark div {
+  /* Headings inherit color from body */
+  h1, h2, h3, h4, h5, h6,
+  p, span, label, div {
     color: inherit;
   }
 
-  /* Specific text colors for form elements in dark mode */
-  html.dark label,
-  html.dark .label {
-    color: #d1d5db;
+  /* Form elements */
+  input,
+  textarea,
+  select {
+    background-color: #ffffff;
+    border-color: #e5e7eb;
+    color: #1f2937;
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
   }
 
+  input::placeholder,
+  textarea::placeholder {
+    color: #9ca3af;
+  }
+
+  /* Dark mode form elements */
   html.dark input,
   html.dark textarea,
   html.dark select {
-    background-color: #1f2937;
-    border-color: #374151;
-    color: #f3f4f6;
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #f3f4f6 !important;
   }
 
   html.dark input::placeholder,
@@ -117,16 +117,17 @@ body::before {
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(20, 22, 26, 0.08);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(20, 22, 26, 0.1);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.1);
+  color: inherit;
 }
 
 html.dark .glass-panel {
-  background: rgba(22, 27, 34, 0.95);
-  border: 1px solid rgba(230, 237, 243, 0.15);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+  background: rgba(17, 24, 39, 0.98);
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
   color: #e6edf3;
 }
 

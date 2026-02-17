@@ -52,7 +52,7 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
     };
 
     return (
-        <header className="h-16 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 transition-colors duration-300">
+        <header className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 transition-colors duration-300">
             {/* Mobile Menu Button */}
             {isMobile && (
                 <button
@@ -97,7 +97,7 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
                 <div className="relative flex-shrink-0">
                     <button
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        className="flex items-center space-x-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 hover:border-accent/40 dark:hover:border-accent/40 transition-colors"
+                        className="flex items-center space-x-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 hover:border-accent/40 dark:hover:border-accent/40 transition-colors"
                     >
                         <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-amber-400 via-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
                             <span className="text-xs font-bold text-white">

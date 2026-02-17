@@ -88,7 +88,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
 
             <aside
                 className={cn(
-                    "flex flex-col h-screen overflow-y-auto bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out",
+                    "flex flex-col h-screen overflow-y-auto bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out",
                     // Mobile styles
                     isMobile
                         ? "fixed left-0 top-0 z-40 w-64 max-w-xs"
@@ -98,7 +98,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                 )}
             >
                 {/* Header with Logo & Toggle */}
-                <div className={cn("flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 min-h-16 transition-all duration-300", isCollapsed ? "px-2" : "px-4")}>
+                <div className={cn("flex items-center justify-between sticky top-0 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 min-h-16 transition-all duration-300", isCollapsed ? "px-2" : "px-4")}>
                     {!isCollapsed && (
                         <div className="flex items-center space-x-3 flex-1 min-w-0">
                             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center accent-glow flex-shrink-0">
