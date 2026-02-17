@@ -61,8 +61,8 @@ try {
 // 3. Dependency Audit
 console.log('\n🛡️  Running Dependency Vulnerability Check...');
 try {
-    // Audit production dependencies only to avoid dev tool noise
-    execSync('npm audit --production --audit-level=high', { stdio: 'inherit', cwd: path.join(__dirname, '..') });
+    // Audit production dependencies using pnpm for workspace compatibility
+    execSync('pnpm audit --prod', { stdio: 'inherit', cwd: path.join(__dirname, '..', '..', '..') });
     console.log('✅ Security audit passed.');
 } catch (e) {
     console.error('⛔ Security audit detected high vulnerability issues.');

@@ -36,7 +36,9 @@ const DEFAULT_ALLOWLIST = [
     "YOUR_DEPLOYER_PRIVATE_KEY",
     "YOUR_LOCAL_PRIVATE_KEY",
     "YOUR_TESTNET_PRIVATE_KEY",
-    "your_private_key_here"
+    "your_private_key_here",
+    "secretPatterns", // Regex pattern definitions in code
+    "BEGIN PRIVATE KEY", // Regex string matching
 ];
 
 export interface SecretCheckResult {
