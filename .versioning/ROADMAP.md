@@ -1,4 +1,4 @@
-# Project Roadmap – Binance Futures Trading Rewrite
+# Project Roadmap – Trading Stack
 
 <!-- roadmap:managed:start -->
 > Managed by `@edcalderon/versioning` reentry-status-extension.
@@ -8,26 +8,23 @@
 > Everything outside this block is user-editable.
 <!-- roadmap:managed:end -->
 
-## North Star
+## Status
 
-- A safe, observable USDT-M futures trading stack inside this monorepo.
-- Strategy → risk → execution loop with typed events, correlation IDs, and replayability.
-- Exchange SDK/provider can be swapped without rewriting executor/business logic.
+The Binance Futures trading stack has been **fully migrated to a separate private repository**.
 
-## Now (1–2 weeks)
+All trading-related code, strategies, and exchange integrations have been removed from this
+public second-brain repository. The private repo now handles:
 
-- [now-01] Finish single-process app (`apps/trader`) wiring: market-data → strategy → executor (mock provider default)
-- [now-02] Normalize Binance user-data order events into `ORDER_*` platform events (fills/rejects)
-- [now-03] Add config loader + `.env.example` for exchange/provider selection and symbols/timeframes
+- Strategy → risk → execution loop with typed events and NATS messaging
+- Exchange adapter abstraction with provider registry pattern
+- Fractional Kelly criterion position sizing
+- Multi-signal safety system (pause on WS instability, execution drift, data quality issues)
+- Candle momentum + Black-Scholes pricing strategies
+- Graceful shutdown on all services
+- Cryptographic signer for exchange order signing
+- Real-time dashboard API
 
-## Next (4–8 weeks)
+## Remaining in this repo
 
-- [next-01] Add Market Data service as its own app with backfill + WS health tracking
-- [next-02] Add PositionManager (REST snapshot + reconciliation) and synced-guard in executor
-- [next-03] Expand risk engine (kill-switch, daily loss, cooldown) + audit log
-- [next-04] Add persistence + replay/backtest harness
-
-## Later
-
-- [later-01] Observability: structured logs, metrics, alerting (Telegram)
-- [later-02] Deployment: docker/compose + prod runbooks
+- `archive/node-binance-trader-legacy` — read-only reference of the original legacy trader
+- `docs/TRADING_REWRITE_MIGRATION.md` — migration history and details

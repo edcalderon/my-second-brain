@@ -10,12 +10,8 @@
   "scripts": {
     "dev": "pnpm --filter @ed/dashboard dev -p 3000",
     "dev:docs": "pnpm --filter @ed/docs start --port 3001",
-    "dev:trader-executor": "pnpm --filter @ed/trader-executor dev",
-    "dev:trader-strategy": "pnpm --filter @ed/trader-strategy dev",
-    "dev:trader": "pnpm --filter @ed/trader dev",
     "dev:all": "concurrently \"pnpm --filter @ed/dashboard dev -p 3000\" \"pnpm --filter @ed/docs start --port 3001\"",
     "build": "pnpm --recursive build",
-    "build:trading": "pnpm --filter @ed/trading-core --filter @ed/exchange-binance-futures --filter @ed/trader-strategy --filter @ed/trader-executor --filter @ed/trader build",
     "build:docs": "pnpm --filter @ed/docs build",
     "deploy:functions": "cd scripts && ./deploy-gcp.sh",
     "deploy:cloud-functions": "./scripts/deploy-cloud-functions.sh",

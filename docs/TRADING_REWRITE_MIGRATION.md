@@ -1,31 +1,38 @@
 # Trading Rewrite Migration
 
-## Goal
-Deprecate the legacy `node-binance-trader` repository while preserving it as read-only reference, and rebuild the trading stack cleanly inside the monorepo.
+## Status: COMPLETED — Migrated to a-quant (private repo)
 
-## New Workspaces
-- `packages/trading-core`
-- `packages/exchange-binance-futures`
-- `apps/trader/executor`
-- `apps/trader/strategy`
-- `apps/trader`
+## History
+The trading stack was originally rebuilt inside this monorepo:
+- `packages/trading-core` — core types, event bus, risk engine
+- `packages/exchange-binance-futures` — Binance USDT-M adapter (REST + WebSocket)
+- `apps/trader/executor` — intent-to-order execution with risk evaluation
+- `apps/trader/strategy` — 3-minute candle momentum strategy
+- `apps/trader` — main trader app wiring everything together
+
+## Migration (February 2026)
+All trading functionality has been migrated to the **private a-quant repository**,
+which provides a more robust architecture:
+
+- **Rust microservices** with NATS distributed messaging (replaces in-process TypeScript event bus)
+- **Fractional Kelly criterion** position sizing (replaces simple risk limits)
+- **Multi-signal pause system** — WS instability, execution drift, data quality, consecutive rejects
+- **Digital Black-Scholes pricing** and **EWMA volatility** estimation
+- **Candle momentum strategy** (ported from this repo's `threeMinuteIntent`)
+- **Exchange adapter trait** with provider registry pattern (ported from this repo's `FuturesProvider`)
+- **Graceful shutdown** via SIGINT/SIGTERM on all services
+- **Cryptographic signer** service for exchange order signing
+- **Dashboard API** with real-time aggregated state
+
+## What was removed from this repo
+- `apps/trader/` — entire trader app and sub-apps (executor, strategy)
+- `packages/trading-core/` — core trading types and event bus
+- `packages/exchange-binance-futures/` — Binance exchange adapter
+- Related scripts: `dev:trader`, `dev:trader-executor`, `dev:trader-strategy`, `build:trading`
 
 ## Archive Location
-- Legacy project moved to `archive/node-binance-trader-legacy`
-- Legacy `.kiro` migration spec moved to `.kiro/specs/binance-futures-platform-legacy`
+- Legacy `node-binance-trader` project remains at `archive/node-binance-trader-legacy` (read-only reference)
 
-## Why This Shape
-- One monorepo dependency graph and CI surface
-- Clear separation between core domain, exchange layer, strategy logic, and live execution
-- Safer incremental rewrite without legacy runtime assumptions leaking into active workspaces
-
-## Next Build Steps
-1. Extend `packages/trading-core` with full event payload coverage and serialization
-2. Harden Binance USDT-M REST/WS provider in `packages/exchange-binance-futures` (fill lifecycle, drift snapshots, listen-key alerts)
-3. Wire market-data app and full strategy→risk→executor loop
-4. Add replay/backtest harness before enabling live orders
-
-## Adapter Strategy
-- Exchange integration now follows a provider registry pattern to keep SDK/vendor switching simple.
-- Current providers: `binance-tiago` and `mock`.
-- Future SDKs can be added with `registerExchangeProvider(...)` without changing executor business logic.
+## ⚠️ Important
+The a-quant repository is **strictly private and confidential**. Do NOT reference
+its internals, strategies, or infrastructure in this public repository.
