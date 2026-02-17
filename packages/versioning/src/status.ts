@@ -85,9 +85,15 @@ export class StatusManager {
 
   private async getInstallationInfo(): Promise<InstallationInfo> {
     // Get CLI version from package.json
-    const packageJsonPath = path.join(__dirname, '../package.json');
-    const packageJson = await fs.readJson(packageJsonPath);
-    const cliVersion = packageJson.version || 'unknown';
+    let cliVersion = 'unknown';
+    try {
+      const packageJsonPath = path.join(__dirname, '../package.json');
+      const packageJson = await fs.readJson(packageJsonPath);
+      cliVersion = packageJson.version || 'unknown';
+    } catch (error) {
+      // Fallback if package.json can't be read
+      cliVersion = 'unknown';
+    }
 
     // Get Node.js version
     const nodeVersion = process.version;
