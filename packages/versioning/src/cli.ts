@@ -378,6 +378,21 @@ program
     }
   });
 
+async function handleStatusCommand(options: any): Promise<void> {
+  const config = await loadConfig(options.config);
+  const statusManager = new StatusManager(config);
+
+  const report = await statusManager.getStatus();
+  const output = statusManager.formatStatus(report, { json: options.json });
+  
+  console.log(output);
+
+  // Exit with non-zero if config is invalid
+  if (!report.installation.configValid) {
+    process.exit(1);
+  }
+}
+
 program
   .command('info')
   .description('Display installation health, version info, sync status, and dependency graph')
@@ -385,18 +400,7 @@ program
   .option('--json', 'output in JSON format')
   .action(async (options) => {
     try {
-      const config = await loadConfig(options.config);
-      const statusManager = new StatusManager(config);
-
-      const report = await statusManager.getStatus();
-      const output = statusManager.formatStatus(report, { json: options.json });
-      
-      console.log(output);
-
-      // Exit with non-zero if config is invalid
-      if (!report.installation.configValid) {
-        process.exit(1);
-      }
+      await handleStatusCommand(options);
     } catch (error) {
       console.error('❌ Error:', error instanceof Error ? error.message : String(error));
       process.exit(1);
@@ -410,18 +414,7 @@ program
   .option('--json', 'output in JSON format')
   .action(async (options) => {
     try {
-      const config = await loadConfig(options.config);
-      const statusManager = new StatusManager(config);
-
-      const report = await statusManager.getStatus();
-      const output = statusManager.formatStatus(report, { json: options.json });
-      
-      console.log(output);
-
-      // Exit with non-zero if config is invalid
-      if (!report.installation.configValid) {
-        process.exit(1);
-      }
+      await handleStatusCommand(options);
     } catch (error) {
       console.error('❌ Error:', error instanceof Error ? error.message : String(error));
       process.exit(1);
