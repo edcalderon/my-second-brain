@@ -8,7 +8,7 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.4.2)
+## 📋 Latest Changes (v1.4.3)
 
 **Extension Version Updates:**
 - 🔄 Updated all extensions to v1.4.2 for consistency:
@@ -18,6 +18,11 @@ A comprehensive versioning and changelog management tool designed for monorepos 
   - `reentry-status`: 1.2.0 → 1.4.2
   - `sample-extension`: 1.0.0 → 1.4.2
   - `secrets-check`: 1.1.0 → 1.4.2
+
+**From v1.4.2:**
+- 🔧 Added extension manager for centralized extension handling
+- 📝 Added CHANGELOG files for all extensions
+- 🔄 Updated CLI and sample extension with new features
 
 **From v1.4.1:**
 - 🐛 Fix pnpm audit vulnerabilities with override configuration
