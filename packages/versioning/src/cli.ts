@@ -7,6 +7,7 @@ import { VersionManager } from './versioning';
 import { ChangelogManager } from './changelog';
 import { SyncManager } from './sync';
 import { ReleaseManager } from './release';
+import { StatusManager } from './status';
 import { loadExtensions, runExtensionHooks } from './extensions';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -134,6 +135,34 @@ program
         console.log('❌ Version sync issues:');
         validation.issues.forEach(issue => console.log(`  - ${issue}`));
         process.exit(1);
+      }
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('status')
+  .alias('info')
+  .description('Display version and sync status report')
+  .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+  .option('--json', 'output as JSON')
+  .option('--dot', 'output as Graphviz DOT format')
+  .action(async (options) => {
+    try {
+      const config = await loadConfig(options.config);
+      const statusManager = new StatusManager(config);
+
+      if (options.json) {
+        const json = await statusManager.getJSON();
+        console.log(json);
+      } else if (options.dot) {
+        const dot = await statusManager.getDOT();
+        console.log(dot);
+      } else {
+        const report = await statusManager.formatConsole();
+        console.log(report);
       }
     } catch (error) {
       console.error('❌ Error:', error instanceof Error ? error.message : String(error));
