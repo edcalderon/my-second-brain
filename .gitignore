@@ -22,6 +22,8 @@ apps/dashboard/bun.lock
 setup-github-secrets.sh
 *-setup.sh
 *.setup.sh
+set-gcloud-project.sh
+*-gcloud*.sh
 test-production.sh
 
 # Sensitive credentials
