@@ -25,7 +25,7 @@ import { collectGitContext, inferPhase, suggestNextStep } from './git-context';
 const extension: VersioningExtension = {
   name: REENTRY_EXTENSION_NAME,
   description: 'Maintains canonical re-entry status and synchronizes to files, GitHub Issues, and Obsidian notes',
-  version: '1.4.2',
+  version: '1.2.0',
 
   hooks: {
     postVersion: async (type: string, version: string, options: any) => {

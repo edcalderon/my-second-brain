@@ -4,7 +4,7 @@ import { VersioningExtension } from '../../extensions';
 const extension: VersioningExtension = {
   name: 'lifecycle-hooks',
   description: 'Extension demonstrating lifecycle hooks for versioning process',
-  version: '1.4.2',
+  version: '1.0.0',
 
   hooks: {
     preVersion: async (type: string, options: any) => {

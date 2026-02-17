@@ -94,7 +94,7 @@ export function checkContentForSecrets(
 const extension: VersioningExtension = {
     name: 'secrets-check',
     description: 'Checks for hardcoded secrets and private keys in staged files',
-    version: '1.4.2',
+    version: '1.1.0',
 
     register: async (program: Command, config: any) => {
         // Try to get config from extensionConfig first, fallback to top-level secrets for backcompat

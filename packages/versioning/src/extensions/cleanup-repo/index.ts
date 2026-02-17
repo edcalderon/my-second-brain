@@ -287,7 +287,7 @@ async function scanRootForCleanup(
 const extension: VersioningExtension = {
     name: CLEANUP_EXTENSION_NAME,
     description: 'Config-driven repo root cleanup — keeps stray files out of root, configurable via versioning.config.json',
-    version: '1.4.2',
+    version: '1.1.0',
 
     register: async (program: Command, rootConfig: any) => {
         const config = loadCleanupConfig(rootConfig);
