@@ -14,9 +14,16 @@ import {
     BookOpen,
     Zap,
     BarChart3,
-    Layers
+    Layers,
+    ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+
+interface SidebarProps {
+    isCollapsed?: boolean;
+    onToggle?: () => void;
+}
 
 const menuSections = [
     {
@@ -47,57 +54,146 @@ const menuSections = [
     }
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
     const pathname = usePathname();
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
     const normalizedPath = pathname?.startsWith("/my-second-brain")
         ? pathname.replace("/my-second-brain", "") || "/"
         : pathname || "/";
 
-    return (
-        <aside className="w-64 bg-sidebar border-r border-border flex flex-col h-full overflow-y-auto">
-            <div className="p-6 flex items-center space-x-3 sticky top-0 bg-sidebar border-b border-border">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center accent-glow">
-                    <Brain className="text-white w-5 h-5" />
-                </div>
-                <div>
-                    <span className="text-lg font-semibold tracking-tight">Second Brain</span>
-                    <p className="text-xs text-gray-500">+ A-Quant Ops</p>
-                </div>
-            </div>
+    // Mobile: hidden by default unless expanded; Desktop: always visible
+    if (isMobile && isCollapsed) {
+        return null;
+    }
 
-            <nav className="flex-1 px-4 py-4 space-y-6">
-                {menuSections.map((section) => (
-                    <div key={section.title}>
-                        <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                            {section.title}
-                        </h3>
-                        <div className="space-y-1">
-                            {section.items.map((item) => {
-                                const isActive = normalizedPath === item.href;
-                                return (
-                                    <Link
-                                        key={item.href}
-                                        href={item.href}
-                                        className={cn(
-                                            "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-all duration-200",
-                                            isActive
-                                                ? "bg-accent text-accent-foreground shadow-md"
-                                                : "text-gray-600 hover:text-gray-900 hover:bg-black/5"
-                                        )}
-                                    >
-                                        <item.icon className={cn("mr-3 h-5 w-5", isActive ? "text-white" : "text-gray-500")} />
-                                        {item.name}
-                                    </Link>
-                                );
-                            })}
+    return (
+        <>
+            {/* Mobile overlay when sidebar is open */}
+            {isMobile && !isCollapsed && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-30 md:hidden"
+                    onClick={onToggle}
+                />
+            )}
+
+            <aside
+                className={cn(
+                    "flex flex-col h-screen overflow-y-auto bg-sidebar border-r border-border transition-all duration-300 ease-in-out",
+                    // Mobile styles
+                    isMobile
+                        ? "fixed left-0 top-0 z-40 w-64 max-w-xs"
+                        : isCollapsed
+                            ? "w-20"
+                            : "w-64"
+                )}
+            >
+                {/* Header with Logo & Toggle */}
+                <div className="p-4 flex items-center justify-between sticky top-0 bg-sidebar border-b border-border min-h-16">
+                    {!isCollapsed && (
+                        <div className="flex items-center space-x-3 flex-1 min-w-0">
+                            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center accent-glow flex-shrink-0">
+                                <Brain className="text-white w-5 h-5" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold tracking-tight truncate">Second Brain</p>
+                                <p className="text-xs text-gray-500 truncate">+ A-Quant Ops</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {isCollapsed && !isMobile && (
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center accent-glow flex-shrink-0">
+                            <Brain className="text-white w-5 h-5" />
+                        </div>
+                    )}
+
+                    {/* Toggle button - hidden on mobile when expanded */}
+                    {(!isMobile || isCollapsed) && onToggle && (
+                        <button
+                            onClick={onToggle}
+                            className="p-1 hover:bg-black/5 rounded-md transition-colors ml-auto"
+                            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                        >
+                            <ChevronLeft
+                                className={cn(
+                                    "w-5 h-5 text-gray-600 transition-transform duration-300",
+                                    isCollapsed ? "rotate-180" : ""
+                                )}
+                            />
+                        </button>
+                    )}
+                </div>
+
+                {/* Navigation */}
+                <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+                    {menuSections.map((section) => (
+                        <div key={section.title}>
+                            {!isCollapsed && (
+                                <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                    {section.title}
+                                </h3>
+                            )}
+                            <div className={cn("space-y-1", isCollapsed && "flex flex-col items-center")}>
+                                {section.items.map((item) => {
+                                    const isActive = normalizedPath === item.href;
+                                    return (
+                                        <Link
+                                            key={item.href}
+                                            href={item.href}
+                                            onClick={() => isMobile && onToggle?.()}
+                                            className={cn(
+                                                "flex items-center justify-center md:justify-start px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 group relative",
+                                                isCollapsed && "md:w-10 md:h-10",
+                                                isActive
+                                                    ? "bg-accent text-accent-foreground shadow-md"
+                                                    : "text-gray-600 hover:text-gray-900 hover:bg-black/5"
+                                            )}
+                                            title={isCollapsed ? item.name : undefined}
+                                        >
+                                            <item.icon
+                                                className={cn(
+                                                    "h-5 w-5 flex-shrink-0",
+                                                    isActive ? "text-white" : "text-gray-500 group-hover:text-gray-700",
+                                                    !isCollapsed && "mr-3"
+                                                )}
+                                            />
+                                            {!isCollapsed && <span className="truncate">{item.name}</span>}
+
+                                            {/* Tooltip for collapsed state */}
+                                            {isCollapsed && !isMobile && (
+                                                <div className="absolute left-12 bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
+                                                    {item.name}
+                                                </div>
+                                            )}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
+                </nav>
+
+                {/* Footer */}
+                {!isCollapsed && (
+                    <div className="px-4 py-6 border-t border-border bg-white/50">
+                        <div className="rounded-xl border border-border bg-white/70 p-3 text-xs text-gray-600 space-y-2">
+                            <p className="font-semibold text-gray-800">🧠 Knowledge Hub</p>
+                            <p className="text-gray-600">Your AI-powered knowledge engine</p>
                         </div>
                     </div>
-                ))}
-            </nav>
-
-            <div className="px-4 py-6 border-t border-border">
-                <div className="rounded-xl border border-border bg-white/70 p-4 text-xs text-gray-600 space-y-2">
-                    <p className="font-semibold text-gray-800">🧠 Knowledge Hub</p>
+                )}
+            </aside>
+        </>
+    );
+}
                     <p>Manage your learning, track trading operations, and explore market insights in one place.</p>
                 </div>
             </div>
