@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import AppShell from "@/components/layout/AppShell";
 import "@/styles/globals.css";
 
@@ -27,10 +28,27 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <body className={`${spaceGrotesk.variable} ${plexMono.variable} bg-background text-foreground antialiased`}>
-                <AuthProvider>
-                    <AppShell>{children}</AppShell>
-                </AuthProvider>
+            <head>
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `
+                            try {
+                                const theme = localStorage.getItem("theme");
+                                const isDark = theme === "dark" || (!theme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+                                if (isDark) {
+                                    document.documentElement.classList.add("dark");
+                                }
+                            } catch (e) {}
+                        `,
+                    }}
+                />
+            </head>
+            <body className={`${spaceGrotesk.variable} ${plexMono.variable} bg-background text-foreground antialiased transition-colors duration-300`}>
+                <ThemeProvider>
+                    <AuthProvider>
+                        <AppShell>{children}</AppShell>
+                    </AuthProvider>
+                </ThemeProvider>
             </body>
         </html>
     );

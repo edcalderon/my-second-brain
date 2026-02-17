@@ -23,6 +23,18 @@
   --graph-line: rgba(15, 118, 110, 0.15);
 }
 
+html.dark {
+  --background: #0f1117;
+  --foreground: #e6edf3;
+  --accent: #1f9e89;
+  --accent-foreground: #ffffff;
+  --card: #161b22;
+  --card-foreground: #e6edf3;
+  --border: #30363d;
+  --sidebar: #0d1117;
+  --graph-line: rgba(31, 158, 137, 0.1);
+}
+
 body {
   color: var(--foreground);
   background: radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 45%),
@@ -30,6 +42,13 @@ body {
     var(--background);
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark body {
+  background: radial-gradient(circle at top left, rgba(31, 158, 137, 0.08), transparent 45%),
+    radial-gradient(circle at 30% 20%, rgba(248, 113, 113, 0.08), transparent 35%),
+    var(--background);
 }
 
 body::before {
@@ -57,8 +76,18 @@ body::before {
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
 }
 
+html.dark .glass-panel {
+  background: rgba(22, 27, 34, 0.8);
+  border: 1px solid rgba(230, 237, 243, 0.1);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+}
+
 .premium-gradient {
   background: linear-gradient(135deg, rgba(15, 118, 110, 0.12) 0%, rgba(245, 231, 210, 0.7) 100%);
+}
+
+html.dark .premium-gradient {
+  background: linear-gradient(135deg, rgba(31, 158, 137, 0.15) 0%, rgba(51, 65, 85, 0.5) 100%);
 }
 
 .accent-glow {
