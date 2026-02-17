@@ -129,7 +129,7 @@ export default function OverviewPage() {
                             description="Access your learning resources and analysis"
                         />
                     </div>
-                    <div className="mt-4 pt-4 border-t border-border text-xs text-gray-500">
+                    <div className="mt-4 pt-4 border-t border-border dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 transition-colors">
                         <p>Manage your personal knowledge base and track learning progress.</p>
                     </div>
                 </div>
@@ -254,7 +254,7 @@ function MetricCard({
                 <div className="text-emerald-700 dark:text-emerald-400 transition-colors">{icon}</div>
             </div>
             <div className="mt-3 text-2xl font-semibold text-gray-900 dark:text-white transition-colors">{value}</div>
-            <div className="mt-1 text-xs text-gray-500 dark:text-gray-500 transition-colors">{detail}</div>
+            <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 transition-colors">{detail}</div>
         </div>
     );
 }
