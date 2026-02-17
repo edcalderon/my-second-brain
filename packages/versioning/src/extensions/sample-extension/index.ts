@@ -4,7 +4,7 @@ import { VersioningExtension } from '../../extensions';
 const extension: VersioningExtension = {
   name: 'sample-extension',
   description: 'Sample extension demonstrating custom business logic',
-  version: '1.0.0',
+  version: '1.0.1',
 
   register: async (program: Command, config: any) => {
     // Add a custom command

@@ -3,11 +3,13 @@
 import { Command } from 'commander';
 import * as path from 'path';
 import * as fs from 'fs-extra';
+import * as semver from 'semver';
 import { VersionManager } from './versioning';
 import { ChangelogManager } from './changelog';
 import { SyncManager } from './sync';
 import { ReleaseManager } from './release';
 import { StatusManager } from './status';
+import { ExtensionManager } from './extension-manager';
 import { loadExtensions, runExtensionHooks } from './extensions';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -400,6 +402,55 @@ program
 
       await fs.writeJson(configPath, defaultConfig, { spaces: 2 });
       console.log('✅ Initialized versioning config at versioning.config.json');
+    } catch (error) {
+      console.error('❌ Error:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('extension')
+  .description('Manage extensions (list, bump, changelog)')
+  .argument('<action>', 'action to perform (list, bump, changelog)')
+  .argument('[extension]', 'extension name (required for bump and changelog)')
+  .option('-t, --type <type>', 'bump type for extension (patch, minor, major)', 'patch')
+  .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+  .action(async (action, extension, options) => {
+    try {
+      const extensionManager = new ExtensionManager();
+      
+      if (action === 'bump') {
+        if (!extension) {
+          console.error('❌ Extension name required for bump action');
+          process.exit(1);
+        }
+        const newVersion = await extensionManager.bumpExtensionVersion(extension, options.type);
+        console.log(`✅ Bumped ${extension} to ${newVersion}`);
+      } else if (action === 'list') {
+        const extensions = await extensionManager.listExtensions();
+        console.log('📦 Available Extensions:');
+        extensions.forEach(ext => {
+          console.log(`  • ${ext.name}@${ext.version} - ${ext.description}`);
+        });
+      } else if (action === 'changelog') {
+        if (!extension) {
+          console.error('❌ Extension name required for changelog action');
+          process.exit(1);
+        }
+        const changelog = await extensionManager.getExtensionChangelog(extension);
+        if (changelog) {
+          console.log(`📝 Changelog for ${extension}:`);
+          console.log(changelog);
+        } else {
+          console.log(`❌ No changelog found for extension: ${extension}`);
+        }
+      } else {
+        console.log('Available actions: list, bump, changelog');
+        console.log('Usage:');
+        console.log('  versioning extension list');
+        console.log('  versioning extension bump <extension> --type patch');
+        console.log('  versioning extension changelog <extension>');
+      }
     } catch (error) {
       console.error('❌ Error:', error instanceof Error ? error.message : String(error));
       process.exit(1);
