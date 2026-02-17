@@ -96,7 +96,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                 )}
             >
                 {/* Header with Logo & Toggle */}
-                <div className="p-4 flex items-center justify-between sticky top-0 bg-sidebar border-b border-border min-h-16">
+                <div className={cn("flex items-center justify-between sticky top-0 bg-sidebar border-b border-border min-h-16 transition-all duration-300", isCollapsed ? "px-2" : "px-4")}>
                     {!isCollapsed && (
                         <div className="flex items-center space-x-3 flex-1 min-w-0">
                             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center accent-glow flex-shrink-0">
@@ -110,16 +110,16 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                     )}
 
                     {isCollapsed && !isMobile && (
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center accent-glow flex-shrink-0">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center accent-glow flex-shrink-0 mx-auto">
                             <Brain className="text-white w-5 h-5" />
                         </div>
                     )}
 
-                    {/* Toggle button - hidden on mobile when expanded */}
-                    {(!isMobile || isCollapsed) && onToggle && (
+                    {/* Toggle button - only show on desktop when sidebar exists */}
+                    {!isMobile && onToggle && (
                         <button
                             onClick={onToggle}
-                            className="p-1 hover:bg-black/5 rounded-md transition-colors ml-auto"
+                            className={cn("p-1 hover:bg-black/5 rounded-md transition-colors", !isCollapsed && "ml-auto")}
                             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                         >
                             <ChevronLeft
@@ -133,15 +133,15 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+                <nav className="flex-1 px-2 py-4 space-y-4 overflow-y-auto">
                     {menuSections.map((section) => (
                         <div key={section.title}>
                             {!isCollapsed && (
-                                <h3 className="px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                                     {section.title}
                                 </h3>
                             )}
-                            <div className={cn("space-y-1", isCollapsed && "flex flex-col items-center")}>
+                            <div className="space-y-1">
                                 {section.items.map((item) => {
                                     const isActive = normalizedPath === item.href;
                                     return (
@@ -150,8 +150,8 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                                             href={item.href}
                                             onClick={() => isMobile && onToggle?.()}
                                             className={cn(
-                                                "flex items-center justify-center md:justify-start px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 group relative",
-                                                isCollapsed && "md:w-10 md:h-10",
+                                                "flex items-center justify-start px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 group relative",
+                                                isCollapsed && "justify-center md:justify-start md:px-2",
                                                 isActive
                                                     ? "bg-accent text-accent-foreground shadow-md"
                                                     : "text-gray-600 hover:text-gray-900 hover:bg-black/5"
@@ -169,7 +169,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
 
                                             {/* Tooltip for collapsed state */}
                                             {isCollapsed && !isMobile && (
-                                                <div className="absolute left-12 bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
+                                                <div className="absolute left-16 bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
                                                     {item.name}
                                                 </div>
                                             )}
