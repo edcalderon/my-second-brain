@@ -1,15 +1,58 @@
-# supermemory
+# Second Brain Dashboard
 
-To install dependencies:
+A modern, responsive Next.js dashboard for the My Second Brain knowledge management system.
+
+## Features
+
+- 🌙 **Dark/Light Theme**: Complete theme system with localStorage persistence
+- 📱 **Mobile-First Design**: Responsive layout with collapsible sidebar navigation
+- 🎨 **Glass Panel Effects**: Modern UI with backdrop blur and premium gradients
+- 🔍 **Search Interface**: Global search across knowledge base
+- 📊 **Knowledge Graph**: Visual representation of connected thoughts
+- 🔐 **Firebase Auth**: Secure authentication with Google OAuth
+- ⚡ **Next.js 16**: Built with the latest Next.js features
+- 🎯 **TypeScript**: Full type safety throughout
+
+## Tech Stack
+
+- **Framework**: Next.js 16.1.6 with App Router
+- **Styling**: Tailwind CSS 4.1.18 with custom design system
+- **Authentication**: Firebase Auth
+- **Knowledge Graph**: Supermemory integration
+- **Deployment**: Static export for GitHub Pages
+
+## Development
 
 ```bash
-bun install
+# Install dependencies
+pnpm install
+
+# Start development server
+pnpm dev
+
+# Build for production
+pnpm build
+
+# Start production server
+pnpm start
 ```
 
-To run:
+## Environment Variables
 
-```bash
-bun run index.ts
+Create `.env.local` with:
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+SUPermemory_API_KEY=your_api_key
 ```
 
-This project was created using `bun init` in bun v1.3.5. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## Recent Updates
+
+### v1.1.5
+- ✨ Mobile-first responsive redesign
+- 🌙 Complete dark mode implementation with Tailwind v4 compatibility
+- 🎨 Enhanced glass panel effects and premium gradients
+- 📱 Improved touch-friendly navigation
+- 🔧 Fixed theme persistence and system preference detection

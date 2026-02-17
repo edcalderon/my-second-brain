@@ -76,6 +76,23 @@ Obsidian serves as the **Markdown Foundation** for this laboratory. While many t
 
 ---
 
+## 🆕 Recent Updates
+
+### Dashboard v1.1.5
+- ✨ **Mobile-First Redesign**: Complete responsive overhaul with collapsible sidebar
+- 🌙 **Dark Mode System**: Full theme support with localStorage persistence and system preference detection
+- 🐛 **Tailwind v4 Compatibility**: Fixed dark mode implementation for Tailwind CSS v4.1.18
+- 🎨 **Glass Panel Effects**: Enhanced UI with backdrop blur and premium gradients
+- 📱 **Touch-Friendly Navigation**: Improved mobile experience with proper touch targets
+
+### Versioning CLI v1.4.2
+- 🔄 **Extension Updates**: All extensions updated to v1.4.2 for consistency
+- 🛡️ **Enhanced Security**: Improved secrets detection and validation
+- 📊 **Status Command**: Comprehensive health reporting with `--json` and `--dot` output
+- 🔧 **Monorepo Support**: Better handling of multi-package versioning
+
+---
+
 ## 🗺️ Roadmap
 
 - [x] **Phase 0**: Initialize Repository & Cleanse Sensitive Data.

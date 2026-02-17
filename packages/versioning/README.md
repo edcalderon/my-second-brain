@@ -8,9 +8,18 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.4.1)
+## 📋 Latest Changes (v1.4.2)
 
-**Patch Fixes & Updates:**
+**Extension Version Updates:**
+- 🔄 Updated all extensions to v1.4.2 for consistency:
+  - `cleanup-repo`: 1.1.0 → 1.4.2
+  - `lifecycle-hooks`: 1.0.0 → 1.4.2
+  - `npm-publish`: 1.0.0 → 1.4.2
+  - `reentry-status`: 1.2.0 → 1.4.2
+  - `sample-extension`: 1.0.0 → 1.4.2
+  - `secrets-check`: 1.1.0 → 1.4.2
+
+**From v1.4.1:**
 - 🐛 Fix pnpm audit vulnerabilities with override configuration
 - 🔧 Improve error handling in StatusManager
 - 📝 Add comprehensive documentation with badges
