@@ -194,9 +194,3 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
         </>
     );
 }
-                    <p>Manage your learning, track trading operations, and explore market insights in one place.</p>
-                </div>
-            </div>
-        </aside>
-    );
-}
