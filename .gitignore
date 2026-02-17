@@ -18,6 +18,18 @@ dist/
 config/private.json
 apps/dashboard/bun.lock
 
+# Setup and configuration scripts (contain sensitive patterns)
+setup-github-secrets.sh
+*-setup.sh
+*.setup.sh
+test-production.sh
+
+# Sensitive credentials
+*.pem
+*.key
+*.p8
+service_account.json
+
 # Local tooling / specs
 .kiro/
 
