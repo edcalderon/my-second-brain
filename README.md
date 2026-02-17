@@ -101,3 +101,4 @@ See [docs/TRADING_REWRITE_MIGRATION.md](docs/TRADING_REWRITE_MIGRATION.md) for d
 
 ## 📄 License
 MIT
+# Firebase Auth Fix
