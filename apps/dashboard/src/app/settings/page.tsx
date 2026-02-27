@@ -31,7 +31,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="grid gap-3 text-sm text-gray-700">
-                    <DataRow label="Auth provider" value={user?.providerData?.[0]?.providerId || "firebase"} />
+                    <DataRow label="Auth provider" value={user?.provider || "supabase"} />
                     <DataRow label="API base" value={apiBase} />
                     <DataRow label="UI scope" value="Read-only" />
                 </div>

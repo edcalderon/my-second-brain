@@ -1,8 +1,9 @@
 "use client";
 
-import { Bell, Menu, Search, LogOut, Settings, Moon, Sun, ChevronDown } from "lucide-react";
+import { Bell, Menu, Search, LogOut, LogIn, Settings, Moon, Sun, ChevronDown, UserIcon } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
     onSidebarToggle?: () => void;
@@ -11,6 +12,7 @@ interface HeaderProps {
 
 export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderProps) {
     const { user, signOutUser } = useAuth();
+    const router = useRouter();
     const [isMobile, setIsMobile] = useState(false);
     const [isDark, setIsDark] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -24,7 +26,7 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
 
     useEffect(() => {
         // Check system preference and localStorage
-        const isDarkMode = 
+        const isDarkMode =
             localStorage.getItem("theme") === "dark" ||
             (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches);
         setIsDark(isDarkMode);
@@ -33,7 +35,7 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
     const toggleTheme = () => {
         const newDark = !isDark;
         setIsDark(newDark);
-        
+
         // Apply theme immediately
         const html = document.documentElement;
         if (newDark) {
@@ -47,7 +49,7 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
             document.body.style.backgroundColor = "#f7f3ea";
             document.body.style.color = "#14161a";
         }
-        
+
         localStorage.setItem("theme", newDark ? "dark" : "light");
     };
 
@@ -112,36 +114,64 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
                     {/* Dropdown Menu */}
                     {isDropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg py-1 z-50">
-                            {/* User Info */}
-                            <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                                <p className="text-xs font-semibold text-gray-900 dark:text-white">
-                                    {user?.email || "User"}
-                                </p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                    Authenticated
-                                </p>
-                            </div>
+                            {user ? (
+                                <>
+                                    {/* User Info */}
+                                    <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                        <p className="text-xs font-semibold text-gray-900 dark:text-white">
+                                            {user.email || "User"}
+                                        </p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                            Authenticated
+                                        </p>
+                                    </div>
 
-                            {/* Menu Items */}
-                            <button className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                                <Settings className="h-4 w-4" />
-                                <span>Settings</span>
-                            </button>
+                                    {/* Menu Items */}
+                                    <button className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                        <Settings className="h-4 w-4" />
+                                        <span>Settings</span>
+                                    </button>
 
-                            {/* Divider */}
-                            <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                                    {/* Divider */}
+                                    <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
 
-                            {/* Sign Out */}
-                            <button
-                                onClick={() => {
-                                    signOutUser();
-                                    setIsDropdownOpen(false);
-                                }}
-                                className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
-                            >
-                                <LogOut className="h-4 w-4" />
-                                <span>Sign out</span>
-                            </button>
+                                    {/* Sign Out */}
+                                    <button
+                                        onClick={() => {
+                                            signOutUser();
+                                            setIsDropdownOpen(false);
+                                        }}
+                                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+                                    >
+                                        <LogOut className="h-4 w-4" />
+                                        <span>Sign out</span>
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    {/* Guest Info */}
+                                    <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
+                                        <p className="text-xs font-semibold text-gray-900 dark:text-white">
+                                            Guest View
+                                        </p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                            Not authenticated
+                                        </p>
+                                    </div>
+
+                                    {/* Sign In */}
+                                    <button
+                                        onClick={() => {
+                                            router.push("/login");
+                                            setIsDropdownOpen(false);
+                                        }}
+                                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-colors"
+                                    >
+                                        <LogIn className="h-4 w-4" />
+                                        <span>Sign in</span>
+                                    </button>
+                                </>
+                            )}
                         </div>
                     )}
                 </div>

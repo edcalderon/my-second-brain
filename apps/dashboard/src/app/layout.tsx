@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { SupabaseProvider } from "@/components/supabase/SupabaseProvider";
 import AppShell from "@/components/layout/AppShell";
 import "@/styles/globals.css";
 
@@ -27,7 +28,7 @@ export default function RootLayout({
     children: ReactNode;
 }) {
     return (
-        <html lang="en">
+        <html lang="en" suppressHydrationWarning>
             <head>
                 <script
                     dangerouslySetInnerHTML={{
@@ -56,7 +57,9 @@ export default function RootLayout({
             <body className={`${spaceGrotesk.variable} ${plexMono.variable} bg-white dark:bg-gray-950 text-gray-900 dark:text-white antialiased transition-colors duration-300`}>
                 <ThemeProvider>
                     <AuthProvider>
-                        <AppShell>{children}</AppShell>
+                        <SupabaseProvider>
+                            <AppShell>{children}</AppShell>
+                        </SupabaseProvider>
                     </AuthProvider>
                 </ThemeProvider>
             </body>

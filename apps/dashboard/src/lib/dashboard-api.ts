@@ -1,12 +1,10 @@
-import { auth } from "@/lib/firebase-client";
+import { supabase } from "@/lib/supabase";
 
 const API_BASE = process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "";
 
 async function getAuthToken(): Promise<string | null> {
-    if (!auth?.currentUser) {
-        return null;
-    }
-    return auth.currentUser.getIdToken();
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token || null;
 }
 
 async function fetchWithAuth<T>(path: string): Promise<T> {

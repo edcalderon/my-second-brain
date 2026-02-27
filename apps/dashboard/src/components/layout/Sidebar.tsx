@@ -20,6 +20,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
+import { useAuth } from "@/components/auth/AuthProvider";
+
 interface SidebarProps {
     isCollapsed?: boolean;
     onToggle?: () => void;
@@ -57,6 +59,7 @@ const menuSections = [
 export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
     const pathname = usePathname();
     const [isMobile, setIsMobile] = useState(false);
+    const { user } = useAuth();
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -136,51 +139,55 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
 
                 {/* Navigation */}
                 <nav className="flex-1 px-2 py-4 space-y-4 overflow-y-auto">
-                    {menuSections.map((section) => (
-                        <div key={section.title}>
-                            {!isCollapsed && (
-                                <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                                    {section.title}
-                                </h3>
-                            )}
-                            <div className="space-y-1">
-                                {section.items.map((item) => {
-                                    const isActive = normalizedPath === item.href;
-                                    return (
-                                        <Link
-                                            key={item.href}
-                                            href={item.href}
-                                            onClick={() => isMobile && onToggle?.()}
-                                            className={cn(
-                                                "flex items-center justify-start px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 group relative",
-                                                isCollapsed && "justify-center md:justify-start md:px-2",
-                                                isActive
-                                                    ? "bg-accent text-accent-foreground shadow-md"
-                                                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
-                                            )}
-                                            title={isCollapsed ? item.name : undefined}
-                                        >
-                                            <item.icon
-                                                className={cn(
-                                                    "h-5 w-5 flex-shrink-0",
-                                                    isActive ? "text-white" : "text-gray-500 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300",
-                                                    !isCollapsed && "mr-3"
-                                                )}
-                                            />
-                                            {!isCollapsed && <span className="truncate">{item.name}</span>}
+                    {menuSections.map((section) => {
+                        if (section.title === "Trading Operations" && !user) return null;
 
-                                            {/* Tooltip for collapsed state */}
-                                            {isCollapsed && !isMobile && (
-                                                <div className="absolute left-16 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
-                                                    {item.name}
-                                                </div>
-                                            )}
-                                        </Link>
-                                    );
-                                })}
+                        return (
+                            <div key={section.title}>
+                                {!isCollapsed && (
+                                    <h3 className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                                        {section.title}
+                                    </h3>
+                                )}
+                                <div className="space-y-1">
+                                    {section.items.map((item) => {
+                                        const isActive = normalizedPath === item.href;
+                                        return (
+                                            <Link
+                                                key={item.href}
+                                                href={item.href}
+                                                onClick={() => isMobile && onToggle?.()}
+                                                className={cn(
+                                                    "flex items-center justify-start px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 group relative",
+                                                    isCollapsed && "justify-center md:justify-start md:px-2",
+                                                    isActive
+                                                        ? "bg-accent text-accent-foreground shadow-md"
+                                                        : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
+                                                )}
+                                                title={isCollapsed ? item.name : undefined}
+                                            >
+                                                <item.icon
+                                                    className={cn(
+                                                        "h-5 w-5 flex-shrink-0",
+                                                        isActive ? "text-white" : "text-gray-500 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300",
+                                                        !isCollapsed && "mr-3"
+                                                    )}
+                                                />
+                                                {!isCollapsed && <span className="truncate">{item.name}</span>}
+
+                                                {/* Tooltip for collapsed state */}
+                                                {isCollapsed && !isMobile && (
+                                                    <div className="absolute left-16 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
+                                                        {item.name}
+                                                    </div>
+                                                )}
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </nav>
 
                 {/* Footer */}
