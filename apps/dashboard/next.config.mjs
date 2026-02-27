@@ -1,5 +1,29 @@
+import fs from 'fs';
+import path from 'path';
+
+let edwardVersion = "unknown";
+let aQuantVersion = "unknown";
+
+try {
+  const edwardPkgPath = path.resolve(process.cwd(), '../../package.json');
+  edwardVersion = JSON.parse(fs.readFileSync(edwardPkgPath, 'utf-8')).version;
+} catch (e) {
+  console.warn("Could not read Edward version from package.json");
+}
+
+try {
+  const aQuantPkgPath = path.resolve(process.cwd(), '../../../a-quant/package.json');
+  aQuantVersion = JSON.parse(fs.readFileSync(aQuantPkgPath, 'utf-8')).version;
+} catch (e) {
+  console.warn("Could not read A-Quant version from package.json");
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  env: {
+    NEXT_PUBLIC_EDWARD_VERSION: edwardVersion,
+    NEXT_PUBLIC_A_QUANT_VERSION: aQuantVersion,
+  },
   output: 'export',
   trailingSlash: true,
   basePath: '/my-second-brain',
