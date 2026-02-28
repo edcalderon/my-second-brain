@@ -59,7 +59,7 @@ export default function OverviewPage() {
                             description="Visualize connections in your knowledge network"
                         />
                         <ActionLink
-                            href="/documents"
+                            href="/documentation"
                             icon={<TrendingUp className="h-4 w-4" />}
                             title="Documents"
                             description="Access your learning resources and analysis"

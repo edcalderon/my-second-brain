@@ -33,7 +33,7 @@ const menuSections = [
         items: [
             { name: "Knowledge Base", href: "/knowledge", icon: BookOpen },
             { name: "Memory Graph", href: "/memory-graph", icon: Network },
-            { name: "Documents", href: "/documents", icon: Layers },
+            { name: "Documents", href: "/documentation", icon: Layers },
             { name: "Agents", href: "/agents", icon: Brain },
             { name: "Analytics", href: "/usage", icon: BarChart3 },
         ]

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 // Public routes that don't require authentication
-const PUBLIC_ROUTES = ["/login", "/my-second-brain/login", "/knowledge", "/memory-graph", "/documents", "/agents", "/usage"];
+const PUBLIC_ROUTES = ["/login", "/my-second-brain/login", "/knowledge", "/memory-graph", "/documentation", "/agents", "/usage"];
 
 export default function AuthGate({ children }: { children: ReactNode }) {
     const { user, loading } = useAuth();
