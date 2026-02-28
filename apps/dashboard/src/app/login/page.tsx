@@ -70,7 +70,7 @@ export default function LoginPage() {
                             value={email}
                             onChange={(event) => setEmail(event.target.value)}
                             className="w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white px-10 py-2 text-sm placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-accent transition-colors"
-                            placeholder="trader@a-quant.ai"
+                            placeholder="trader@a-quant.xyz"
                         />
                     </div>
 
