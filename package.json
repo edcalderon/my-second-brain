@@ -33,7 +33,7 @@
     "release:patch": "pnpm version:check-secrets && versioning patch && git push && git push --tags",
     "release:minor": "pnpm version:check-secrets && versioning minor && git push && git push --tags",
     "release:major": "pnpm version:check-secrets && versioning major && git push && git push --tags",
-    "release": "pnpm version:check-secrets && pnpm exec versioning release $(node -p \"require('./package.json').version\") && git push && git push --tags",
+    "release": "pnpm version:check-secrets && pnpm exec versioning release $(node -p \"require('./package.json').version\") --no-tag && git push",
     "reentry:update": "versioning reentry update",
     "reentry:show": "versioning reentry show",
     "reentry:sync": "versioning reentry sync",
