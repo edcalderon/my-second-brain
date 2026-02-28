@@ -1,10 +1,9 @@
-import { supabase } from "@/lib/supabase";
+import { authClient } from "@/components/auth/AuthProvider";
 
 const API_BASE = process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "";
 
 async function getAuthToken(): Promise<string | null> {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token || null;
+    return await authClient.getSessionToken();
 }
 
 async function fetchWithAuth<T>(path: string): Promise<T> {

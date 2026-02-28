@@ -12,4 +12,5 @@ export interface AuthClient {
     signInWithGoogle(redirectTo?: string): Promise<void>;
     signOut(): Promise<void>;
     onAuthStateChange(callback: (user: User | null) => void): () => void;
+    getSessionToken(): Promise<string | null>;
 }

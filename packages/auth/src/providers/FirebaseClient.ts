@@ -56,4 +56,13 @@ export class FirebaseClient implements AuthClient {
         });
         return () => unsubscribe();
     }
+
+    async getSessionToken(): Promise<string | null> {
+        if (!this.auth.currentUser) return null;
+        try {
+            return await this.auth.currentUser.getIdToken();
+        } catch {
+            return null;
+        }
+    }
 }

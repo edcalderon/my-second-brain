@@ -121,4 +121,10 @@ export class HybridClient implements AuthClient {
             subscription.unsubscribe();
         };
     }
+
+    async getSessionToken(): Promise<string | null> {
+        const { data: { session }, error } = await this.supabase.auth.getSession();
+        if (error || !session) return null;
+        return session.access_token;
+    }
 }
