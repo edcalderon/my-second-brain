@@ -1,3 +1,19 @@
+## [1.5.1](https://github.com/edcalderon/my-second-brain/compare/v1.5.0...v1.5.1) (2026-02-28)
+
+
+### Bug Fixes
+
+* **auth:** align package versioning natively through workspace references and remove residual supabase manual endpoints ([5e6065d](https://github.com/edcalderon/my-second-brain/commit/5e6065d8e240eae9e82d06d77d25f73bfc243cb3))
+* **ci:** add Supabase env vars and version overrides to GitHub Pages workflow ([3ef8fe1](https://github.com/edcalderon/my-second-brain/commit/3ef8fe1f7546656276f0a3d23c22ace6d5f88e69))
+* **ci:** align Firebase secret names to match actual GitHub secrets (NEXT_PUBLIC_ prefix) ([354f0f7](https://github.com/edcalderon/my-second-brain/commit/354f0f7489c72bb1ae597f9a19a396f78d58a605))
+* **ci:** guard supabase init, add missing env secrets to workflow, fix a-quant version fallback ([8c8fb1a](https://github.com/edcalderon/my-second-brain/commit/8c8fb1a2834f35e1119c2b955a567fc8fdd568a9))
+* correct /documents→/documentation link, improve analytics dark mode contrast ([bd28d32](https://github.com/edcalderon/my-second-brain/commit/bd28d3214a810f30e993cfab6e98eb5dba569473))
+* update email placeholder domain from a-quant.ai to a-quant.xyz ([90e19da](https://github.com/edcalderon/my-second-brain/commit/90e19da6a335f2208e82f4289a41e1ba11b404b2))
+
+
+
+
+
 
 
 # [1.5.0](https://github.com/edcalderon/my-second-brain/compare/v1.4.3...v1.5.0) (2026-02-27)
