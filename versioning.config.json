@@ -6,9 +6,10 @@
   ],
   "changelogFile": "CHANGELOG.md",
   "conventionalCommits": true,
-  "syncDependencies": true,
+  "syncDependencies": false,
   "ignorePackages": [
-    "packages/versioning"
+    "packages/versioning",
+    "packages/auth"
   ],
   "branchAwareness": {
     "enabled": true,
