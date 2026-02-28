@@ -2,8 +2,7 @@
   "rootPackageJson": "package.json",
   "packages": [
     "apps/dashboard",
-    "apps/docs",
-    "packages/auth"
+    "apps/docs"
   ],
   "changelogFile": "CHANGELOG.md",
   "conventionalCommits": true,

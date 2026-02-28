@@ -52,7 +52,7 @@ jobs:
           echo "✅ Environment check complete"
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Extract monorepo version
         id: version
