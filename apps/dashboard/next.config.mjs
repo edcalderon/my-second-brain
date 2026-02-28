@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-let edwardVersion = "unknown";
-let aQuantVersion = "unknown";
+let edwardVersion = process.env.NEXT_PUBLIC_EDWARD_VERSION || "unknown";
+let aQuantVersion = process.env.NEXT_PUBLIC_A_QUANT_VERSION || "unknown";
 
 try {
   const edwardPkgPath = path.resolve(process.cwd(), '../../package.json');
@@ -15,7 +15,8 @@ try {
   const aQuantPkgPath = path.resolve(process.cwd(), '../../../a-quant/package.json');
   aQuantVersion = JSON.parse(fs.readFileSync(aQuantPkgPath, 'utf-8')).version;
 } catch (e) {
-  console.warn("Could not read A-Quant version from package.json");
+  // A-Quant is a separate repo — not available in CI. Use env var fallback.
+  aQuantVersion = process.env.NEXT_PUBLIC_A_QUANT_VERSION || aQuantVersion;
 }
 
 /** @type {import('next').NextConfig} */

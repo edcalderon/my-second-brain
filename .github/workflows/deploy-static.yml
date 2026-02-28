@@ -59,6 +59,10 @@ jobs:
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_PUBLIC_DASHBOARD_API_BASE: ${{ secrets.NEXT_PUBLIC_DASHBOARD_API_BASE }}
           NEXT_PUBLIC_SUPERMEMORY_API_KEY: ${{ secrets.NEXT_PUBLIC_SUPERMEMORY_API_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_EDWARD_VERSION: "1.5.0"
+          NEXT_PUBLIC_A_QUANT_VERSION: "0.4.0"
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
