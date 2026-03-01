@@ -2,6 +2,13 @@
 
 This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
+## 📋 Latest Changes (v1.5.1)
+
+### Features
+- Initial setup or unrecorded changes
+
+For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
+
 ## Installation
 
 ```bash

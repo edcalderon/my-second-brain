@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "update-readme": "versioning update-readme"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -16,7 +17,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@ed/auth": "workspace:*",
+    "@edcalderon/auth": "^1.0.2",
     "@supabase/supabase-js": "^2.98.0",
     "@supermemory/memory-graph": "^0.1.8",
     "@tailwindcss/postcss": "^4.1.18",

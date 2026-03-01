@@ -8,15 +8,13 @@ A universal, **provider-agnostic** authentication orchestration package for Reac
 
 ---
 
-## 📋 Latest Changes (v1.0.0)
+## 📋 Latest Changes (v1.0.3)
 
-### Initial Release
+### Fixed
 
-- ✨ Provider-agnostic `AuthClient` interface
-- 🔌 Built-in adapters: **Supabase**, **Firebase**, **Hybrid** (Firebase→Supabase)
-- ⚛️ React `AuthProvider` context and `useAuth` hook
-- 🛡️ Unified `User` type across all providers
-- 🔑 Session token access via `getSessionToken()`
+- 🐛 Updated import from `@ed/auth` (old internal alias) to `@edcalderon/auth` in dashboard consumer
+- 📝 Added `update-readme` script — uses `versioning update-readme` to keep README in sync with CHANGELOG
+- 🔄 Versioning package used as dev dependency for README maintenance
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 

@@ -45,9 +45,9 @@ importers:
 
   apps/dashboard:
     dependencies:
-      '@ed/auth':
-        specifier: workspace:*
-        version: link:../../packages/auth
+      '@edcalderon/auth':
+        specifier: ^1.0.2
+        version: 1.0.2(@supabase/supabase-js@2.98.0)(firebase@12.7.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@supabase/supabase-js':
         specifier: ^2.98.0
         version: 2.98.0
@@ -1671,6 +1671,20 @@ packages:
   '@docusaurus/utils@3.9.2':
     resolution: {integrity: sha512-lBSBiRruFurFKXr5Hbsl2thmGweAPmddhF3jb99U4EMDA5L+e5Y1rAkOS07Nvrup7HUMBDrCV45meaxZnt28nQ==}
     engines: {node: '>=20.0'}
+
+  '@edcalderon/auth@1.0.2':
+    resolution: {integrity: sha512-0NtvPE7oDyJ3Z0zRjtRaEjozPB6RXloz0pGs9Mgijc6R1A9DPw9Vfcgt2Ecam/fS3uYCYsYaBty07eDrqdeGyw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      '@supabase/supabase-js': ^2.0.0
+      firebase: ^10.0.0 || ^11.0.0 || ^12.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@supabase/supabase-js':
+        optional: true
+      firebase:
+        optional: true
 
   '@electric-sql/pglite@0.2.17':
     resolution: {integrity: sha512-qEpKRT2oUaWDH6tjRxLHjdzMqRUGYDnGZlKrnL4dJ77JVMcP2Hpo3NYnOSPKdZdeec57B6QPprCUFg0picx5Pw==}
@@ -11710,6 +11724,14 @@ snapshots:
       - supports-color
       - uglify-js
       - webpack-cli
+
+  '@edcalderon/auth@1.0.2(@supabase/supabase-js@2.98.0)(firebase@12.7.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+    optionalDependencies:
+      '@supabase/supabase-js': 2.98.0
+      firebase: 12.7.0
 
   '@electric-sql/pglite@0.2.17': {}
 

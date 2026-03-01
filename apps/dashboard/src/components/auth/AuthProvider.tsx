@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthProvider as UniversalAuthProvider, HybridClient, useAuth as useUniversalAuth } from "@ed/auth";
+import { AuthProvider as UniversalAuthProvider, HybridClient, useAuth as useUniversalAuth } from "@edcalderon/auth";
 import { supabase } from "@/lib/supabase";
 import { auth as firebaseAuth, googleProvider } from "@/lib/firebase-client";
 import { signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";

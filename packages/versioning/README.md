@@ -8,50 +8,17 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.4.5)
+## 📋 Latest Changes (v1.4.6)
 
-**Extension Versions:**
-- `cleanup-repo`: 1.1.0
-- `lifecycle-hooks`: 1.0.0
-- `npm-publish`: 1.0.0
-- `reentry-status`: 1.2.0
-- `sample-extension`: 1.0.1
-- `secrets-check`: 1.1.0
+### Added
+- 🔧 `readme-maintainer` extension (`versioning update-readme`) — auto-updates README with the latest CHANGELOG entry
+- 🎯 Uses `package.json` version as authoritative source; falls back to highest semver in CHANGELOG
+- 📂 Logs resolved paths for transparency
+- 📝 `update-readme` script added to all packages and apps
 
-**From v1.4.4:**
-- 📝 Corrected extension version listing in documentation to reflect actual per-extension versions
-- 🔧 Improved version tracking accuracy for extensions
-
-**From v1.4.3:**
-- 📝 Added pre-commit linter to ensure README updates with version changes
-- 🔧 Improved documentation maintenance workflow
-
-**From v1.4.2:**
-- 🔧 Added extension manager for centralized extension handling
-- 📝 Added CHANGELOG files for all extensions
-- 🔄 Updated CLI and sample extension with new features
-
-**From v1.4.1:**
-- 🐛 Fix pnpm audit vulnerabilities with override configuration
-- 🔧 Improve error handling in StatusManager
-- 📝 Add comprehensive documentation with badges
-- 🔗 Add direct GitHub repository links in docs
-- 📊 Enhanced status command formatting and error messages
-
-**From v1.4.0:**
-- ✨ New `versioning status` (aliased as `info`) command for health reporting
-- 📈 Sync status across all apps and packages with detailed reporting
-- 🎯 Support `--json` and `--dot` (Graphviz) output formats
-- 🔍 Environment health checks (Node.js, pnpm, Git)
-- 🎬 Last release info with suggested next version
-
-**Quick Test:**
-```bash
-npm install -g @edcalderon/versioning@latest
-versioning status
-versioning status --json
-versioning status --dot | dot -Tsvg > deps.svg
-```
+### Fixed
+- 🐛 Fixed README updater picking wrong version from malformed/misordered CHANGELOGs
+- 🐛 Fixed `@ed/auth` → `@edcalderon/auth` import in `apps/dashboard`
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 

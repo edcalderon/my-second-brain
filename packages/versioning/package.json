@@ -1,6 +1,6 @@
 {
   "name": "@edcalderon/versioning",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "A comprehensive versioning and changelog management tool for monorepos",
   "main": "dist/index.js",
   "bin": {
@@ -22,7 +22,8 @@
     "publish:local": "node dist/cli.js publish-local",
     "create-tag": "node scripts/create-tag.js",
     "release": "npm run version:patch && npm run changelog && npm run create-tag",
-    "release:local": "npm run version:patch && npm run changelog && npm run publish:local"
+    "release:local": "npm run version:patch && npm run changelog && npm run publish:local",
+    "update-readme": "node dist/cli.js update-readme"
   },
   "keywords": [
     "versioning",

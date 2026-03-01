@@ -1,13 +1,14 @@
 {
   "name": "@edcalderon/auth",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A universal, provider-agnostic authentication orchestration package with extensible adapters for Supabase, Firebase, Directus, and custom OAuth providers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "update-readme": "versioning update-readme"
   },
   "keywords": [
     "auth",

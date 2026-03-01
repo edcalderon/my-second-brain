@@ -10,7 +10,8 @@
     "validate": "node scripts/validate-push.js",
     "postinstall": "puppeteer browsers install chrome",
     "serve": "firebase emulators:start --only functions",
-    "deploy": "firebase deploy --only functions"
+    "deploy": "firebase deploy --only functions",
+    "update-readme": "versioning update-readme"
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.0.0",

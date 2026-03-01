@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3] - 2026-03-01
+
+### Fixed
+
+- 🐛 Updated import from `@ed/auth` (old internal alias) to `@edcalderon/auth` in dashboard consumer
+- 📝 Added `update-readme` script — uses `versioning update-readme` to keep README in sync with CHANGELOG
+- 🔄 Versioning package used as dev dependency for README maintenance
+
 ## [1.0.2] - 2026-03-01
 
 ### Fixed
