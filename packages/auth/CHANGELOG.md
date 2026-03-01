@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1] - 2026-03-01
+
+### Fixed
+
+- 🔗 Corrected repository URL and added `homepage` field for proper NPM package linking
+
 ## [1.0.0] - 2026-03-01
 
 ### Initial Release
