@@ -28,20 +28,15 @@ The package follows a **Single Source of Truth** model with a **Federated OAuth 
 - **OAuth / Identity Providers**: External services (Firebase, Directus, native Google OAuth, Auth0, etc.) handle frontend login bridges or federated SSO flows.
 - **The Orchestrator (`@edcalderon/auth`)**: A thin bridge layer that exposes generic interfaces (`User`, `AuthClient`). Applications consume a unified context without coupling to any specific vendor.
 
-```mermaid
-graph TD
-    UI[Frontend Applications] -->|useAuth| EdAuth["@edcalderon/auth"]
-    EdAuth -->|Direct Session| Supabase(Supabase)
-    EdAuth -->|Federated Bridge| Firebase(Firebase OAuth)
-    EdAuth -->|Custom Adapter| Directus(Directus SSO)
-    EdAuth -->|Custom Adapter| Custom(Auth0 / Custom)
+**Architecture Flow:**
 
-    Firebase -->|Sync Session| Supabase
-    Directus -->|Sync Session| Supabase
-
-    Supabase -->|Roles & Scopes| DB[(PostgreSQL)]
-```
-
+1. **Frontend Applications** `=>` consume **`@edcalderon/auth`** via `useAuth()`
+2. **`@edcalderon/auth`** orchestrates the adapters:
+   - `=>` **Supabase Adapter** (Direct Session)
+   - `=>` **Hybrid Bridge** (Firebase OAuth + Supabase Session)
+   - `=>` **Custom Adapters** (e.g. Directus SSO, Auth0)
+3. **Identity Providers** (Firebase/Directus) `=>` Sync Session to **Supabase**
+4. **Supabase** `=>` Manages Roles & Scopes in the **PostgreSQL** Database
 ---
 
 ## Features
