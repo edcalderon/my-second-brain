@@ -1,0 +1,88 @@
+name: Publish Auth to NPM
+
+on:
+  push:
+    tags:
+      - 'auth-v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.28.2
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate build provenance
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: packages/auth/package.json
+
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          # Extract version from tag (remove 'auth-v' prefix)
+          TAG_NAME=${{ github.ref_name }}
+          VERSION=${TAG_NAME#auth-v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing version: $VERSION"
+
+      - name: Update package.json version
+        run: |
+          VERSION=${{ steps.extract_version.outputs.version }}
+          cd packages/auth
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          if [ "$CURRENT_VERSION" != "$VERSION" ]; then
+            echo "Updating package.json from $CURRENT_VERSION to $VERSION"
+            npm version $VERSION --no-git-tag-version --no-commit-hooks
+          else
+            echo "Package.json already has correct version $VERSION"
+          fi
+
+      - name: Publish to NPM
+        run: cd packages/auth && npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        continue-on-error: true
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Changes
+
+            This release was automatically published from the auth package.
+
+            ### Installation
+
+            ```bash
+            npm install @edcalderon/auth
+            # or
+            pnpm add @edcalderon/auth
+            # or
+            yarn add @edcalderon/auth
+            ```
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
