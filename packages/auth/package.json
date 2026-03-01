@@ -1,6 +1,6 @@
 {
   "name": "@edcalderon/auth",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A universal, provider-agnostic authentication orchestration package with extensible adapters for Supabase, Firebase, Directus, and custom OAuth providers",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,8 +28,7 @@
   "homepage": "https://github.com/edcalderon/my-second-brain/tree/main/packages/auth",
   "repository": {
     "type": "git",
-    "url": "https://github.com/edcalderon/my-second-brain.git",
-    "directory": "packages/auth"
+    "url": "https://github.com/edcalderon/my-second-brain/tree/main/packages/auth"
   },
   "peerDependencies": {
     "@supabase/supabase-js": "^2.0.0",
