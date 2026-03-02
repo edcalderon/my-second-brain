@@ -8,11 +8,11 @@ A universal, **provider-agnostic** authentication orchestration package for Reac
 
 ---
 
-## 📋 Latest Changes (v1.1.1)
+## 📋 Latest Changes (v1.1.2)
 
-### Fixed
+### Changed
 
-- 🐛 Updated lockfile with missing `react-native` peerDependency for CI/CD compatibility
+- 🧪 Test release to verify readme-maintainer guard via pre-push hook
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
