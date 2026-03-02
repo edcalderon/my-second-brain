@@ -1,5 +1,4 @@
 #!/bin/sh
-
 echo "Running pre-push checks..."
 pnpm --filter @ed/gcp-functions validate
 

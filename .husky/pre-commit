@@ -1,5 +1,4 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
 
 # === cleanup-repo: start ===
 echo "🔍 Running root cleanup scan…"
