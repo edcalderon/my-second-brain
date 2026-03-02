@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.1] - 2026-03-02
+
+### Fixed
+
+- 🐛 Updated lockfile with missing `react-native` peerDependency for CI/CD compatibility
+
+## [1.1.0] - 2026-03-02
+
+### Added
+
+- ✨ Fully portable runtime compatibility between Web, Next.js, and React Native/Expo.
+- 🔌 Separated package sub-exports for native implementations avoiding global window dependencies.
+- 🛡️ New `SignInOptions` API and unified data shape.
+
 ## [1.0.3] - 2026-03-01
 
 ### Fixed
