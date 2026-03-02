@@ -4,6 +4,16 @@
 echo "Running pre-push checks..."
 pnpm --filter @ed/gcp-functions validate
 
+echo "Running Readme Maintainer..."
+# Run the update-readme script on any package that supports it
+pnpm --recursive run --if-present update-readme
+
+# Check if the readme maintainer modified any files. If so, fail the push so they can be committed.
+if ! git diff --exit-code; then
+  echo "❌ Readme maintainer updated some README files. Please commit the changes before pushing."
+  exit 1
+fi
+
 echo "Running secrets scan on tracked files..."
 tracked_files=$(git ls-files -z)
 
