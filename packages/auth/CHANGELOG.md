@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.2] - 2026-03-02
+
+### Changed
+
+- 🧪 Test release to verify readme-maintainer guard via pre-push hook
+
 ## [1.1.1] - 2026-03-02
 
 ### Fixed
