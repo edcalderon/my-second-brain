@@ -1,9 +1,44 @@
 {
   "name": "@edcalderon/auth",
-  "version": "1.0.3",
-  "description": "A universal, provider-agnostic authentication orchestration package with extensible adapters for Supabase, Firebase, Directus, and custom OAuth providers",
+  "version": "1.1.0",
+  "description": "A universal, provider-agnostic authentication package (Web + Next.js + Expo/React Native)",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "react-native": "./dist/index.js"
+    },
+    "./supabase": {
+      "types": "./dist/providers/SupabaseClient.d.ts",
+      "import": "./dist/providers/SupabaseClient.js",
+      "require": "./dist/providers/SupabaseClient.js",
+      "react-native": "./dist/providers/SupabaseClient.js"
+    },
+    "./firebase-web": {
+      "types": "./dist/providers/FirebaseWebClient.d.ts",
+      "import": "./dist/providers/FirebaseWebClient.js",
+      "require": "./dist/providers/FirebaseWebClient.js"
+    },
+    "./firebase-native": {
+      "types": "./dist/providers/FirebaseNativeClient.d.ts",
+      "import": "./dist/providers/FirebaseNativeClient.js",
+      "react-native": "./dist/providers/FirebaseNativeClient.js"
+    },
+    "./hybrid-web": {
+      "types": "./dist/providers/HybridWebClient.d.ts",
+      "import": "./dist/providers/HybridWebClient.js",
+      "require": "./dist/providers/HybridWebClient.js"
+    },
+    "./hybrid-native": {
+      "types": "./dist/providers/HybridNativeClient.d.ts",
+      "import": "./dist/providers/HybridNativeClient.js",
+      "react-native": "./dist/providers/HybridNativeClient.js"
+    }
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -19,7 +54,9 @@
     "directus",
     "provider-agnostic",
     "react",
-    "sso"
+    "sso",
+    "expo",
+    "react-native"
   ],
   "author": "Edward",
   "license": "MIT",
@@ -35,13 +72,20 @@
     "@supabase/supabase-js": "^2.0.0",
     "firebase": "^10.0.0 || ^11.0.0 || ^12.0.0",
     "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0"
+    "react-dom": "^18.0.0 || ^19.0.0",
+    "react-native": "*"
   },
   "peerDependenciesMeta": {
     "@supabase/supabase-js": {
       "optional": true
     },
     "firebase": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "react-native": {
       "optional": true
     }
   },

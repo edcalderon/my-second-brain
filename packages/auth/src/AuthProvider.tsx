@@ -9,7 +9,9 @@ interface AuthContextValue {
     error: string | null;
     client: AuthClient;
     signInWithEmail: (email: string, password: string) => Promise<User>;
+    /** @deprecated Use signIn instead */
     signInWithGoogle: (redirectTo?: string) => Promise<void>;
+    signIn: (options: import('./types').SignInOptions) => Promise<void>;
     signOutUser: () => Promise<void>;
 }
 
@@ -72,6 +74,15 @@ export function AuthProvider({ client, children }: { client: AuthClient; childre
                 setError(null);
                 try {
                     await client.signInWithGoogle(redirectTo);
+                } catch (err: any) {
+                    setError(err.message);
+                    throw err;
+                }
+            },
+            signIn: async (options) => {
+                setError(null);
+                try {
+                    await client.signIn(options);
                 } catch (err: any) {
                     setError(err.message);
                     throw err;
