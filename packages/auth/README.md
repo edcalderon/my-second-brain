@@ -8,13 +8,11 @@ A universal, **provider-agnostic** authentication orchestration package for Reac
 
 ---
 
-## 📋 Latest Changes (v1.0.3)
+## 📋 Latest Changes (v1.1.1)
 
 ### Fixed
 
-- 🐛 Updated import from `@ed/auth` (old internal alias) to `@edcalderon/auth` in dashboard consumer
-- 📝 Added `update-readme` script — uses `versioning update-readme` to keep README in sync with CHANGELOG
-- 🔄 Versioning package used as dev dependency for README maintenance
+- 🐛 Updated lockfile with missing `react-native` peerDependency for CI/CD compatibility
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
