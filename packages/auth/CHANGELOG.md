@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.3] - 2026-03-02
+
+### Docs
+
+- 📝 Fully rewrote README to document the new `v1.1.0` Universal Compatibility (Web + Next.js + React Native/Expo) APIs and export paths.
+
 ## [1.1.2] - 2026-03-02
 
 ### Changed

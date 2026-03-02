@@ -4,185 +4,225 @@
 [![npm downloads](https://img.shields.io/npm/dm/@edcalderon/auth?style=flat-square&color=10b981)](https://www.npmjs.com/package/@edcalderon/auth)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square&logo=github)](https://github.com/edcalderon/my-second-brain/tree/main/packages/auth)
 
-A universal, **provider-agnostic** authentication orchestration package for React applications. Swap between Supabase, Firebase, Directus, Google OAuth, or any custom provider without changing a single line of component code.
+A universal, **provider-agnostic** authentication orchestration package designed for absolute runtime portability. One abstraction that works flawlessly across React Web `(18.x/19.x)`, Next.js `(14/15)`, and React Native/Expo `(SDK 50+)`. 
+
+Swap between Supabase, Firebase, Hybrid, or any custom provider without changing a single line of your UX component code.
 
 ---
 
-## 📋 Latest Changes (v1.1.2)
+## 📋 Latest Changes (v1.1.3)
 
-### Changed
+### Docs
 
-- 🧪 Test release to verify readme-maintainer guard via pre-push hook
+- 📝 Fully rewrote README to document the new `v1.1.0` Universal Compatibility (Web + Next.js + React Native/Expo) APIs and export paths.
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
+
+---
+
+## 🚀 Runtime Support Matrix
+
+| Target Runtime | Engine / Framework | Notes | Supported Flow Semantics |
+|----------------|--------------------|-------|-----------------|
+| **Web**        | React, Vite, SPA   | Standard web APIs available (`window`) | `popup`, `redirect` |
+| **Server**     | Next.js Client     | Compatible with App Router Contexts | `redirect`, `popup` |
+| **Native**     | Expo/React Native  | Clean native bundles, strictly no web assumptions | `native` |
 
 ---
 
 ## 🏗️ Architecture
 
 The package follows a **Single Source of Truth** model with a **Federated OAuth Strategy**:
+- **Principal Database (Source of Truth)**: Supabase anchors user identities, metadata, roles, and RLS policies in PostgreSQL.
+- **The Orchestrator (`@edcalderon/auth`)**: A thin bridge layer exposing a generic interface (`User`, `AuthClient`).
 
-- **Principal Database (Source of Truth)**: Supabase anchors user identities, metadata, roles, and RLS policies in PostgreSQL (`auth.users`, `auth.identities`).
-- **OAuth / Identity Providers**: External services (Firebase, Directus, native Google OAuth, Auth0, etc.) handle frontend login bridges or federated SSO flows.
-- **The Orchestrator (`@edcalderon/auth`)**: A thin bridge layer that exposes generic interfaces (`User`, `AuthClient`). Applications consume a unified context without coupling to any specific vendor.
-
-**Architecture Flow:**
-
-1. **Frontend Applications** `=>` consume **`@edcalderon/auth`** via `useAuth()`
-2. **`@edcalderon/auth`** orchestrates the adapters:
-   - `=>` **Supabase Adapter** (Direct Session)
-   - `=>` **Hybrid Bridge** (Firebase OAuth + Supabase Session)
-   - `=>` **Custom Adapters** (e.g. Directus SSO, Auth0)
-3. **Identity Providers** (Firebase/Directus) `=>` Sync Session to **Supabase**
-4. **Supabase** `=>` Manages Roles & Scopes in the **PostgreSQL** Database
----
-
-## Features
-
-- 🎯 **Provider-Agnostic** — one interface, any backend
-- ⚛️ **React-First** — `AuthProvider` + `useAuth` hook with full TypeScript types
-- 🔌 **Extensible Adapter System** — implement `AuthClient` to add any provider
-- 🔀 **Hybrid Flows** — Firebase popup → Supabase session bridging out of the box
-- 🛡️ **Unified User Model** — `User` type normalizes identities across providers
-- 🔑 **Session Token Access** — `getSessionToken()` for API calls regardless of provider
-- 📦 **Tree-Shakeable** — import only the adapters you need
-- 🏗️ **Zero Lock-In** — swap providers by changing one line of dependency injection
+The UI consumes a **unified context** disconnected entirely from provider implementations.
 
 ---
 
 ## Installation
 
-### From NPM (public)
-
 ```bash
 npm install @edcalderon/auth
 # or
 pnpm add @edcalderon/auth
-# or
-yarn add @edcalderon/auth
-```
-
-### From Monorepo (internal workspace)
-
-```bash
-pnpm --filter <your-app> add @edcalderon/auth@workspace:*
 ```
 
 ### Peer Dependencies
 
-Install the peer dependencies for your chosen provider(s):
+Install peers depending on what adapters you use. (The NPM module avoids forcing packages you won't ship to Native vs Web via strict subpath exports).
 
 ```bash
-# For Supabase
+# Core requirements
+pnpm add react react-dom
+
+# Supabase (Adapter peers)
 pnpm add @supabase/supabase-js
 
-# For Firebase
+# Firebase (Hybrid/Pure peers)
 pnpm add firebase
 
-# For Hybrid (Firebase + Supabase)
-pnpm add @supabase/supabase-js firebase
+# Expo/Native Only
+pnpm add react-native
 ```
-
-> **Note:** `react` and `react-dom` (v18+ or v19+) are required peer dependencies.
 
 ---
 
-## Quick Start
+## Subpath Exports (Crucial for RN/Next.js compatibility)
 
-### 1. Choose Your Provider
+The package avoids bleeding `window` or `document` objects into Expo bundles or bleeding heavy native dependencies into web implementations via strict environment exports:
 
-| Provider | Class | Peer Dependency | Use Case |
-|----------|-------|-----------------|----------|
-| Supabase | `SupabaseClient` | `@supabase/supabase-js` | Direct Supabase Auth |
-| Firebase | `FirebaseClient` | `firebase` | Firebase-only applications |
-| Hybrid | `HybridClient` | Both | Firebase popup → Supabase session |
-| Custom | Implement `AuthClient` | Your choice | Directus, Auth0, Keycloak, etc. |
+- `@edcalderon/auth` (Shared Core interfaces + Contexts)
+- `@edcalderon/auth/supabase`
+- `@edcalderon/auth/firebase-web`
+- `@edcalderon/auth/firebase-native`
+- `@edcalderon/auth/hybrid-web`
+- `@edcalderon/auth/hybrid-native`
 
-### 2. Create the Provider Wrapper
+---
 
-#### Supabase (Direct)
+## Quick Start (Web & Next.js)
 
-```tsx
-// components/auth/AuthProvider.tsx
-"use client";
+### 1. Unified React Component UI (Usage)
 
-import { AuthProvider as UniversalAuthProvider, SupabaseClient, useAuth as useUniversalAuth } from "@edcalderon/auth";
-import { supabase } from "@/lib/supabase";
-import { useMemo, type ReactNode } from "react";
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-    const client = useMemo(() => new SupabaseClient(supabase), []);
-    return <UniversalAuthProvider client={client}>{children}</UniversalAuthProvider>;
-}
-
-export const useAuth = useUniversalAuth;
-```
-
-#### Hybrid (Firebase → Supabase)
+Your component code is 100% blind to what provider or environment you are using. The `signIn` orchestration handles translating standard intent into provider actions seamlessly.
 
 ```tsx
 "use client";
-
-import { AuthProvider as UniversalAuthProvider, HybridClient, useAuth as useUniversalAuth } from "@edcalderon/auth";
-import { supabase } from "@/lib/supabase";
-import { auth, googleProvider, signInWithPopup, signOut, GoogleAuthProvider } from "@/lib/firebase";
-import { useMemo, type ReactNode } from "react";
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-    const client = useMemo(() => new HybridClient({
-        supabase,
-        firebaseAuth: auth,
-        firebaseMethods: {
-            signInWithPopup,
-            signOut,
-            credentialFromResult: GoogleAuthProvider.credentialFromResult,
-        },
-        googleProvider,
-    }), []);
-
-    return <UniversalAuthProvider client={client}>{children}</UniversalAuthProvider>;
-}
-
-export const useAuth = useUniversalAuth;
-```
-
-### 3. Use in Components
-
-Every component consumes **identical signatures** regardless of which provider is active:
-
-```tsx
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useAuth } from "@edcalderon/auth";
 
 export default function Dashboard() {
-    const { user, loading, error, signInWithGoogle, signOutUser } = useAuth();
+    const { user, loading, error, signIn, signOutUser } = useAuth();
 
     if (loading) return <Spinner />;
     if (error) return <p>Error: {error}</p>;
-    if (!user) return <button onClick={() => signInWithGoogle()}>Sign In with Google</button>;
+
+    if (!user) {
+        return (
+            <button onClick={() => signIn({ provider: "google", flow: "popup" })}>
+                Sign In with Google
+            </button>
+        );
+    }
 
     return (
         <div>
-            <p>Welcome, {user.email} (via {user.provider})</p>
+            <p>Welcome, {user.email}</p>
             <button onClick={signOutUser}>Sign Out</button>
         </div>
     );
 }
 ```
 
+### 2. Provider Top-Level App Injectors
+
+Wire the environment appropriate class up at your app root.
+
+#### Supabase (Web/Native Universal)
+
+```tsx
+"use client";
+import { AuthProvider } from "@edcalderon/auth";
+import { SupabaseClient } from "@edcalderon/auth/supabase";
+import { supabase } from "@/lib/supabase";
+
+export function AppProviders({ children }) {
+    // Works perfectly in both web and Next.js out of the box
+    const client = new SupabaseClient({ supabase });
+    return <AuthProvider client={client}>{children}</AuthProvider>;
+}
+```
+
+#### Hybrid (Firebase UI → Supabase Database Session Bridging for Web)
+
+Perfect if you want Firebase to handle the Google popup, but want to automatically consume the ID Token into Supabase to maintain your DB as the source of truth! 
+
+```tsx
+"use client";
+import { AuthProvider } from "@edcalderon/auth";
+import { HybridWebClient } from "@edcalderon/auth/hybrid-web";
+import { supabase } from "@/lib/supabase";
+import { auth, signInWithPopup, signOut, GoogleAuthProvider } from "@/lib/firebase";
+
+export function AppProviders({ children }) {
+    const client = new HybridWebClient({
+        supabase,
+        firebaseAuth: auth,
+        firebaseMethods: { signInWithPopup, signOut, credentialFromResult: GoogleAuthProvider.credentialFromResult },
+        googleProvider: new GoogleAuthProvider(),
+    });
+
+    return <AuthProvider client={client}>{children}</AuthProvider>;
+}
+```
+
 ---
 
-## 🔌 Extensibility — Custom Adapters
+## Quick Start (Expo & React Native)
 
-The core strength of `@edcalderon/auth` is that **any authentication provider** can be integrated by implementing the `AuthClient` interface. No changes to your React components are required.
+React Native apps cannot safely utilize Web's window or popup assumptions. Because of the unified typings, your components never have to change, you just wire up the specific native adapters.
+
+### Hybrid Strategy Native (`expo-auth-session`)
+
+Instead of trying to pop up Firebase Web via polyfills, explicitly hand over native execution capabilities down to the adapter utilizing React Native Expo equivalents. 
+
+```tsx
+import { AuthProvider } from "@edcalderon/auth";
+import { HybridNativeClient } from "@edcalderon/auth/hybrid-native";
+import { supabase } from "@/lib/supabase";
+import { auth, signInWithCredential } from "firebase/auth"; 
+import * as Google from 'expo-auth-session/providers/google'; // Or react-native-google-signin
+
+export function ExpoProviders({ children }) {
+    // 1. You provide strictly native capability functions out of your Expo ecosystem
+    const nativeGoogleHandler = async (options) => {
+        // e.g promptAsync()
+        // Exchange credential response for Firebase Native Credentials 
+        // Return { credential, idToken }
+    };
+
+    const client = new HybridNativeClient({
+        supabase,
+        firebaseAuth: auth,
+        firebaseMethods: { signInWithCredential, signOut },
+        oauthHandlers: {
+            "google": nativeGoogleHandler
+        }
+    });
+
+    return <AuthProvider client={client}>{children}</AuthProvider>;
+}
+```
+
+Now, clicking `signIn({ provider: "google", flow: "native" })` from anywhere inside your Expo app safely triggers `nativeGoogleHandler` and orchestrates Firebase translation down to Supabase seamlessly behind the scenes!
+
+---
+
+## 🔌 API Reference - Extensibility
 
 ### The `AuthClient` Interface
 
+The core strength of `@edcalderon/auth` is that **any authentication service** can be mapped directly onto the `AuthClient` type, exposing typed portability out-of-the-box.
+
 ```typescript
+type AuthRuntime = "web" | "native" | "server";
+type OAuthFlow = "popup" | "redirect" | "native";
+
+export interface SignInOptions {
+    provider?: "google" | "apple" | "github" | string;
+    flow?: OAuthFlow;
+    redirectUri?: string;
+}
+
 export interface AuthClient {
+    runtime: AuthRuntime;
+    capabilities(): { runtime: AuthRuntime; supportedFlows: OAuthFlow[] };
+    
     getUser(): Promise<User | null>;
     signInWithEmail(email: string, password: string): Promise<User>;
-    signInWithGoogle(redirectTo?: string): Promise<void>;
+    signIn(options: SignInOptions): Promise<void>;
     signOut(): Promise<void>;
+    
     onAuthStateChange(callback: (user: User | null) => void): () => void;
     getSessionToken(): Promise<string | null>;
 }
@@ -196,307 +236,11 @@ export interface User {
     email?: string;
     avatarUrl?: string;
     provider?: string;
+    providerUserId?: string;
+    roles?: string[];
     metadata?: Record<string, any>;
 }
 ```
-
-### Example: Directus Adapter
-
-A custom Directus adapter that uses Directus SSO (e.g., Google OAuth through Directus) and optionally syncs sessions back to Supabase:
-
-```typescript
-import type { AuthClient, User } from "@edcalderon/auth";
-
-interface DirectusClientOptions {
-    directusUrl: string;
-    supabase?: any; // Optional: sync to Supabase as source of truth
-}
-
-export class DirectusClient implements AuthClient {
-    private directusUrl: string;
-    private supabase: any;
-    private currentUser: User | null = null;
-    private listeners: Set<(user: User | null) => void> = new Set();
-
-    constructor(options: DirectusClientOptions) {
-        this.directusUrl = options.directusUrl;
-        this.supabase = options.supabase;
-    }
-
-    private mapUser(directusUser: any): User | null {
-        if (!directusUser) return null;
-        return {
-            id: directusUser.id,
-            email: directusUser.email,
-            avatarUrl: directusUser.avatar
-                ? `${this.directusUrl}/assets/${directusUser.avatar}`
-                : undefined,
-            provider: "directus",
-            metadata: {
-                firstName: directusUser.first_name,
-                lastName: directusUser.last_name,
-                role: directusUser.role,
-            },
-        };
-    }
-
-    async getUser(): Promise<User | null> {
-        try {
-            const res = await fetch(`${this.directusUrl}/users/me`, {
-                credentials: "include",
-            });
-            if (!res.ok) return null;
-            const { data } = await res.json();
-            this.currentUser = this.mapUser(data);
-            return this.currentUser;
-        } catch {
-            return null;
-        }
-    }
-
-    async signInWithEmail(email: string, password: string): Promise<User> {
-        const res = await fetch(`${this.directusUrl}/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ email, password }),
-        });
-        if (!res.ok) throw new Error("Directus login failed");
-        const user = await this.getUser();
-        if (!user) throw new Error("No user after login");
-        this.notifyListeners(user);
-
-        // Optional: sync to Supabase
-        if (this.supabase) {
-            await this.syncToSupabase(user);
-        }
-        return user;
-    }
-
-    async signInWithGoogle(redirectTo?: string): Promise<void> {
-        // Directus SSO — redirect to Directus Google OAuth endpoint
-        const callback = redirectTo || window.location.origin + "/auth/callback";
-        window.location.href =
-            `${this.directusUrl}/auth/login/google?redirect=${encodeURIComponent(callback)}`;
-    }
-
-    async signOut(): Promise<void> {
-        await fetch(`${this.directusUrl}/auth/logout`, {
-            method: "POST",
-            credentials: "include",
-        });
-        this.currentUser = null;
-        this.notifyListeners(null);
-    }
-
-    onAuthStateChange(callback: (user: User | null) => void): () => void {
-        this.listeners.add(callback);
-        return () => { this.listeners.delete(callback); };
-    }
-
-    async getSessionToken(): Promise<string | null> {
-        try {
-            const res = await fetch(`${this.directusUrl}/auth/refresh`, {
-                method: "POST",
-                credentials: "include",
-            });
-            if (!res.ok) return null;
-            const { data } = await res.json();
-            return data?.access_token ?? null;
-        } catch {
-            return null;
-        }
-    }
-
-    private notifyListeners(user: User | null) {
-        this.listeners.forEach((cb) => cb(user));
-    }
-
-    private async syncToSupabase(user: User) {
-        // Sync user identity to Supabase as source of truth
-        // Implementation depends on your Supabase setup
-    }
-}
-```
-
-**Usage:**
-
-```tsx
-import { AuthProvider as UniversalAuthProvider } from "@edcalderon/auth";
-import { DirectusClient } from "./adapters/DirectusClient";
-
-const client = new DirectusClient({
-    directusUrl: "https://directus.example.com",
-    supabase: supabaseInstance, // optional sync
-});
-
-<UniversalAuthProvider client={client}>
-    <App />
-</UniversalAuthProvider>
-```
-
-### Example: Auth0 Adapter (Skeleton)
-
-```typescript
-import type { AuthClient, User } from "@edcalderon/auth";
-
-export class Auth0Client implements AuthClient {
-    constructor(private auth0: any) {}
-
-    async getUser(): Promise<User | null> { /* ... */ }
-    async signInWithEmail(email: string, password: string): Promise<User> { /* ... */ }
-    async signInWithGoogle(redirectTo?: string): Promise<void> { /* ... */ }
-    async signOut(): Promise<void> { /* ... */ }
-    onAuthStateChange(callback: (user: User | null) => void): () => void { /* ... */ }
-    async getSessionToken(): Promise<string | null> { /* ... */ }
-}
-```
-
-By implementing the `AuthClient` interface, any provider fits into the same `<AuthProvider>` and `useAuth()` workflow — **zero changes** to your component tree.
-
----
-
-## Built-in Adapters
-
-### `SupabaseClient`
-
-Direct Supabase Auth adapter. Uses `@supabase/supabase-js` for session management, OAuth, and email/password.
-
-```typescript
-import { SupabaseClient } from "@edcalderon/auth";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const client = new SupabaseClient(supabase);
-```
-
-**Features:**
-- Email/password sign-in (`signInWithPassword`)
-- Google OAuth (`signInWithOAuth`)
-- Session token via `getSession().access_token`
-- Real-time auth state changes via `onAuthStateChange`
-
-### `FirebaseClient`
-
-Firebase-only adapter. Uses Firebase Auth methods via dependency injection (tree-shaking friendly).
-
-```typescript
-import { FirebaseClient } from "@edcalderon/auth";
-import { getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-
-const auth = getAuth(app);
-const client = new FirebaseClient(auth, {
-    signInWithEmailAndPassword,
-    signInWithPopup,
-    signOut,
-    onAuthStateChanged,
-}, new GoogleAuthProvider());
-```
-
-**Features:**
-- Email/password sign-in
-- Google popup sign-in
-- Firebase ID token via `getIdToken()`
-- Real-time auth state changes
-
-### `HybridClient`
-
-Bridges Firebase Google popup → Supabase `signInWithIdToken`. Perfect for apps that need Firebase's popup UX but Supabase as the data backend.
-
-```typescript
-import { HybridClient } from "@edcalderon/auth";
-
-const client = new HybridClient({
-    supabase,
-    firebaseAuth: auth,
-    firebaseMethods: { signInWithPopup, signOut, credentialFromResult: GoogleAuthProvider.credentialFromResult },
-    googleProvider: new GoogleAuthProvider(),
-});
-```
-
-**Features:**
-- Firebase popup → extracts Google OIDC ID token → passes to Supabase `signInWithIdToken`
-- Graceful fallback to Supabase native OAuth when Firebase is not configured
-- Dual sign-out (Firebase + Supabase)
-- Auth state tracked via Supabase session
-
----
-
-## API Reference
-
-### `<AuthProvider>`
-
-React context provider that wraps your app with authentication state.
-
-```tsx
-<AuthProvider client={authClient}>
-    {children}
-</AuthProvider>
-```
-
-| Prop | Type | Description |
-|------|------|-------------|
-| `client` | `AuthClient` | The authentication adapter instance |
-| `children` | `ReactNode` | Child components |
-
-### `useAuth()`
-
-React hook that returns the current authentication state and actions.
-
-```typescript
-const {
-    user,              // User | null
-    loading,           // boolean
-    error,             // string | null
-    client,            // AuthClient (direct access)
-    signInWithEmail,   // (email: string, password: string) => Promise<User>
-    signInWithGoogle,  // (redirectTo?: string) => Promise<void>
-    signOutUser,       // () => Promise<void>
-} = useAuth();
-```
-
-> **Note:** `useAuth()` must be called within an `<AuthProvider>`. It will throw if used outside the provider tree.
-
----
-
-## Publishing & Releases
-
-### Automated NPM Publishing
-
-This package uses GitHub Actions for automated publishing to NPM when version tags are created.
-
-#### Release Process
-
-1. **Update Version**: Bump the version in `package.json`
-   ```bash
-   cd packages/auth
-   npm version patch  # or minor, major
-   ```
-
-2. **Create Git Tag**: Create and push an `auth-v*` tag
-   ```bash
-   git add packages/auth/package.json
-   git commit -m "chore(auth): bump version to X.Y.Z"
-   git tag auth-vX.Y.Z
-   git push && git push --tags
-   ```
-
-3. **Automated Publishing**: GitHub Actions will automatically build and publish to NPM
-
-#### NPM Token Setup
-
-To enable automated publishing:
-
-1. Go to [NPM](https://www.npmjs.com/) → Access Tokens → Generate New Token
-2. Create a token with **Automation** scope
-3. Add to GitHub repository secrets as `NPM_TOKEN`
-
----
-
-## Documentation
-
-- **[CHANGELOG](CHANGELOG.md)** — Version history and changes
-- **[GitHub Releases](https://github.com/edcalderon/my-second-brain/releases)** — Tagged releases
 
 ---
 
