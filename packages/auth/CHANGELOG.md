@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1] - 2026-03-02
+
+### Changed
+
+- 🎨 Upgraded README badges and title to `for-the-badge` style with gold (#C8A84E) / dark (#0d1117) Alternun brand colors
+- 🔗 Added Web3 SIWE|SIWS badge linking to Supabase docs
+
 ## [1.2.0] - 2026-03-02
 
 ### Added

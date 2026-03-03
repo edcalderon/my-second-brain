@@ -1,8 +1,9 @@
-# @edcalderon/auth
+![Auth](https://img.shields.io/badge/%40edcalderon%2Fauth-Universal%20Auth%20Orchestrator-C8A84E?style=for-the-badge&labelColor=0d1117&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzRhZTBhMCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgMThjLTQuNDIgMC04LTMuNTgtOC04czMuNTgtOCA4LTggOCAzLjU4IDggOC0zLjU4IDgtOCA4eiIvPjwvc3ZnPg==)
 
-[![npm version](https://img.shields.io/npm/v/@edcalderon/auth?style=flat-square&color=0ea5e9)](https://www.npmjs.com/package/@edcalderon/auth)
-[![npm downloads](https://img.shields.io/npm/dm/@edcalderon/auth?style=flat-square&color=10b981)](https://www.npmjs.com/package/@edcalderon/auth)
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat-square&logo=github)](https://github.com/edcalderon/my-second-brain/tree/main/packages/auth)
+[![npm version](https://img.shields.io/npm/v/@edcalderon/auth?style=for-the-badge&logo=npm&logoColor=white&labelColor=0d1117&color=C8A84E)](https://www.npmjs.com/package/@edcalderon/auth)
+[![npm downloads](https://img.shields.io/npm/dm/@edcalderon/auth?style=for-the-badge&logo=npm&logoColor=white&labelColor=0d1117&color=10b981)](https://www.npmjs.com/package/@edcalderon/auth)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-C8A84E?style=for-the-badge&logo=github&logoColor=white&labelColor=0d1117)](https://github.com/edcalderon/my-second-brain/tree/main/packages/auth)
+[![Web3](https://img.shields.io/badge/Web3-SIWE%20%7C%20SIWS-C8A84E?style=for-the-badge&logo=ethereum&logoColor=white&labelColor=0d1117)](https://supabase.com/docs/guides/auth/auth-web3)
 
 A universal, **provider-agnostic** authentication orchestration package designed for absolute runtime portability. One abstraction that works flawlessly across React Web `(18.x/19.x)`, Next.js `(14/15)`, and React Native/Expo `(SDK 50+)`. 
 
