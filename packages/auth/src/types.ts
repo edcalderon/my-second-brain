@@ -1,10 +1,18 @@
 export type AuthRuntime = "web" | "native" | "server";
 export type OAuthFlow = "popup" | "redirect" | "native";
 
+export interface Web3SignInOptions {
+    chain: "ethereum" | "solana" | "bitcoin";
+    wallet?: any;
+    message?: string;
+    signature?: string;
+}
+
 export interface SignInOptions {
-    provider?: "google" | "apple" | "github" | string;
+    provider?: "google" | "apple" | "github" | "web3" | string;
     flow?: OAuthFlow;
     redirectUri?: string;
+    web3?: Web3SignInOptions;
 }
 
 export type AuthErrorCode =

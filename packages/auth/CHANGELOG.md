@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0] - 2026-03-02
+
+### Added
+
+- 🔗 Added agnostic Web3 support to the core `SignInOptions` (`options.provider === 'web3'`).
+- 🔗 Upgraded `SupabaseClient` and `HybridClient` adapters to natively call Supabase's `signInWithWeb3` standard.
+- 📝 Documented Wagmi and `@solana/wallet-adapter` implementation examples in README.
+
 ## [1.1.3] - 2026-03-02
 
 ### Docs

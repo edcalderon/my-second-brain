@@ -114,7 +114,36 @@ export default function Dashboard() {
 }
 ```
 
-### 2. Provider Top-Level App Injectors
+### 2. Web3 Crypto Wallets (Wagmi / Solana)
+
+Because the orchestration is provider-blind, you can easily pair it with libraries like `wagmi` or `@solana/wallet-adapter-react`.
+
+```tsx
+"use client";
+import { useAuth } from "@edcalderon/auth";
+import { useWallet } from "@solana/wallet-adapter-react";
+
+export function SolanaLogin() {
+    const { signIn } = useAuth();
+    const wallet = useWallet();
+
+    const handleWeb3SignIn = () => {
+        if (!wallet.connected) return;
+        
+        signIn({ 
+            provider: "web3", 
+            web3: { 
+                chain: "solana", 
+                wallet: wallet.wallet?.adapter // Pass the raw wallet adapter
+            } 
+        });
+    }
+
+    return <button onClick={handleWeb3SignIn}>Sign In with Solana</button>;
+}
+```
+
+### 3. Provider Top-Level App Injectors
 
 Wire the environment appropriate class up at your app root.
 
@@ -208,10 +237,18 @@ The core strength of `@edcalderon/auth` is that **any authentication service** c
 type AuthRuntime = "web" | "native" | "server";
 type OAuthFlow = "popup" | "redirect" | "native";
 
+export interface Web3SignInOptions {
+    chain: "ethereum" | "solana" | "bitcoin";
+    wallet?: any;
+    message?: string;
+    signature?: string;
+}
+
 export interface SignInOptions {
-    provider?: "google" | "apple" | "github" | string;
+    provider?: "google" | "apple" | "github" | "web3" | string;
     flow?: OAuthFlow;
     redirectUri?: string;
+    web3?: Web3SignInOptions;
 }
 
 export interface AuthClient {

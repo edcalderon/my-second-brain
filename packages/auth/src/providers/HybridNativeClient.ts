@@ -70,6 +70,19 @@ export class HybridNativeClient implements AuthClient {
     async signIn(options: SignInOptions): Promise<void> {
         const provider = options.provider || "google";
 
+        if (provider === "web3") {
+            if (!options.web3) throw new Error("CONFIG_ERROR: options.web3 is required when provider is 'web3'");
+            const { error } = await this.supabase.auth.signInWithWeb3({
+                // @ts-ignore - Supabase TS types might be strict (e.g. 0x${string}), bypass for agnostic adapter
+                chain: options.web3.chain as any,
+                message: options.web3.message as any,
+                signature: options.web3.signature as any,
+                wallet: options.web3.wallet,
+            });
+            if (error) throw new Error(`PROVIDER_ERROR: ${error.message}`);
+            return;
+        }
+
         // Pure Supabase route
         if (!this.firebaseAuth || !this.methods || !this.oauthHandlers[provider]) {
             console.warn(`Native OAuth via Hybrid fallback for '${provider}' targeting Supabase purely`);
