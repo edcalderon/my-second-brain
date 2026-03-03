@@ -11,13 +11,12 @@ Swap between Supabase, Firebase, Hybrid, or any custom provider without changing
 
 ---
 
-## 📋 Latest Changes (v1.2.0)
+## 📋 Latest Changes (v1.2.1)
 
-### Added
+### Changed
 
-- 🔗 Added agnostic Web3 support to the core `SignInOptions` (`options.provider === 'web3'`).
-- 🔗 Upgraded `SupabaseClient` and `HybridClient` adapters to natively call Supabase's `signInWithWeb3` standard.
-- 📝 Documented Wagmi and `@solana/wallet-adapter` implementation examples in README.
+- 🎨 Upgraded README badges and title to `for-the-badge` style with gold (#C8A84E) / dark (#0d1117) Alternun brand colors
+- 🔗 Added Web3 SIWE|SIWS badge linking to Supabase docs
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
