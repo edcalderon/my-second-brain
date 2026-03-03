@@ -10,11 +10,13 @@ Swap between Supabase, Firebase, Hybrid, or any custom provider without changing
 
 ---
 
-## 📋 Latest Changes (v1.1.3)
+## 📋 Latest Changes (v1.2.0)
 
-### Docs
+### Added
 
-- 📝 Fully rewrote README to document the new `v1.1.0` Universal Compatibility (Web + Next.js + React Native/Expo) APIs and export paths.
+- 🔗 Added agnostic Web3 support to the core `SignInOptions` (`options.provider === 'web3'`).
+- 🔗 Upgraded `SupabaseClient` and `HybridClient` adapters to natively call Supabase's `signInWithWeb3` standard.
+- 📝 Documented Wagmi and `@solana/wallet-adapter` implementation examples in README.
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
