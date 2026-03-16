@@ -48,9 +48,11 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 SUPermemory_API_KEY=your_api_key
 ```
 
-## 📋 Latest Changes (v1.5.1)
+## Recent Updates
 
-### Features
-- Initial setup or unrecorded changes
-
-For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
+### v1.1.5
+- ✨ Mobile-first responsive redesign
+- 🌙 Complete dark mode implementation with Tailwind v4 compatibility
+- 🎨 Enhanced glass panel effects and premium gradients
+- 📱 Improved touch-friendly navigation
+- 🔧 Fixed theme persistence and system preference detection
