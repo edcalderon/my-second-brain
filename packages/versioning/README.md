@@ -8,17 +8,19 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.4.6)
+## 📋 Latest Changes (v1.4.7)
 
 ### Added
-- 🔧 `readme-maintainer` extension (`versioning update-readme`) — auto-updates README with the latest CHANGELOG entry
-- 🎯 Uses `package.json` version as authoritative source; falls back to highest semver in CHANGELOG
-- 📂 Logs resolved paths for transparency
-- 📝 `update-readme` script added to all packages and apps
-
-### Fixed
-- 🐛 Fixed README updater picking wrong version from malformed/misordered CHANGELOGs
-- 🐛 Fixed `@ed/auth` → `@edcalderon/auth` import in `apps/dashboard`
+- ✨ New `workspace-scripts` extension (v1.0.0)
+  - `versioning scripts sync` — auto-generate `dev:all`, `build:all`, and per-app scripts in root package.json
+  - `versioning scripts list` — display current workspace script configuration
+  - `versioning scripts detect` — find new workspace apps not yet tracked in config
+  - `versioning scripts preview` — preview generated scripts without writing
+- 🔄 `postSync` hook auto-detects new apps added to pnpm-workspace.yaml
+- ⚙️ Config-driven via `extensionConfig.workspace-scripts` in versioning.config.json
+- 🏃 Runner support: `concurrently` (default) or `turbo`
+- 📦 Managed script tracking: safely adds/updates/removes only scripts it owns
+- 🧪 Comprehensive test suite for workspace-scripts extension
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 

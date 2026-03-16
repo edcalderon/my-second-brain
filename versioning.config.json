@@ -76,6 +76,25 @@
         "SAFE_TEST_KEY"
       ]
     },
+    "workspace-scripts": {
+      "enabled": true,
+      "runner": "concurrently",
+      "individualScripts": true,
+      "buildScripts": true,
+      "autoDetect": true,
+      "apps": {
+        "apps/dashboard": {
+          "command": "dev",
+          "args": "-p 3000",
+          "port": 3000
+        },
+        "apps/docs": {
+          "command": "start",
+          "args": "--port 3001",
+          "port": 3001
+        }
+      }
+    },
     "cleanup-repo": {
       "enabled": true,
       "defaultDestination": "docs",

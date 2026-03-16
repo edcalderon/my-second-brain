@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.7](https://github.com/edcalderon/my-second-brain/tree/main/packages/versioning) (2026-03-16)
+
+### Added
+- ✨ New `workspace-scripts` extension (v1.0.0)
+  - `versioning scripts sync` — auto-generate `dev:all`, `build:all`, and per-app scripts in root package.json
+  - `versioning scripts list` — display current workspace script configuration
+  - `versioning scripts detect` — find new workspace apps not yet tracked in config
+  - `versioning scripts preview` — preview generated scripts without writing
+- 🔄 `postSync` hook auto-detects new apps added to pnpm-workspace.yaml
+- ⚙️ Config-driven via `extensionConfig.workspace-scripts` in versioning.config.json
+- 🏃 Runner support: `concurrently` (default) or `turbo`
+- 📦 Managed script tracking: safely adds/updates/removes only scripts it owns
+- 🧪 Comprehensive test suite for workspace-scripts extension
+
 ## [1.4.6](https://github.com/edcalderon/my-second-brain/tree/main/packages/versioning) (2026-03-01)
 
 ### Added
