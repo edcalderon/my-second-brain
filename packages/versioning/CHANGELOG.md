@@ -1,9 +1,22 @@
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.5.1](https://github.com/edcalderon/my-second-brain/tree/main/packages/versioning) (2026-03-19)
+
+### Fixed
+- 🔧 Fixed `secrets-check` extension to use Husky v9 hook format (removed deprecated `._/husky.sh` sourcing)
+- 🔧 Fixed `cleanup-repo` extension to use Husky v9 hook format
+- 🔄 Enhanced `init` command to automatically set up husky and add `prepare` script to package.json
+- ✨ Added optional `postinstall` hook to versioning package that conditionally sets up husky when consumed
+
+### Changed
+- 📝 Updated hook generation to be compatible with Husky v9+ (eliminates deprecation warnings in v10)
 
 ## [1.5.0](https://github.com/edcalderon/my-second-brain/tree/main/packages/versioning) (2026-03-19)
 

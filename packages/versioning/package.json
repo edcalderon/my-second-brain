@@ -1,6 +1,6 @@
 {
   "name": "@edcalderon/versioning",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "A comprehensive versioning and changelog management tool for monorepos",
   "main": "dist/index.js",
   "bin": {
@@ -13,6 +13,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "lint": "eslint src/**/*.ts",
+    "postinstall": "node scripts/post-install.js",
     "prepublishOnly": "npm run build && npm run test",
     "version:patch": "node dist/cli.js patch --no-commit --no-tag",
     "version:minor": "node dist/cli.js minor --no-commit --no-tag",

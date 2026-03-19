@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as semver from 'semver';
+import { execSync } from 'child_process';
 import { VersionManager } from './versioning';
 import { ChangelogManager } from './changelog';
 import { SyncManager } from './sync';
@@ -402,6 +403,28 @@ program
 
       await fs.writeJson(configPath, defaultConfig, { spaces: 2 });
       console.log('✅ Initialized versioning config at versioning.config.json');
+
+      // Set up husky if in a git repo with a package.json
+      const pkgJsonPath = path.resolve('package.json');
+      if (await fs.pathExists(pkgJsonPath)) {
+        const pkgJson = await fs.readJson(pkgJsonPath);
+
+        // Add prepare script if missing
+        if (!pkgJson.scripts?.prepare) {
+          pkgJson.scripts = pkgJson.scripts || {};
+          pkgJson.scripts.prepare = 'husky';
+          await fs.writeJson(pkgJsonPath, pkgJson, { spaces: 2 });
+          console.log('✅ Added "prepare": "husky" to package.json');
+        }
+
+        // Run husky to set core.hooksPath
+        try {
+          execSync('npx husky', { stdio: 'ignore' });
+          console.log('✅ Husky hooks initialized (.husky/)');
+        } catch {
+          console.log('⚠️  Could not initialize husky. Run "npx husky" manually.');
+        }
+      }
     } catch (error) {
       console.error('❌ Error:', error instanceof Error ? error.message : String(error));
       process.exit(1);

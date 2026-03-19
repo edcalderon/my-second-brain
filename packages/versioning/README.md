@@ -8,15 +8,16 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.0)
+## 📋 Latest Changes (v1.5.1)
 
-### Added
-- ✨ New `workspace-env` extension (v1.0.0)
-  - `versioning env sync` to generate per-target `.env.local` and `.env.example` files from one canonical manifest
-  - `versioning env doctor` to report missing required variables and unknown root env keys
-  - `versioning env validate` for CI-friendly required variable validation with non-zero exit on missing vars
-  - Supports manifest sources, aliases, canonical variable metadata, and target key mapping
-- 🧪 Added unit coverage for env parsing, sync generation, validation logic, and command registration
+### Fixed
+- 🔧 Fixed `secrets-check` extension to use Husky v9 hook format (removed deprecated `._/husky.sh` sourcing)
+- 🔧 Fixed `cleanup-repo` extension to use Husky v9 hook format
+- 🔄 Enhanced `init` command to automatically set up husky and add `prepare` script to package.json
+- ✨ Added optional `postinstall` hook to versioning package that conditionally sets up husky when consumed
+
+### Changed
+- 📝 Updated hook generation to be compatible with Husky v9+ (eliminates deprecation warnings in v10)
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
