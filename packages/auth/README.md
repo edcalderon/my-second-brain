@@ -15,17 +15,12 @@ Swap between Supabase, Firebase, Hybrid, or any custom provider without changing
 
 ### Added
 
-- 🗃️ Added Supabase SQL templates under `packages/auth/supabase/` for a vendor-independent `public.users` table and optional `auth.users` sync trigger.
+- Added `packages/auth/supabase/` SQL templates for a vendor-independent `public.users` table and optional Supabase Auth sync trigger.
 
 ### Fixed
 
-- 🔒 Hardened the OIDC upsert SQL so trusted server-side verification is required for external identity writes.
-- 🛡️ Preserved stored profile fields when optional claims are omitted from later syncs.
-
-### Changed
-
-- 🎨 Upgraded README badges and title to `for-the-badge` style with gold (#C8A84E) / dark (#0d1117) Alternun brand colors
-- 🔗 Added Web3 SIWE|SIWS badge linking to Supabase docs
+- Hardened the OIDC upsert migration so identity writes require a trusted server-side caller instead of the `anon` role.
+- Preserved existing user profile fields when optional claims are omitted during upserts or Supabase sync updates.
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
