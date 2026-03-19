@@ -11,6 +11,11 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 ## 📋 Latest Changes (v1.4.7)
 
 ### Added
+- ✨ New `workspace-env` extension (v1.0.0)
+  - `versioning env sync` — generate per-target `.env.local` and `.env.example` files from one canonical manifest
+  - `versioning env doctor` — report missing required variables and unknown root env keys
+  - `versioning env validate` — CI-friendly validation for required variables (non-zero exit on missing vars)
+  - Supports manifest sources, aliases, canonical variable metadata, and target key mapping
 - ✨ New `workspace-scripts` extension (v1.0.0)
   - `versioning scripts sync` — auto-generate `dev:all`, `build:all`, and per-app scripts in root package.json
   - `versioning scripts list` — display current workspace script configuration
@@ -113,6 +118,34 @@ Extensions can hook into the versioning lifecycle:
 - `postSync`: Called after version sync
 
 ### Built-in Extensions
+
+#### Workspace Env Extension
+
+Adds first-class workspace environment orchestration for monorepos:
+
+```bash
+versioning env sync
+versioning env doctor
+versioning env validate --target landing
+```
+
+Manifest default lookup order:
+- `config/env/manifest.cjs`
+- `config/env/manifest.js`
+- `config/env/manifest.json`
+
+Basic config (`versioning.config.json`):
+
+```json
+{
+  "extensionConfig": {
+    "workspace-env": {
+      "enabled": true,
+      "manifestPath": "config/env/manifest.cjs"
+    }
+  }
+}
+```
 
 #### Lifecycle Hooks Extension
 
