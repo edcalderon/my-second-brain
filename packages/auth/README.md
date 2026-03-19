@@ -11,7 +11,16 @@ Swap between Supabase, Firebase, Hybrid, or any custom provider without changing
 
 ---
 
-## 📋 Latest Changes (v1.2.1)
+## 📋 Latest Changes (v1.2.2)
+
+### Added
+
+- 🗃️ Added Supabase SQL templates under `packages/auth/supabase/` for a vendor-independent `public.users` table and optional `auth.users` sync trigger.
+
+### Fixed
+
+- 🔒 Hardened the OIDC upsert SQL so trusted server-side verification is required for external identity writes.
+- 🛡️ Preserved stored profile fields when optional claims are omitted from later syncs.
 
 ### Changed
 
@@ -67,6 +76,13 @@ pnpm add firebase
 # Expo/Native Only
 pnpm add react-native
 ```
+
+### Supabase SQL Templates
+
+If you want an application-owned user table instead of coupling your identity model to `auth.users`, copy the reference SQL templates in `packages/auth/supabase/` into your Supabase project and apply them with `supabase db push`.
+
+- `001_create_app_users.sql`: vendor-independent `public.users` table plus secure server-side OIDC upsert RPC
+- `002_sync_auth_users_to_app_users.sql`: optional trigger and backfill for projects using Supabase Auth
 
 ---
 

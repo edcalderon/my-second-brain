@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.2] - 2026-03-19
+
+### Added
+
+- Added `packages/auth/supabase/` SQL templates for a vendor-independent `public.users` table and optional Supabase Auth sync trigger.
+
+### Fixed
+
+- Hardened the OIDC upsert migration so identity writes require a trusted server-side caller instead of the `anon` role.
+- Preserved existing user profile fields when optional claims are omitted during upserts or Supabase sync updates.
+
 ## [1.2.1] - 2026-03-02
 
 ### Changed
