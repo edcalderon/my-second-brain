@@ -1,6 +1,6 @@
 {
   "name": "@edcalderon/versioning",
-  "version": "1.4.7",
+  "version": "1.5.0",
   "description": "A comprehensive versioning and changelog management tool for monorepos",
   "main": "dist/index.js",
   "bin": {
@@ -34,6 +34,7 @@
   ],
   "author": "Edward",
   "license": "MIT",
+  "homepage": "https://github.com/edcalderon/my-second-brain/tree/main/packages/versioning",
   "publishConfig": {
     "access": "public"
   },

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0](https://github.com/edcalderon/my-second-brain/tree/main/packages/versioning) (2026-03-19)
+
+### Added
+- ✨ New `workspace-env` extension (v1.0.0)
+  - `versioning env sync` to generate per-target `.env.local` and `.env.example` files from one canonical manifest
+  - `versioning env doctor` to report missing required variables and unknown root env keys
+  - `versioning env validate` for CI-friendly required variable validation with non-zero exit on missing vars
+  - Supports manifest sources, aliases, canonical variable metadata, and target key mapping
+- 🧪 Added unit coverage for env parsing, sync generation, validation logic, and command registration
+
 ## [1.4.7](https://github.com/edcalderon/my-second-brain/tree/main/packages/versioning) (2026-03-16)
 
 ### Added

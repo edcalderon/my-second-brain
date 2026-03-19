@@ -8,9 +8,15 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.4.7)
+## 📋 Latest Changes (v1.5.0)
 
 ### Added
+- ✨ New `workspace-env` extension (v1.0.0)
+  - `versioning env sync` — generate per-target `.env.local` and `.env.example` files from one canonical manifest
+  - `versioning env doctor` — report ready targets, missing required variables, unknown root env keys, and unused root values
+  - `versioning env validate` — CI-friendly validation with `--all`, `--strict-unused`, and `--json`
+  - Supports both canonical manifest maps and spec-style target entry manifests
+  - Supports manifest sources, aliases, canonical variable metadata, target key mapping, generated headers, and dry-run checks
 - ✨ New `workspace-scripts` extension (v1.0.0)
   - `versioning scripts sync` — auto-generate `dev:all`, `build:all`, and per-app scripts in root package.json
   - `versioning scripts list` — display current workspace script configuration
@@ -113,6 +119,111 @@ Extensions can hook into the versioning lifecycle:
 - `postSync`: Called after version sync
 
 ### Built-in Extensions
+
+#### Workspace Env Extension
+
+Adds first-class workspace environment orchestration for monorepos:
+
+```bash
+versioning env sync
+versioning env doctor
+versioning env validate --target landing
+```
+
+Key capabilities:
+- Canonical root env sources: `.env` then `.env.local`
+- Alias resolution for legacy variable names
+- Minimal per-target runtime env generation
+- Root and per-target example file generation from one manifest
+- Deterministic output with generated headers and no rewrites when content is unchanged
+- CI-friendly validation and dry-run sync checks
+
+Manifest default lookup order:
+- `config/env/manifest.ts`
+- `config/env/manifest.cjs`
+- `config/env/manifest.js`
+- `config/env/manifest.json`
+
+Supported manifest styles:
+- Legacy map-based manifest:
+
+```ts
+{
+  sources: ['.env', '.env.local'],
+  variables: {
+    SUPABASE_URL: {
+      description: 'Supabase URL',
+      required: true,
+      targets: {
+        landing: 'NEXT_PUBLIC_SUPABASE_URL'
+      }
+    }
+  },
+  targets: {
+    landing: {
+      path: 'apps/landing'
+    }
+  }
+}
+```
+
+- Spec-style manifest:
+
+```ts
+{
+  rootExampleFile: '.env.example',
+  variables: [
+    {
+      key: 'SUPABASE_URL',
+      description: 'Supabase URL'
+    },
+    {
+      key: 'OPENAI_API_KEY',
+      aliases: ['LEGACY_OPENAI_KEY'],
+      secret: true
+    }
+  ],
+  targets: [
+    {
+      id: 'landing',
+      outputFile: 'apps/landing/.env.local',
+      exampleFile: 'apps/landing/.env.example',
+      entries: [
+        {
+          source: 'SUPABASE_URL',
+          target: 'NEXT_PUBLIC_SUPABASE_URL',
+          required: true
+        },
+        {
+          source: 'OPENAI_API_KEY'
+        }
+      ]
+    }
+  ]
+}
+```
+
+CLI options:
+
+```bash
+versioning env sync --target landing --check
+versioning env sync --json
+versioning env doctor --target landing --json
+versioning env validate --all --strict-unused
+```
+
+Basic config (`versioning.config.json`):
+
+```json
+{
+  "extensionConfig": {
+    "workspace-env": {
+      "enabled": true,
+      "manifestPath": "config/env/manifest.cjs"
+    }
+  }
+}
+```
 
 #### Lifecycle Hooks Extension
 
