@@ -12,21 +12,11 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ### Added
 - ✨ New `workspace-env` extension (v1.0.0)
-  - `versioning env sync` — generate per-target `.env.local` and `.env.example` files from one canonical manifest
-  - `versioning env doctor` — report ready targets, missing required variables, unknown root env keys, and unused root values
-  - `versioning env validate` — CI-friendly validation with `--all`, `--strict-unused`, and `--json`
-  - Supports both canonical manifest maps and spec-style target entry manifests
-  - Supports manifest sources, aliases, canonical variable metadata, target key mapping, generated headers, and dry-run checks
-- ✨ New `workspace-scripts` extension (v1.0.0)
-  - `versioning scripts sync` — auto-generate `dev:all`, `build:all`, and per-app scripts in root package.json
-  - `versioning scripts list` — display current workspace script configuration
-  - `versioning scripts detect` — find new workspace apps not yet tracked in config
-  - `versioning scripts preview` — preview generated scripts without writing
-- 🔄 `postSync` hook auto-detects new apps added to pnpm-workspace.yaml
-- ⚙️ Config-driven via `extensionConfig.workspace-scripts` in versioning.config.json
-- 🏃 Runner support: `concurrently` (default) or `turbo`
-- 📦 Managed script tracking: safely adds/updates/removes only scripts it owns
-- 🧪 Comprehensive test suite for workspace-scripts extension
+  - `versioning env sync` to generate per-target `.env.local` and `.env.example` files from one canonical manifest
+  - `versioning env doctor` to report missing required variables and unknown root env keys
+  - `versioning env validate` for CI-friendly required variable validation with non-zero exit on missing vars
+  - Supports manifest sources, aliases, canonical variable metadata, and target key mapping
+- 🧪 Added unit coverage for env parsing, sync generation, validation logic, and command registration
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
