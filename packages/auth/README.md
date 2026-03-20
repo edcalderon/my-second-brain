@@ -79,6 +79,68 @@ If you want an application-owned user table instead of coupling your identity mo
 - `001_create_app_users.sql`: vendor-independent `public.users` table plus secure server-side OIDC upsert RPC
 - `002_sync_auth_users_to_app_users.sql`: optional trigger and backfill for projects using Supabase Auth
 
+### Authentik OIDC Client (Canonical)
+
+`@edcalderon/auth` exports a browser-first Authentik OIDC helper that is decoupled from Supabase and can be used with any backend session strategy.
+
+```ts
+import {
+    isAuthentikConfigured,
+    startAuthentikOAuthFlow,
+    handleAuthentikCallback,
+    readOidcSession,
+    clearOidcSession,
+    hasPendingAuthentikCallback,
+} from "@edcalderon/auth";
+
+if (isAuthentikConfigured()) {
+    await startAuthentikOAuthFlow("google", {
+        providerSourceSlugs: {
+            google: "google",
+            discord: "discord",
+        },
+    });
+}
+
+if (hasPendingAuthentikCallback(window.location.search)) {
+    const session = await handleAuthentikCallback(window.location.search, {
+        onSessionReady: async (claims, tokens) => {
+            // Optional hook for API upsert/session handoff.
+            console.log(claims.sub, tokens.accessToken);
+        },
+    });
+
+    console.log("OIDC session", session);
+}
+
+const existing = readOidcSession();
+if (!existing) {
+    clearOidcSession();
+}
+```
+
+Required env vars (defaults):
+
+| Var | Description |
+| --- | --- |
+| `EXPO_PUBLIC_AUTHENTIK_ISSUER` | `https://<host>/application/o/<app-slug>/` |
+| `EXPO_PUBLIC_AUTHENTIK_CLIENT_ID` | OAuth2 provider client ID |
+| `EXPO_PUBLIC_AUTHENTIK_REDIRECT_URI` | App redirect URI registered in Authentik |
+
+You can override env key names with `envKeys` and pass direct values with `issuer`, `clientId`, and `redirectUri`.
+
+Authentik setup checklist:
+
+1. Configure an OAuth2/OIDC provider in Authentik with PKCE enabled.
+2. Ensure redirect URIs match your app origin/path exactly.
+3. Configure source login slugs (`providerSourceSlugs`) for each social provider.
+4. Use `onSessionReady` to hand off claims/tokens to your backend session flow.
+
+Known Authentik `2026.2.1` bug workaround:
+
+- A production hot-patch may be needed in Authentik `flow_manager.py` around `handle_existing_link` to avoid duplicate `(user_id, source_id)` writes when re-linking existing social identities.
+- Track the upstream Authentik issue and re-apply the patch after container upgrades until a fixed release is available.
+
 ---
 
 ## Subpath Exports (Crucial for RN/Next.js compatibility)

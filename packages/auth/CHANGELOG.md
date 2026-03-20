@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Added canonical `AuthentikOidcClient` browser helpers with PKCE-only OAuth flow utilities (`isAuthentikConfigured`, `startAuthentikOAuthFlow`, `handleAuthentikCallback`, `readOidcSession`, `clearOidcSession`, `hasPendingAuthentikCallback`, `OIDC_INITIAL_SEARCH`).
+- Added exported Authentik OIDC types: `OidcClaims`, `OidcSession`, `OidcProvider`.
+- Added README guidance for Authentik setup and the known Authentik `2026.2.1` social re-link bug workaround.
+
 ## [1.2.2] - 2026-03-19
 
 ### Added

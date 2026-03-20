@@ -8,3 +8,4 @@ export * from "./providers/FirebaseWebClient";
 export { FirebaseWebClient as FirebaseClient } from "./providers/FirebaseWebClient";
 export * from "./providers/HybridWebClient";
 export { HybridWebClient as HybridClient } from "./providers/HybridWebClient";
+export * from "./AuthentikOidcClient";
