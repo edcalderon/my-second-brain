@@ -11,16 +11,13 @@ Swap between Supabase, Firebase, Hybrid, or any custom provider without changing
 
 ---
 
-## 📋 Latest Changes (v1.2.2)
+## 📋 Latest Changes (v1.3.0)
 
 ### Added
 
-- Added `packages/auth/supabase/` SQL templates for a vendor-independent `public.users` table and optional Supabase Auth sync trigger.
-
-### Fixed
-
-- Hardened the OIDC upsert migration so identity writes require a trusted server-side caller instead of the `anon` role.
-- Preserved existing user profile fields when optional claims are omitted during upserts or Supabase sync updates.
+- Added canonical `AuthentikOidcClient` browser helpers with PKCE-only OAuth flow utilities (`isAuthentikConfigured`, `startAuthentikOAuthFlow`, `handleAuthentikCallback`, `readOidcSession`, `clearOidcSession`, `hasPendingAuthentikCallback`, `OIDC_INITIAL_SEARCH`).
+- Added exported Authentik OIDC types: `OidcClaims`, `OidcSession`, `OidcProvider`.
+- Added README guidance for Authentik setup and the known Authentik `2026.2.1` social re-link bug workaround.
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
