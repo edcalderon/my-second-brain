@@ -8,7 +8,7 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.2)
+## 📋 Latest Changes (v1.5.3)
 
 ### Bug Fixes
 
@@ -19,6 +19,7 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 * **ci:** use --frozen-lockfile to resolve @ed/auth workspace link from lockfile; remove packages/auth from monorepo versioning scope ([99e38c0](https://github.com/edcalderon/my-second-brain/commit/99e38c03abf6fa4c3ead41b0ad34840ef859a5e0))
 * **release:** skip re-tagging on plain release command since tag exists from patch ([e1212e1](https://github.com/edcalderon/my-second-brain/commit/e1212e1fc141b3146e04220aa785565a51b88ae4))
 * restore workspace:* for @ed/auth, disable syncDependencies to prevent overwrite on release ([e941714](https://github.com/edcalderon/my-second-brain/commit/e941714c52a3dcecc677919df4d0068245d67a41))
+* **versioning:** execute postChangelog hook in release manager and run update-readme ([219e62e](https://github.com/edcalderon/my-second-brain/commit/219e62eb86b234eabf0ab7b306e10b864e2f0f51))
 
 
 ### Features
