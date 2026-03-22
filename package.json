@@ -54,5 +54,12 @@
     "husky": "^9.1.7",
     "pnpm": "latest",
     "prettier": "^3.8.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "next": "^16.2.1",
+      "fast-xml-parser": "^4.5.4",
+      "@tootallnate/once": "^3.0.1"
+    }
   }
 }

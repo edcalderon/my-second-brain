@@ -109,8 +109,13 @@ export default {
                     while (blockLines.length > 0 && blockLines[0].trim() === '') blockLines.shift();
                     while (blockLines.length > 0 && blockLines[blockLines.length - 1].trim() === '') blockLines.pop();
 
-                    const extractedChanges = blockLines.join('\n');
+                    const extractedChanges = blockLines.join('\n').trim();
                     const versionStr = selectedBlock.version;
+
+                    if (!extractedChanges) {
+                        console.log(`⚠️  Changelog block for v${versionStr} is empty. Skipping README update.`);
+                        return;
+                    }
 
                     const readmeDir = path.dirname(readmePath);
                     const changelogRelPath = path.relative(readmeDir, changelogPath).split(path.sep).join('/');
