@@ -169,7 +169,13 @@ export default {
 
     hooks: {
         postChangelog: async (_options: any) => {
-            console.log('💡 Run `versioning update-readme` to sync README with the latest CHANGELOG entry.');
+            console.log('💡 Syncing READMEs with the latest CHANGELOG entries...');
+            try {
+                const { execSync } = require('child_process');
+                execSync('pnpm --recursive run --if-present update-readme', { stdio: 'inherit' });
+            } catch (err) {
+                console.log('⚠️  Failed to auto-sync readmes or none found.');
+            }
         }
     }
 };
