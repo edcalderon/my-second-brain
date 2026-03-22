@@ -8,16 +8,27 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.1)
+## 📋 Latest Changes (v1.5.2)
 
-### Fixed
-- 🔧 Fixed `secrets-check` extension to use Husky v9 hook format (removed deprecated `._/husky.sh` sourcing)
-- 🔧 Fixed `cleanup-repo` extension to use Husky v9 hook format
-- 🔄 Enhanced `init` command to automatically set up husky and add `prepare` script to package.json
-- ✨ Added optional `postinstall` hook to versioning package that conditionally sets up husky when consumed
+### Bug Fixes
 
-### Changed
-- 📝 Updated hook generation to be compatible with Husky v9+ (eliminates deprecation warnings in v10)
+* **auth:** add Supabase SQL templates ([274db4f](https://github.com/edcalderon/my-second-brain/commit/274db4fb81682a654dd4ef1d0aeb3653b3e780e7))
+* **auth:** correct repository link and bump to v1.0.1 ([280f2d2](https://github.com/edcalderon/my-second-brain/commit/280f2d2f6f99f12199a986adfff4cb5843cc0411))
+* **auth:** update lockfile after react-native peer bump and publish v1.1.1 ([8d95c64](https://github.com/edcalderon/my-second-brain/commit/8d95c6473d6bdf12c58c27f8175c5bf15ca42637))
+* **auth:** update repository link to direct tree URL, bump to v1.0.2 ([85e2e0c](https://github.com/edcalderon/my-second-brain/commit/85e2e0c5603fae9d863e8cfe0bbb03b94e4f7a31))
+* **ci:** use --frozen-lockfile to resolve @ed/auth workspace link from lockfile; remove packages/auth from monorepo versioning scope ([99e38c0](https://github.com/edcalderon/my-second-brain/commit/99e38c03abf6fa4c3ead41b0ad34840ef859a5e0))
+* **release:** skip re-tagging on plain release command since tag exists from patch ([e1212e1](https://github.com/edcalderon/my-second-brain/commit/e1212e1fc141b3146e04220aa785565a51b88ae4))
+* restore workspace:* for @ed/auth, disable syncDependencies to prevent overwrite on release ([e941714](https://github.com/edcalderon/my-second-brain/commit/e941714c52a3dcecc677919df4d0068245d67a41))
+
+
+### Features
+
+* **auth:** add canonical Authentik OIDC client helpers ([64fb5c6](https://github.com/edcalderon/my-second-brain/commit/64fb5c6a377614fd820cabaf46ac2aeaa476a5e4)), closes [#13](https://github.com/edcalderon/my-second-brain/issues/13)
+* **auth:** add Web3 authentication support (SIWE/SIWS) v1.2.0 ([f585d46](https://github.com/edcalderon/my-second-brain/commit/f585d465d9ee8a7653b098ac550a780e94fc1c2d))
+* **auth:** prepare @edcalderon/auth for NPM publishing ([ba57163](https://github.com/edcalderon/my-second-brain/commit/ba5716360d6c454286d9a349bcaf7f762f60fd6d))
+* **auth:** Upgrade to fully universal compatibility (Web, Next, React Native) ([5c8aade](https://github.com/edcalderon/my-second-brain/commit/5c8aade273f021e56b19f75bec1ac17e6683e301))
+* **versioning:** add workspace env extension ([c3c7131](https://github.com/edcalderon/my-second-brain/commit/c3c71315aabe8cb266a0a1b59a2194169471d19f))
+* **versioning:** workspace-scripts extension v1.0.0 — auto-generate dev:all, build:all, per-app scripts ([adb586c](https://github.com/edcalderon/my-second-brain/commit/adb586cc7021fd6b554fe62884a3dc9d24b8c311))
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
