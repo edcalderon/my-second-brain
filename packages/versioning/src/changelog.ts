@@ -16,20 +16,7 @@ export class ChangelogManager {
   private config: ChangelogConfig;
 
   constructor(config: any = {}) {
-    const cwd = process.cwd();
-    let computedPath = config.changelog?.path || config.path;
-    
-    if (!computedPath && fs.existsSync(path.join(cwd, '.git'))) {
-      computedPath = '.';
-    } else if (!computedPath) {
-      try {
-        const { execSync } = require('child_process');
-        const gitRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
-        computedPath = path.relative(gitRoot, cwd);
-      } catch (err) {
-        computedPath = '.';
-      }
-    }
+    const computedPath = config.changelog?.path || config.path || '.';
 
     this.config = {
       preset: config.changelog?.preset || 'angular',

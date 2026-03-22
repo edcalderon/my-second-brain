@@ -8,9 +8,11 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.4)
+## 📋 Latest Changes (v1.5.5)
 
+### Bug Fixes
 
+* **versioning:** guard against blank changelog sections in readme-maintainer ([1570811](https://github.com/edcalderon/my-second-brain/commit/1570811e4890ee4b376bb7fcae4d7ca065c2bde5))
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
