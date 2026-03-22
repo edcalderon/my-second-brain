@@ -1,3 +1,9 @@
+## [1.5.4](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.3...versioning-v1.5.4) (2026-03-22)
+
+
+
+
+
 ## [1.5.3](https://github.com/edcalderon/my-second-brain/compare/v1.5.1...v1.5.3) (2026-03-22)
 
 ### Bug Fixes
