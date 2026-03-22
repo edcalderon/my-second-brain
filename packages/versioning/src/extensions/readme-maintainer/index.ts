@@ -112,13 +112,15 @@ export default {
                     const extractedChanges = blockLines.join('\n');
                     const versionStr = selectedBlock.version;
 
-                    const changelogRelPath = options.changelog.replace(/^\.\//, '');
+                    const readmeDir = path.dirname(readmePath);
+                    const changelogRelPath = path.relative(readmeDir, changelogPath).split(path.sep).join('/');
+                    const changelogLinkPath = changelogRelPath.startsWith('..') ? changelogRelPath : `./${changelogRelPath}`;
                     const newBlock = [
                         `## 📋 Latest Changes (v${versionStr})`,
                         '',
                         extractedChanges,
                         '',
-                        `For full version history, see [CHANGELOG.md](./${changelogRelPath}) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)`,
+                        `For full version history, see [CHANGELOG.md](${changelogLinkPath}) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)`,
                         '',
                     ].join('\n');
 
