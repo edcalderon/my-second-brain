@@ -1,7 +1,8 @@
 ## [1.5.4](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.3...versioning-v1.5.4) (2026-03-22)
 
+### Bug Fixes
 
-
+* **versioning:** isolate changelog generation to package path and fix tag prefix ([8b94673](https://github.com/edcalderon/my-second-brain/commit/8b94673e738ff9eb7b30f40df88296a24683526f))
 
 
 ## [1.5.3](https://github.com/edcalderon/my-second-brain/compare/v1.5.1...v1.5.3) (2026-03-22)
