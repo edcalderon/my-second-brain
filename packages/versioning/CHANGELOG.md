@@ -1,15 +1,9 @@
 ## [1.5.5](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.4...versioning-v1.5.5) (2026-03-22)
 
-
 ### Bug Fixes
 
 * **versioning:** guard against blank changelog sections in readme-maintainer ([1570811](https://github.com/edcalderon/my-second-brain/commit/1570811e4890ee4b376bb7fcae4d7ca065c2bde5))
 
-
-
-
-
-## [1.5.5](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.4...versioning-v1.5.5) (2026-03-22)
 
 
 
