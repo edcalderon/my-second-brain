@@ -55,4 +55,28 @@ describe('Secrets Check Extension - checkContentForSecrets', () => {
         const results = checkContentForSecrets(content, patterns, [], 'safe.ts');
         expect(results).toHaveLength(0);
     });
+
+    test('should detect markdown credential leak with colon syntax', () => {
+        const content = `
+IMAP_PASSWORD: 787VHez3Q1*
+SMTP_PASSWORD: 787VHez3Q1*
+`;
+
+        const results = checkContentForSecrets(content, [/\b(?:IMAP|SMTP)_PASSWORD\b\s*[:=]\s*[^\s]+/], [], 'docs.md');
+        expect(results).toHaveLength(2);
+        expect(results[0].line).toBe(2);
+        expect(results[1].line).toBe(3);
+    });
+
+    test('should not flag placeholder values in docs', () => {
+        const content = `
+IMAP_PASSWORD=[YOUR_IMAP_PASSWORD]
+SMTP_PASSWORD: [YOUR_SMTP_PASSWORD]
+`;
+
+        const docPattern = [/\b(?:IMAP|SMTP)_PASSWORD\b\s*[:=]\s*[^\s]+/];
+        const docAllowlist = ['[YOUR_IMAP_PASSWORD]', '[YOUR_SMTP_PASSWORD]'];
+        const results = checkContentForSecrets(content, docPattern, docAllowlist, 'docs.md');
+        expect(results).toHaveLength(0);
+    });
 });

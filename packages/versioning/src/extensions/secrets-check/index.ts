@@ -23,7 +23,11 @@ const DEFAULT_PATTERNS = [
     /_KEY=0x[0-9a-fA-F]{64}/,
     /cast wallet address 0x[0-9a-fA-F]{64}/,
     // Seed phrases
-    /MNEMONIC=.{20,}/
+    /MNEMONIC=.{20,}/,
+    // Generic credential assignment patterns (covers docs and YAML-style KEY: value)
+    /\b(?:IMAP|SMTP|EMAIL|MAIL)_(?:PASSWORD|PASS)\b\s*[:=]\s*["']?(?!\[?YOUR_|YOUR_|\[?REDACTED|REDACTED|<)[^\s"'`]{6,}/i,
+    /\b[A-Z0-9_]*(?:PASSWORD|PASS|SECRET|TOKEN|API_KEY|PRIVATE_KEY|CLIENT_SECRET)\b\s*[:=]\s*["']?(?!\[?YOUR_|YOUR_|\[?REDACTED|REDACTED|<|example|changeme)[^\s"'`]{8,}/,
+    /\b(?:imap|smtp|mail|email)\.(?:password|app_password)\b\s*[:=]\s*["']?(?!\[?your_|<)[^\s"'`]{6,}/i
 ];
 
 // Allowlist patterns that are safe
@@ -37,6 +41,12 @@ const DEFAULT_ALLOWLIST = [
     "YOUR_LOCAL_PRIVATE_KEY",
     "YOUR_TESTNET_PRIVATE_KEY",
     "your_private_key_here",
+    "[YOUR_IMAP_PASSWORD]",
+    "[YOUR_SMTP_PASSWORD]",
+    "[configured in Secret Manager]",
+    "Secret Manager",
+    "versioning check-secrets",
+    "check-secrets",
     "secretPatterns", // Regex pattern definitions in code
     "BEGIN PRIVATE KEY", // Regex string matching
 ];
@@ -93,8 +103,8 @@ export function checkContentForSecrets(
 
 const extension: VersioningExtension = {
     name: 'secrets-check',
-    description: 'Checks for hardcoded secrets and private keys in staged files',
-    version: '1.1.0',
+    description: 'Checks for hardcoded secrets and private keys in staged files, including markdown docs',
+    version: '1.1.1',
 
     register: async (program: Command, config: any) => {
         // Try to get config from extensionConfig first, fallback to top-level secrets for backcompat
