@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0] - 2026-03-23
+
+### Added
+
+- ✨ **Authentik flow + provisioning kit** (`@edcalderon/auth/authentik`) — a reusable set of helpers generalised from the production CIG Authentik implementation.
+- 🔀 **Cross-origin PKCE relay** — `createRelayPageHtml()`, `parseRelayParams()`, `readRelayStorage()`, `clearRelayStorage()` for apps where login UI and callback handler live on different origins.
+- 🔄 **Enhanced callback handler** — `exchangeCode()`, `fetchClaims()`, `processCallback()` with blocking provisioning gate that prevents redirect until user sync completes.
+- 🚪 **Logout orchestrator** — `revokeToken()`, `buildEndSessionUrl()`, `orchestrateLogout()` implementing the full RP-initiated logout flow.
+- 🔌 **Provisioning adapter layer** — pluggable adapters: `NoopProvisioningAdapter`, `createProvisioningAdapter()`, `SupabaseSyncAdapter` with identity-first matching and rollback on failure.
+- 🏥 **Config validation / doctor** — `validateAuthentikConfig()`, `validateSupabaseSyncConfig()`, `validateFullConfig()` for startup / deploy-time validation (detects `supabase_not_configured`).
+- 🛡️ **Safe redirect resolver** — `resolveSafeRedirect()` with origin allowlist to prevent open-redirect vulnerabilities.
+- 📦 **New subpath export** — `@edcalderon/auth/authentik` barrel export for all Authentik-specific modules.
+- 🗄️ **SQL migration 003** — `003_authentik_shadow_auth_users.sql` adds shadow auth user linkage columns and `link_shadow_auth_user()` RPC.
+- 🧪 **79 tests** across 6 test suites covering relay, callback, logout, provisioning, config validation, and redirect safety.
+
 ## [1.3.0] - 2026-03-19
 
 ### Added
