@@ -11,32 +11,14 @@ Swap between Supabase, Firebase, Hybrid, or any custom provider without changing
 
 ---
 
-## 📋 Latest Changes (v1.4.0)
+## 📋 Latest Changes (v1.4.1)
 
 ### Added
 
-- ✨ **Authentik flow + provisioning kit** (`@edcalderon/auth/authentik`) — a reusable set of helpers generalised from the production CIG Authentik implementation.
-- 🔀 **Cross-origin PKCE relay** — `createRelayPageHtml()`, `parseRelayParams()`, `readRelayStorage()`, `clearRelayStorage()` for apps where login UI and callback handler live on different origins.
-- 🔄 **Enhanced callback handler** — `exchangeCode()`, `fetchClaims()`, `processCallback()` with blocking provisioning gate that prevents redirect until user sync completes.
-- 🚪 **Logout orchestrator** — `revokeToken()`, `buildEndSessionUrl()`, `orchestrateLogout()` implementing the full RP-initiated logout flow.
-- 🔌 **Provisioning adapter layer** — pluggable adapters: `NoopProvisioningAdapter`, `createProvisioningAdapter()`, `SupabaseSyncAdapter` with identity-first matching and rollback on failure.
-- 🏥 **Config validation / doctor** — `validateAuthentikConfig()`, `validateSupabaseSyncConfig()`, `validateFullConfig()` for startup / deploy-time validation (detects `supabase_not_configured`).
-- 🛡️ **Safe redirect resolver** — `resolveSafeRedirect()` with origin allowlist to prevent open-redirect vulnerabilities.
-- 📦 **New subpath export** — `@edcalderon/auth/authentik` barrel export for all Authentik-specific modules.
-- 🗄️ **SQL migration 003** — `003_authentik_shadow_auth_users.sql` adds shadow auth user linkage columns and `link_shadow_auth_user()` RPC.
-- 🧪 **96 tests** across 6 test suites covering relay, callback, logout, provisioning (incl. paginated page-2 lookups, shadow linkage RPC, rollback), config validation (incl. endpoint discovery), and redirect safety.
+- 📚 **Documentation**: Added `packages/auth/docs/` with five guides: `authentik-integration-guide.md`, `provisioning-model.md`, `upgrade-migration.md`, `nextjs-examples.md`, `cig-reference-map.md`.
+- Updated README with documentation table and `@edcalderon/auth/authentik` subpath listing.
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
-
-### 📖 Documentation
-
-| Guide | Description |
-|-------|-------------|
-| [Authentik Integration Guide](./docs/authentik-integration-guide.md) | Set up Authentik as your OIDC provider — resources, social login, logout flows, endpoint discovery |
-| [Provisioning Model](./docs/provisioning-model.md) | Three-layer identity model, identity-first matching, shadow auth.users, rollback behavior |
-| [Upgrade & Migration Guide](./docs/upgrade-migration.md) | Upgrade from v1.3.0 → v1.4.0, migrate custom relay/callback/logout code |
-| [Next.js Reference Examples](./docs/nextjs-examples.md) | Complete examples: same-origin, cross-origin relay, Supabase sync, logout |
-| [CIG Reference Map](./docs/cig-reference-map.md) | Map each module to its CIG origin for tracing design decisions |
 
 ---
 

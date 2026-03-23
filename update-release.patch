@@ -1,0 +1,25 @@
+--- a/packages/versioning/src/release.ts
++++ b/packages/versioning/src/release.ts
+@@ -4,6 +4,7 @@ import { VersionManager } from './index';
+ import { ChangelogManager } from './changelog';
+ import * as semver from 'semver';
++import { runExtensionHooks } from './extensions';
+ 
+ export interface ReleaseConfig {
+   versionManager: VersionManager;
+@@ -49,6 +50,7 @@ export class ReleaseManager {
+ 
+     // Generate changelog
+     await this.config.changelogManager.generate();
++    await runExtensionHooks('postChangelog', {});
+ 
+     // Commit changes
+     if (this.config.createCommit) {
+@@ -121,6 +123,7 @@ export class ReleaseManager {
+     });
+ 
+     await this.config.changelogManager.generate();
++    await runExtensionHooks('postChangelog', {});
+ 
+     if (this.config.createCommit) {
+       await this.config.versionManager.commitChanges(result.version);

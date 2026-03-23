@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1] - 2026-03-23
+
+### Added
+
+- 📚 **Documentation**: Added `packages/auth/docs/` with five guides: `authentik-integration-guide.md`, `provisioning-model.md`, `upgrade-migration.md`, `nextjs-examples.md`, `cig-reference-map.md`.
+- Updated README with documentation table and `@edcalderon/auth/authentik` subpath listing.
+
 ## [1.4.0] - 2026-03-23
 
 ### Added
