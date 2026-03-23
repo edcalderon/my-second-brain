@@ -1,7 +1,12 @@
 ## [1.5.6](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.5...versioning-v1.5.6) (2026-03-23)
 
+### Features
 
+* **secrets-check:** harden extension to v1.1.1 — detect colon-syntax credential leaks (`KEY: value`) in Markdown docs with negative-lookahead allowlist for safe placeholders
 
+### Bug Fixes
+
+* **secrets-check:** add regression tests for colon-style password detection and placeholder allowlist (`[YOUR_IMAP_PASSWORD]`)
 
 
 ## [1.5.5](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.4...versioning-v1.5.5) (2026-03-22)

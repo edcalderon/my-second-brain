@@ -49,6 +49,10 @@ const DEFAULT_ALLOWLIST = [
     "check-secrets",
     "secretPatterns", // Regex pattern definitions in code
     "BEGIN PRIVATE KEY", // Regex string matching
+    "[0-9a-f]", // Regex character class in docs/examples
+    "[0-9a-fA-F]", // Hex regex character class in docs/examples
+    "[a-f0-9]", // Hex regex character class in docs/examples
+    "CUSTOM_API_KEY=", // Documentation example key name
 ];
 
 export interface SecretCheckResult {

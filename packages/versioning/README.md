@@ -8,11 +8,15 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.5)
+## 📋 Latest Changes (v1.5.6)
+
+### Features
+
+* **secrets-check:** harden extension to v1.1.1 — detect colon-syntax credential leaks (`KEY: value`) in Markdown docs with negative-lookahead allowlist for safe placeholders
 
 ### Bug Fixes
 
-* **versioning:** guard against blank changelog sections in readme-maintainer ([1570811](https://github.com/edcalderon/my-second-brain/commit/1570811e4890ee4b376bb7fcae4d7ca065c2bde5))
+* **secrets-check:** add regression tests for colon-style password detection and placeholder allowlist (`[YOUR_IMAP_PASSWORD]`)
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
