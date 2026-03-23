@@ -1,3 +1,11 @@
+## [1.5.7](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.6...versioning-v1.5.7) (2026-03-23)
+
+### Bug Fixes
+
+* **secrets-check:** extend allowlist with regex character-class patterns to prevent false positives on example code in documentation
+
+
+
 ## [1.5.6](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.5...versioning-v1.5.6) (2026-03-23)
 
 ### Features
