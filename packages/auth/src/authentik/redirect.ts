@@ -47,8 +47,12 @@ export function resolveSafeRedirect(
         return config.fallbackUrl;
     }
 
-    // Check origin
-    const normalised = config.allowedOrigins.map((o) => o.replace(/\/+$/, ""));
+    // Check origin — strip trailing slashes without regex (avoids CodeQL polynomial-regex flag)
+    const normalised = config.allowedOrigins.map((o) => {
+        let s = o;
+        while (s.endsWith("/")) s = s.slice(0, -1);
+        return s;
+    });
     if (normalised.includes(parsed.origin)) {
         return trimmed;
     }
