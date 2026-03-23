@@ -385,11 +385,46 @@ export class SupabaseSyncAdapter implements ProvisioningAdapter {
                 });
 
                 if (linkError) {
-                    // Link failure is non-fatal — the user is provisioned,
-                    // shadow linkage can be retried on next login.
+                    // Rollback: delete newly created shadow auth.users row
+                    if (
+                        shadowResult.created &&
+                        this.config.rollbackOnFailure !== false
+                    ) {
+                        try {
+                            await this.client.auth.admin.deleteUser(shadowResult.authUserId);
+                        } catch {
+                            // Best-effort rollback
+                        }
+                    }
+
+                    return {
+                        synced: false,
+                        authUserId: shadowResult.authUserId,
+                        authUserCreated: shadowResult.created,
+                        error: `${linkRpcName} failed: ${linkError.message}`,
+                        errorCode: "shadow_link_failed",
+                    };
                 }
-            } catch {
-                // Best-effort linkage — don't fail the overall sync
+            } catch (err) {
+                // Rollback: delete newly created shadow auth.users row
+                if (
+                    shadowResult.created &&
+                    this.config.rollbackOnFailure !== false
+                ) {
+                    try {
+                        await this.client.auth.admin.deleteUser(shadowResult.authUserId);
+                    } catch {
+                        // Best-effort rollback
+                    }
+                }
+
+                return {
+                    synced: false,
+                    authUserId: shadowResult.authUserId,
+                    authUserCreated: shadowResult.created,
+                    error: err instanceof Error ? err.message : `${linkRpcName} failed`,
+                    errorCode: "shadow_link_failed",
+                };
             }
         }
 

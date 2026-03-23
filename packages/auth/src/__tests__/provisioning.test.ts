@@ -401,7 +401,7 @@ describe("SupabaseSyncAdapter", () => {
         expect(rpcCalls[1].fn).toBe("custom_link_rpc");
     });
 
-    it("still succeeds when link_shadow_auth_user fails", async () => {
+    it("fails when link_shadow_auth_user fails", async () => {
         const client = mockSupabaseClient({
             rpcResults: [
                 { data: null, error: null },  // upsert_oidc_user
@@ -412,8 +412,9 @@ describe("SupabaseSyncAdapter", () => {
 
         const result = await adapter.sync(basePayload);
 
-        expect(result.synced).toBe(true);
-        expect(result.authUserId).toBe("new-auth-id");
+        expect(result.synced).toBe(false);
+        expect(result.errorCode).toBe("shadow_link_failed");
+        expect(result.error).toContain("link failed");
     });
 
     it("does not call link_shadow_auth_user when shadow user creation is disabled", async () => {

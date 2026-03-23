@@ -122,8 +122,10 @@ function resolveEndpoint(issuer: string, explicitPath: string | undefined, fallb
         return new URL(explicitPath, `${issuerUrl.origin}/`).toString();
     }
 
-    const normalizedBase = ensurePathSuffix(issuerUrl.pathname);
-    return new URL(`${normalizedBase}${fallbackPath}`, issuerUrl.origin).toString();
+    // Authentik OAuth endpoints (authorize, token, userinfo) live at the parent
+    // of the issuer path: issuer = /application/o/<slug>/, endpoint = /application/o/<ep>/.
+    const base = ensurePathSuffix(issuer);
+    return new URL(`../${fallbackPath}`, base).toString();
 }
 
 function getSessionStorage(config: AuthentikOidcConfig): Storage {
