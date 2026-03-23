@@ -28,6 +28,7 @@ test-production.sh
 
 # Sensitive credentials
 *.pem
+*.patch
 *.key
 *.p8
 service_account.json
