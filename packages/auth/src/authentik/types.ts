@@ -13,6 +13,35 @@
 export type AuthentikProvider = "google" | "github" | "discord" | (string & {});
 
 /* ------------------------------------------------------------------ */
+/*  Endpoint discovery                                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Resolved OIDC endpoint URLs for an Authentik provider.
+ *
+ * These can be obtained from `.well-known/openid-configuration`
+ * via `discoverEndpoints()`, or supplied manually.
+ *
+ * **Important:** Authentik places most OIDC endpoints at the
+ * `/application/o/` level, *not* under the per-app issuer path.
+ * E.g. with issuer `https://auth.example.com/application/o/my-app/`,
+ * the token endpoint is `https://auth.example.com/application/o/token/`.
+ * Always use explicit URLs or discovery — do not guess from the issuer.
+ */
+export interface AuthentikEndpoints {
+    /** Authorization endpoint (full URL). */
+    authorization: string;
+    /** Token endpoint (full URL). */
+    token: string;
+    /** Userinfo endpoint (full URL). */
+    userinfo: string;
+    /** Token revocation endpoint (full URL). */
+    revocation?: string;
+    /** RP-initiated logout / end-session endpoint (full URL). */
+    endSession?: string;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Cross-origin relay                                                 */
 /* ------------------------------------------------------------------ */
 
@@ -26,6 +55,11 @@ export interface AuthentikRelayConfig {
     redirectUri: string;
     /** OIDC scopes (default: "openid profile email"). */
     scope?: string;
+    /**
+     * Explicit OIDC authorize endpoint URL.
+     * Required — use `discoverEndpoints()` or supply manually.
+     */
+    authorizePath: string;
     /**
      * Map of provider slug → Authentik flow slug.
      * E.g. `{ google: "my-app-google-login", github: "my-app-github-login" }`.
@@ -69,10 +103,16 @@ export interface AuthentikCallbackConfig {
     redirectUri: string;
     /** OIDC scopes (default: "openid profile email"). */
     scope?: string;
-    /** Custom token endpoint path (default: resolved from issuer). */
-    tokenPath?: string;
-    /** Custom userinfo endpoint path (default: resolved from issuer). */
-    userinfoPath?: string;
+    /**
+     * Explicit token endpoint URL.
+     * Required — use `discoverEndpoints()` or supply manually.
+     */
+    tokenEndpoint: string;
+    /**
+     * Explicit userinfo endpoint URL.
+     * Required — use `discoverEndpoints()` or supply manually.
+     */
+    userinfoEndpoint: string;
     /** Fetch implementation override (for testing or server runtimes). */
     fetchFn?: typeof fetch;
 }
@@ -116,10 +156,16 @@ export interface AuthentikLogoutConfig {
     issuer: string;
     /** URL the browser should land on after Authentik clears its session. */
     postLogoutRedirectUri: string;
-    /** Custom end-session path (default: "<issuer>/end-session/"). */
-    endSessionPath?: string;
-    /** Custom token-revocation path (default: "<issuer>/revoke/"). */
-    revocationPath?: string;
+    /**
+     * Explicit RP-initiated end-session endpoint URL.
+     * Required — use `discoverEndpoints()` or supply manually.
+     */
+    endSessionEndpoint: string;
+    /**
+     * Explicit token revocation endpoint URL.
+     * Optional — when omitted, revocation is skipped.
+     */
+    revocationEndpoint?: string;
     /** OIDC Application client_id (used in token revocation). */
     clientId?: string;
     /** Fetch implementation override. */
@@ -212,6 +258,12 @@ export interface SupabaseSyncConfig {
      * Default: "upsert_oidc_user".
      */
     upsertRpcName?: string;
+    /**
+     * Name of the Supabase RPC function that links the shadow auth.users
+     * ID to the public.users row.
+     * Default: "link_shadow_auth_user".
+     */
+    linkShadowRpcName?: string;
     /**
      * Whether to create a shadow user in auth.users.
      * Default: true (recommended for CIG-style setups).

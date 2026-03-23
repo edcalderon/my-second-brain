@@ -13,27 +13,6 @@
 import type { AuthentikLogoutConfig, AuthentikLogoutResult } from "./types";
 
 /* ------------------------------------------------------------------ */
-/*  URL helpers                                                        */
-/* ------------------------------------------------------------------ */
-
-function ensureTrailingSlash(path: string): string {
-    return path.endsWith("/") ? path : `${path}/`;
-}
-
-function resolveEndpoint(
-    issuer: string,
-    explicitPath: string | undefined,
-    fallbackSuffix: string,
-): string {
-    const issuerUrl = new URL(issuer);
-    if (explicitPath) {
-        return new URL(explicitPath, `${issuerUrl.origin}/`).toString();
-    }
-    const base = ensureTrailingSlash(issuerUrl.pathname);
-    return new URL(`${base}${fallbackSuffix}`, issuerUrl.origin).toString();
-}
-
-/* ------------------------------------------------------------------ */
 /*  Token revocation                                                   */
 /* ------------------------------------------------------------------ */
 
@@ -43,16 +22,19 @@ function resolveEndpoint(
  * This is a **best-effort** operation — revocation failures do not
  * prevent logout from completing. Returns `true` if the server
  * responded with 2xx.
+ *
+ * If `config.revocationEndpoint` is not set, revocation is skipped
+ * and the function returns `false`.
  */
 export async function revokeToken(
     config: AuthentikLogoutConfig,
     accessToken: string,
 ): Promise<boolean> {
-    const revocationUrl = resolveEndpoint(
-        config.issuer,
-        config.revocationPath,
-        "revoke/",
-    );
+    if (!config.revocationEndpoint) {
+        return false;
+    }
+
+    const revocationUrl = config.revocationEndpoint;
     const fetchFn = config.fetchFn || fetch;
 
     const body = new URLSearchParams({
@@ -95,11 +77,7 @@ export function buildEndSessionUrl(
     config: AuthentikLogoutConfig,
     idToken?: string,
 ): string {
-    const endSessionUrl = resolveEndpoint(
-        config.issuer,
-        config.endSessionPath,
-        "end-session/",
-    );
+    const endSessionUrl = config.endSessionEndpoint;
     const url = new URL(endSessionUrl);
 
     if (idToken) {

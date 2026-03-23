@@ -6,6 +6,7 @@ import {
     validateAuthentikConfig,
     validateSupabaseSyncConfig,
     validateFullConfig,
+    discoverEndpoints,
 } from "../authentik/config";
 
 /* ------------------------------------------------------------------ */
@@ -18,6 +19,8 @@ describe("validateAuthentikConfig", () => {
             issuer: "https://auth.example.com/application/o/my-app",
             clientId: "test-client",
             redirectUri: "https://app.example.com/auth/callback",
+            tokenEndpoint: "https://auth.example.com/application/o/token/",
+            userinfoEndpoint: "https://auth.example.com/application/o/userinfo/",
         });
 
         expect(result.valid).toBe(true);
@@ -84,7 +87,33 @@ describe("validateAuthentikConfig", () => {
     it("fails when all fields are missing", () => {
         const result = validateAuthentikConfig({});
         expect(result.valid).toBe(false);
-        expect(result.checks.filter((c) => !c.passed)).toHaveLength(3);
+        expect(result.checks.filter((c) => !c.passed)).toHaveLength(5);
+    });
+
+    it("fails when tokenEndpoint is missing", () => {
+        const result = validateAuthentikConfig({
+            issuer: "https://auth.example.com",
+            clientId: "test",
+            redirectUri: "https://app.example.com/callback",
+        });
+
+        expect(result.valid).toBe(false);
+        const check = result.checks.find((c) => c.name === "tokenEndpoint");
+        expect(check?.passed).toBe(false);
+        expect(check?.message).toContain("discoverEndpoints");
+    });
+
+    it("fails when userinfoEndpoint is missing", () => {
+        const result = validateAuthentikConfig({
+            issuer: "https://auth.example.com",
+            clientId: "test",
+            redirectUri: "https://app.example.com/callback",
+            tokenEndpoint: "https://auth.example.com/application/o/token/",
+        });
+
+        expect(result.valid).toBe(false);
+        const check = result.checks.find((c) => c.name === "userinfoEndpoint");
+        expect(check?.passed).toBe(false);
     });
 });
 
@@ -157,6 +186,8 @@ describe("validateFullConfig", () => {
                 issuer: "https://auth.example.com",
                 clientId: "client",
                 redirectUri: "https://app.example.com/callback",
+                tokenEndpoint: "https://auth.example.com/application/o/token/",
+                userinfoEndpoint: "https://auth.example.com/application/o/userinfo/",
             },
             {
                 supabaseUrl: "https://project.supabase.co",
@@ -185,6 +216,8 @@ describe("validateFullConfig", () => {
                 issuer: "https://auth.example.com",
                 clientId: "client",
                 redirectUri: "https://app.example.com/callback",
+                tokenEndpoint: "https://auth.example.com/application/o/token/",
+                userinfoEndpoint: "https://auth.example.com/application/o/userinfo/",
             },
             {
                 supabaseUrl: "https://project.supabase.co",
@@ -192,7 +225,91 @@ describe("validateFullConfig", () => {
             },
         );
 
-        // 3 authentik checks + 2 supabase checks = 5 minimum
-        expect(result.checks.length).toBeGreaterThanOrEqual(5);
+        // 5 authentik checks + 2 supabase checks = 7 minimum
+        expect(result.checks.length).toBeGreaterThanOrEqual(7);
+    });
+});
+
+/* ------------------------------------------------------------------ */
+/*  discoverEndpoints                                                  */
+/* ------------------------------------------------------------------ */
+
+describe("discoverEndpoints", () => {
+    function mockFetch(doc: Record<string, unknown>, ok = true, status = 200): typeof fetch {
+        return (async () => ({
+            ok,
+            status,
+            json: async () => doc,
+        })) as unknown as typeof fetch;
+    }
+
+    const wellKnownDoc = {
+        issuer: "https://auth.example.com/application/o/my-app/",
+        authorization_endpoint: "https://auth.example.com/application/o/authorize/",
+        token_endpoint: "https://auth.example.com/application/o/token/",
+        userinfo_endpoint: "https://auth.example.com/application/o/userinfo/",
+        revocation_endpoint: "https://auth.example.com/application/o/revoke/",
+        end_session_endpoint: "https://auth.example.com/application/o/my-app/end-session/",
+    };
+
+    it("discovers endpoints from .well-known/openid-configuration", async () => {
+        const endpoints = await discoverEndpoints(
+            "https://auth.example.com/application/o/my-app/",
+            mockFetch(wellKnownDoc),
+        );
+
+        expect(endpoints.authorization).toBe("https://auth.example.com/application/o/authorize/");
+        expect(endpoints.token).toBe("https://auth.example.com/application/o/token/");
+        expect(endpoints.userinfo).toBe("https://auth.example.com/application/o/userinfo/");
+        expect(endpoints.revocation).toBe("https://auth.example.com/application/o/revoke/");
+        expect(endpoints.endSession).toBe("https://auth.example.com/application/o/my-app/end-session/");
+    });
+
+    it("appends trailing slash to issuer before building .well-known URL", async () => {
+        let capturedUrl = "";
+        const fetchFn = (async (input: RequestInfo | URL) => {
+            capturedUrl = typeof input === "string" ? input : input.toString();
+            return { ok: true, status: 200, json: async () => wellKnownDoc } as Response;
+        }) as unknown as typeof fetch;
+
+        await discoverEndpoints("https://auth.example.com/application/o/my-app", fetchFn);
+
+        expect(capturedUrl).toBe(
+            "https://auth.example.com/application/o/my-app/.well-known/openid-configuration",
+        );
+    });
+
+    it("throws on non-OK response", async () => {
+        await expect(
+            discoverEndpoints(
+                "https://auth.example.com/application/o/my-app/",
+                mockFetch({}, false, 404),
+            ),
+        ).rejects.toThrow("Failed to fetch .well-known/openid-configuration");
+    });
+
+    it("throws when required endpoints are missing", async () => {
+        await expect(
+            discoverEndpoints(
+                "https://auth.example.com/application/o/my-app/",
+                mockFetch({ issuer: "https://auth.example.com" }),
+            ),
+        ).rejects.toThrow("missing required endpoints");
+    });
+
+    it("returns undefined for optional endpoints when absent", async () => {
+        const minimalDoc = {
+            authorization_endpoint: "https://auth.example.com/application/o/authorize/",
+            token_endpoint: "https://auth.example.com/application/o/token/",
+            userinfo_endpoint: "https://auth.example.com/application/o/userinfo/",
+        };
+
+        const endpoints = await discoverEndpoints(
+            "https://auth.example.com/application/o/my-app/",
+            mockFetch(minimalDoc),
+        );
+
+        expect(endpoints.revocation).toBeUndefined();
+        expect(endpoints.endSession).toBeUndefined();
     });
 });

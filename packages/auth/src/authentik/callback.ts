@@ -19,27 +19,6 @@ import type {
 } from "./types";
 
 /* ------------------------------------------------------------------ */
-/*  URL helpers                                                        */
-/* ------------------------------------------------------------------ */
-
-function ensureTrailingSlash(path: string): string {
-    return path.endsWith("/") ? path : `${path}/`;
-}
-
-function resolveEndpoint(
-    issuer: string,
-    explicitPath: string | undefined,
-    fallbackSuffix: string,
-): string {
-    const issuerUrl = new URL(issuer);
-    if (explicitPath) {
-        return new URL(explicitPath, `${issuerUrl.origin}/`).toString();
-    }
-    const base = ensureTrailingSlash(issuerUrl.pathname);
-    return new URL(`${base}${fallbackSuffix}`, issuerUrl.origin).toString();
-}
-
-/* ------------------------------------------------------------------ */
 /*  Token exchange                                                     */
 /* ------------------------------------------------------------------ */
 
@@ -53,7 +32,7 @@ export async function exchangeCode(
     code: string,
     codeVerifier: string,
 ): Promise<AuthentikTokenResponse> {
-    const tokenUrl = resolveEndpoint(config.issuer, config.tokenPath, "token/");
+    const tokenUrl = config.tokenEndpoint;
     const fetchFn = config.fetchFn || fetch;
 
     const body = new URLSearchParams({
@@ -103,11 +82,7 @@ export async function fetchClaims(
     config: AuthentikCallbackConfig,
     accessToken: string,
 ): Promise<AuthentikClaims> {
-    const userinfoUrl = resolveEndpoint(
-        config.issuer,
-        config.userinfoPath,
-        "userinfo/",
-    );
+    const userinfoUrl = config.userinfoEndpoint;
     const fetchFn = config.fetchFn || fetch;
 
     const response = await fetchFn(userinfoUrl, {

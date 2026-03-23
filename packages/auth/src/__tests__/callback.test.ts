@@ -25,18 +25,25 @@ const baseConfig: AuthentikCallbackConfig = {
     issuer: "https://auth.example.com/application/o/my-app",
     clientId: "test-client-id",
     redirectUri: "https://dashboard.example.com/auth/callback",
+    tokenEndpoint: "https://auth.example.com/application/o/token/",
+    userinfoEndpoint: "https://auth.example.com/application/o/userinfo/",
 };
 
-function mockFetch(responses: Array<{ ok: boolean; status: number; json: unknown }>): typeof fetch {
+function mockFetch(responses: Array<{ ok: boolean; status: number; json: unknown }>): typeof fetch & { calls: Array<{ url: string; init?: RequestInit }> } {
     let callIndex = 0;
-    return (async () => {
+    const calls: Array<{ url: string; init?: RequestInit }> = [];
+    const fn = (async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === "string" ? input : input.toString();
+        calls.push({ url, init });
         const resp = responses[callIndex++] || { ok: false, status: 500, json: {} };
         return {
             ok: resp.ok,
             status: resp.status,
             json: async () => resp.json,
         } as Response;
-    }) as unknown as typeof fetch;
+    }) as unknown as typeof fetch & { calls: Array<{ url: string; init?: RequestInit }> };
+    (fn as any).calls = calls;
+    return fn as any;
 }
 
 /* ------------------------------------------------------------------ */
@@ -63,6 +70,19 @@ describe("exchangeCode", () => {
         expect(result.refresh_token).toBe("rt_456");
         expect(result.id_token).toBe("id_789");
         expect(result.expires_in).toBe(3600);
+    });
+
+    it("sends token request to the exact tokenEndpoint URL", async () => {
+        const tokenResponse: AuthentikTokenResponse = {
+            access_token: "at_123",
+        };
+
+        const fetchFn = mockFetch([{ ok: true, status: 200, json: tokenResponse }]);
+        const config = { ...baseConfig, fetchFn };
+
+        await exchangeCode(config, "auth-code", "verifier");
+
+        expect(fetchFn.calls[0].url).toBe("https://auth.example.com/application/o/token/");
     });
 
     it("throws on non-OK response", async () => {
@@ -105,6 +125,20 @@ describe("fetchClaims", () => {
 
         expect(result.sub).toBe("user-sub-123");
         expect(result.email).toBe("user@example.com");
+    });
+
+    it("sends userinfo request to the exact userinfoEndpoint URL", async () => {
+        const claims: AuthentikClaims = {
+            sub: "user-sub-123",
+            iss: "https://auth.example.com/application/o/my-app",
+        };
+
+        const fetchFn = mockFetch([{ ok: true, status: 200, json: claims }]);
+        const config = { ...baseConfig, fetchFn };
+
+        await fetchClaims(config, "at_123");
+
+        expect(fetchFn.calls[0].url).toBe("https://auth.example.com/application/o/userinfo/");
     });
 
     it("throws on non-OK response", async () => {

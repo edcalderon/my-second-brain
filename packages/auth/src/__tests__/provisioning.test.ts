@@ -132,18 +132,30 @@ describe("SupabaseSyncAdapter", () => {
 
     function mockSupabaseClient(options?: {
         listUsersResult?: { users: Array<{ id: string; email?: string; app_metadata?: Record<string, unknown>; user_metadata?: Record<string, unknown> }> };
+        listUsersPages?: Array<{ users: Array<{ id: string; email?: string; app_metadata?: Record<string, unknown>; user_metadata?: Record<string, unknown> }> }>;
         createUserResult?: { user: { id: string } | null; error: { message: string } | null };
         updateUserResult?: { user: { id: string } | null; error: { message: string } | null };
         deleteUserResult?: { error: { message: string } | null };
         rpcResult?: { data: unknown; error: { message: string } | null };
+        rpcResults?: Array<{ data: unknown; error: { message: string } | null }>;
     }) {
+        let listPageIndex = 0;
+        let rpcCallIndex = 0;
+        const rpcCalls: Array<{ fn: string; params: Record<string, unknown> }> = [];
         return {
             auth: {
                 admin: {
-                    listUsers: async () => ({
-                        data: { users: options?.listUsersResult?.users || [] },
-                        error: null,
-                    }),
+                    listUsers: async () => {
+                        if (options?.listUsersPages) {
+                            const page = options.listUsersPages[listPageIndex] || { users: [] };
+                            listPageIndex++;
+                            return { data: page, error: null };
+                        }
+                        return {
+                            data: { users: options?.listUsersResult?.users || [] },
+                            error: null,
+                        };
+                    },
                     createUser: async () => ({
                         data: { user: options?.createUserResult?.user || { id: "new-auth-id" } },
                         error: options?.createUserResult?.error || null,
@@ -157,10 +169,19 @@ describe("SupabaseSyncAdapter", () => {
                     }),
                 },
             },
-            rpc: async () => ({
-                data: options?.rpcResult?.data || null,
-                error: options?.rpcResult?.error || null,
-            }),
+            rpc: async (fn: string, params: Record<string, unknown>) => {
+                rpcCalls.push({ fn, params });
+                if (options?.rpcResults) {
+                    const result = options.rpcResults[rpcCallIndex] || { data: null, error: null };
+                    rpcCallIndex++;
+                    return result;
+                }
+                return {
+                    data: options?.rpcResult?.data || null,
+                    error: options?.rpcResult?.error || null,
+                };
+            },
+            _rpcCalls: rpcCalls,
         } as any;
     }
 
@@ -267,5 +288,143 @@ describe("SupabaseSyncAdapter", () => {
 
         expect(result.synced).toBe(false);
         expect(deleteUserCalled).toBe(false);
+    });
+
+    it("finds user on page 2 via paginated identity lookup", async () => {
+        // Page 1: 1000 unrelated users (triggers pagination)
+        const page1Users = Array.from({ length: 1000 }, (_, i) => ({
+            id: `user-${i}`,
+            email: `user${i}@other.com`,
+            app_metadata: {},
+        }));
+
+        // Page 2: the matching user
+        const page2Users = [
+            {
+                id: "found-on-page-2",
+                email: "user@example.com",
+                app_metadata: {
+                    auth_source: "authentik",
+                    oidc_sub: "user-sub-123",
+                    oidc_issuer: "https://auth.example.com",
+                },
+                user_metadata: {
+                    name: "Test User",
+                    avatar_url: "https://example.com/photo.jpg",
+                },
+            },
+        ];
+
+        const client = mockSupabaseClient({
+            listUsersPages: [
+                { users: page1Users },
+                { users: page2Users },
+            ],
+        });
+        const adapter = new SupabaseSyncAdapter(client, supabaseConfig);
+
+        const result = await adapter.sync(basePayload);
+
+        expect(result.synced).toBe(true);
+        expect(result.authUserId).toBe("found-on-page-2");
+        expect(result.authUserCreated).toBe(false);
+    });
+
+    it("finds user by email on page 2 when no identity match exists", async () => {
+        // Page 1: 1000 unrelated users
+        const page1Users = Array.from({ length: 1000 }, (_, i) => ({
+            id: `user-${i}`,
+            email: `user${i}@other.com`,
+            app_metadata: {},
+        }));
+
+        // Page 2: email match only (no identity match)
+        const page2Users = [
+            {
+                id: "email-match-page-2",
+                email: "user@example.com",
+                app_metadata: {},
+            },
+        ];
+
+        const client = mockSupabaseClient({
+            listUsersPages: [
+                { users: page1Users },
+                { users: page2Users },
+            ],
+        });
+        const adapter = new SupabaseSyncAdapter(client, supabaseConfig);
+
+        const result = await adapter.sync(basePayload);
+
+        expect(result.synced).toBe(true);
+        expect(result.authUserId).toBe("email-match-page-2");
+    });
+
+    it("calls link_shadow_auth_user after successful upsert", async () => {
+        const client = mockSupabaseClient({
+            rpcResults: [
+                { data: null, error: null },  // upsert_oidc_user
+                { data: null, error: null },  // link_shadow_auth_user
+            ],
+        });
+        const adapter = new SupabaseSyncAdapter(client, supabaseConfig);
+
+        const result = await adapter.sync(basePayload);
+
+        expect(result.synced).toBe(true);
+        // Verify both RPCs were called
+        const rpcCalls = (client as any)._rpcCalls;
+        expect(rpcCalls).toHaveLength(2);
+        expect(rpcCalls[0].fn).toBe("upsert_oidc_user");
+        expect(rpcCalls[1].fn).toBe("link_shadow_auth_user");
+        expect(rpcCalls[1].params).toEqual({
+            p_sub: "user-sub-123",
+            p_iss: "https://auth.example.com",
+            p_shadow_auth_user_id: "new-auth-id",
+        });
+    });
+
+    it("uses custom linkShadowRpcName when configured", async () => {
+        const client = mockSupabaseClient({
+            rpcResults: [
+                { data: null, error: null },
+                { data: null, error: null },
+            ],
+        });
+        const config: SupabaseSyncConfig = { ...supabaseConfig, linkShadowRpcName: "custom_link_rpc" };
+        const adapter = new SupabaseSyncAdapter(client, config);
+
+        await adapter.sync(basePayload);
+
+        const rpcCalls = (client as any)._rpcCalls;
+        expect(rpcCalls[1].fn).toBe("custom_link_rpc");
+    });
+
+    it("still succeeds when link_shadow_auth_user fails", async () => {
+        const client = mockSupabaseClient({
+            rpcResults: [
+                { data: null, error: null },  // upsert_oidc_user
+                { data: null, error: { message: "link failed" } },  // link_shadow_auth_user
+            ],
+        });
+        const adapter = new SupabaseSyncAdapter(client, supabaseConfig);
+
+        const result = await adapter.sync(basePayload);
+
+        expect(result.synced).toBe(true);
+        expect(result.authUserId).toBe("new-auth-id");
+    });
+
+    it("does not call link_shadow_auth_user when shadow user creation is disabled", async () => {
+        const client = mockSupabaseClient();
+        const config: SupabaseSyncConfig = { ...supabaseConfig, createShadowAuthUser: false };
+        const adapter = new SupabaseSyncAdapter(client, config);
+
+        await adapter.sync(basePayload);
+
+        const rpcCalls = (client as any)._rpcCalls;
+        expect(rpcCalls).toHaveLength(1);
+        expect(rpcCalls[0].fn).toBe("upsert_oidc_user");
     });
 });

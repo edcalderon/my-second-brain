@@ -16,6 +16,8 @@ import type { AuthentikLogoutConfig } from "../authentik/types";
 const baseConfig: AuthentikLogoutConfig = {
     issuer: "https://auth.example.com/application/o/my-app",
     postLogoutRedirectUri: "https://landing.example.com/?logged_out=1",
+    endSessionEndpoint: "https://auth.example.com/application/o/my-app/end-session/",
+    revocationEndpoint: "https://auth.example.com/application/o/revoke/",
 };
 
 function mockFetch(ok: boolean, status = 200): typeof fetch {
@@ -31,6 +33,19 @@ describe("revokeToken", () => {
         const config = { ...baseConfig, fetchFn: mockFetch(true) };
         const result = await revokeToken(config, "access-token");
         expect(result).toBe(true);
+    });
+
+    it("sends revocation request to the exact revocationEndpoint URL", async () => {
+        let capturedUrl = "";
+        const config: AuthentikLogoutConfig = {
+            ...baseConfig,
+            fetchFn: (async (input: RequestInfo | URL) => {
+                capturedUrl = typeof input === "string" ? input : input.toString();
+                return { ok: true, status: 200 } as Response;
+            }) as unknown as typeof fetch,
+        };
+        await revokeToken(config, "access-token");
+        expect(capturedUrl).toBe("https://auth.example.com/application/o/revoke/");
     });
 
     it("returns false on revocation failure", async () => {
@@ -49,6 +64,16 @@ describe("revokeToken", () => {
         const result = await revokeToken(config, "access-token");
         expect(result).toBe(false);
     });
+
+    it("returns false when revocationEndpoint is not set", async () => {
+        const config: AuthentikLogoutConfig = {
+            ...baseConfig,
+            revocationEndpoint: undefined,
+            fetchFn: mockFetch(true),
+        };
+        const result = await revokeToken(config, "access-token");
+        expect(result).toBe(false);
+    });
 });
 
 /* ------------------------------------------------------------------ */
@@ -60,7 +85,8 @@ describe("buildEndSessionUrl", () => {
         const url = buildEndSessionUrl(baseConfig, "my-id-token");
         const parsed = new URL(url);
 
-        expect(parsed.pathname).toContain("end-session");
+        expect(parsed.origin).toBe("https://auth.example.com");
+        expect(parsed.pathname).toBe("/application/o/my-app/end-session/");
         expect(parsed.searchParams.get("id_token_hint")).toBe("my-id-token");
         expect(parsed.searchParams.get("post_logout_redirect_uri")).toBe(
             "https://landing.example.com/?logged_out=1",
@@ -77,13 +103,13 @@ describe("buildEndSessionUrl", () => {
         );
     });
 
-    it("uses custom endSessionPath", () => {
+    it("uses the exact endSessionEndpoint URL", () => {
         const config: AuthentikLogoutConfig = {
             ...baseConfig,
-            endSessionPath: "/custom/logout/",
+            endSessionEndpoint: "https://auth.example.com/custom/logout/",
         };
         const url = buildEndSessionUrl(config, "token");
-        expect(url).toContain("/custom/logout/");
+        expect(url).toContain("https://auth.example.com/custom/logout/");
     });
 });
 
@@ -100,7 +126,7 @@ describe("orchestrateLogout", () => {
         });
 
         expect(result.tokenRevoked).toBe(true);
-        expect(result.endSessionUrl).toContain("end-session");
+        expect(result.endSessionUrl).toContain("/application/o/my-app/end-session/");
         expect(result.endSessionUrl).toContain("id_token_hint=it");
     });
 
@@ -112,7 +138,7 @@ describe("orchestrateLogout", () => {
         });
 
         expect(result.tokenRevoked).toBe(false);
-        expect(result.endSessionUrl).toContain("end-session");
+        expect(result.endSessionUrl).toContain("/application/o/my-app/end-session/");
     });
 
     it("skips revocation when no access token is provided", async () => {
@@ -129,6 +155,6 @@ describe("orchestrateLogout", () => {
 
         expect(fetchCalled).toBe(false);
         expect(result.tokenRevoked).toBe(false);
-        expect(result.endSessionUrl).toContain("end-session");
+        expect(result.endSessionUrl).toContain("/application/o/my-app/end-session/");
     });
 });

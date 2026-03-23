@@ -163,41 +163,61 @@ interface SupabaseError {
  * Matching strategy (identity-first, per CIG production rules):
  * 1. Match by (oidc_sub + oidc_issuer) in app_metadata
  * 2. Fall back to email only when reusing an existing shadow user
+ *
+ * Paginates through all auth.users pages so that matches beyond the first
+ * page are not missed in larger Supabase projects.
  */
 async function findShadowAuthUser(
     client: SupabaseAdminClient,
     payload: ProvisioningPayload,
 ): Promise<{ user: SupabaseAuthUser | null; matchedBy: "identity" | "email" | null }> {
-    const { data, error } = await client.auth.admin.listUsers({ perPage: 1000 });
+    const perPage = 1000;
+    let page = 1;
+    let emailMatch: SupabaseAuthUser | null = null;
 
-    if (error) {
-        throw new Error(`Failed to list auth users: ${error.message}`);
-    }
+    // Paginate through all auth.users
+    while (true) {
+        const { data, error } = await client.auth.admin.listUsers({ page, perPage });
 
-    const users = data.users;
-
-    // 1. Identity-first match
-    const identityMatch = users.find((u) => {
-        const meta = u.app_metadata || {};
-        return (
-            meta.auth_source === "authentik" &&
-            meta.oidc_sub === payload.sub &&
-            meta.oidc_issuer === payload.iss
-        );
-    });
-
-    if (identityMatch) {
-        return { user: identityMatch, matchedBy: "identity" };
-    }
-
-    // 2. Email fallback
-    if (payload.email) {
-        const emailMatch = users.find(
-            (u) => u.email?.toLowerCase() === payload.email.toLowerCase(),
-        );
-        if (emailMatch) {
-            return { user: emailMatch, matchedBy: "email" };
+        if (error) {
+            throw new Error(`Failed to list auth users: ${error.message}`);
         }
+
+        const users = data.users;
+
+        // 1. Identity-first match
+        const identityMatch = users.find((u) => {
+            const meta = u.app_metadata || {};
+            return (
+                meta.auth_source === "authentik" &&
+                meta.oidc_sub === payload.sub &&
+                meta.oidc_issuer === payload.iss
+            );
+        });
+
+        if (identityMatch) {
+            return { user: identityMatch, matchedBy: "identity" };
+        }
+
+        // 2. Accumulate email fallback (first match wins across pages)
+        if (!emailMatch && payload.email) {
+            const match = users.find(
+                (u) => u.email?.toLowerCase() === payload.email.toLowerCase(),
+            );
+            if (match) {
+                emailMatch = match;
+            }
+        }
+
+        // No more pages
+        if (users.length < perPage) {
+            break;
+        }
+        page++;
+    }
+
+    if (emailMatch) {
+        return { user: emailMatch, matchedBy: "email" };
     }
 
     return { user: null, matchedBy: null };
@@ -352,6 +372,25 @@ export class SupabaseSyncAdapter implements ProvisioningAdapter {
                 error: `RPC ${rpcName} failed: ${rpcError.message}`,
                 errorCode: "rpc_upsert_failed",
             };
+        }
+
+        // Step 3: Link shadow auth.users ID to public.users row
+        if (shadowResult) {
+            const linkRpcName = this.config.linkShadowRpcName || "link_shadow_auth_user";
+            try {
+                const { error: linkError } = await this.client.rpc(linkRpcName, {
+                    p_sub: normalized.sub,
+                    p_iss: normalized.iss,
+                    p_shadow_auth_user_id: shadowResult.authUserId,
+                });
+
+                if (linkError) {
+                    // Link failure is non-fatal — the user is provisioned,
+                    // shadow linkage can be retried on next login.
+                }
+            } catch {
+                // Best-effort linkage — don't fail the overall sync
+            }
         }
 
         return {

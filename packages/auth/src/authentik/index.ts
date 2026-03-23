@@ -11,6 +11,7 @@
 // Types
 export type {
     AuthentikProvider,
+    AuthentikEndpoints,
     AuthentikRelayConfig,
     RelayIncomingParams,
     RelayHandlerResult,
@@ -69,6 +70,7 @@ export {
     validateAuthentikConfig,
     validateSupabaseSyncConfig,
     validateFullConfig,
+    discoverEndpoints,
 } from "./config";
 
 // Safe redirect

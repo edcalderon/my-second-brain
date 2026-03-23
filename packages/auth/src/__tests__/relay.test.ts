@@ -18,6 +18,7 @@ const baseConfig: AuthentikRelayConfig = {
     issuer: "https://auth.example.com/application/o/my-app",
     clientId: "test-client-id",
     redirectUri: "https://dashboard.example.com/auth/callback",
+    authorizePath: "https://auth.example.com/application/o/authorize/",
 };
 
 const baseParams: RelayIncomingParams = {
@@ -79,11 +80,14 @@ describe("createRelayPageHtml", () => {
         expect(result.html).not.toContain("authentik_relay:next");
     });
 
-    it("embeds the OIDC authorize URL with PKCE params", () => {
+    it("embeds the OIDC authorize URL with PKCE params at the correct endpoint", () => {
         const result = createRelayPageHtml(baseConfig, baseParams);
 
         // The authorize URL is embedded inside the flow URL's ?next= param,
-        // so its params appear URL-encoded in the HTML output.
+        // so slashes appear URL-encoded as %2F in the HTML output.
+        expect(result.html).toContain("application%2Fo%2Fauthorize%2F");
+        // It must NOT use the issuer app path as a prefix for authorize
+        expect(result.html).not.toContain("application%2Fo%2Fmy-app%2Fauthorize");
         expect(result.html).toContain("response_type%3Dcode");
         expect(result.html).toContain("client_id%3Dtest-client-id");
         expect(result.html).toContain("code_challenge%3Dtest-challenge-xyz789");

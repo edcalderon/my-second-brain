@@ -56,10 +56,7 @@ function buildAuthorizeUrl(
     config: AuthentikRelayConfig,
     params: RelayIncomingParams,
 ): string {
-    const issuerBase = config.issuer.endsWith("/")
-        ? config.issuer
-        : `${config.issuer}/`;
-    const url = new URL("authorize/", issuerBase);
+    const url = new URL(config.authorizePath);
 
     url.searchParams.set("response_type", "code");
     url.searchParams.set("client_id", config.clientId);
