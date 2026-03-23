@@ -165,7 +165,7 @@ interface ProvisioningPayload {
   sub: string;
   /** OIDC issuer URL. */
   iss: string;
-  /** User email (normalised to lowercase). */
+  /** User email (normalized to lowercase). */
   email: string;
   /** Whether the email is verified by the OIDC provider. */
   emailVerified?: boolean;

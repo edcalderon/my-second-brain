@@ -11,7 +11,7 @@ This document maps each module in `@edcalderon/auth/authentik` back to its origi
 | Document | Link | Description |
 |----------|------|-------------|
 | CIG Auth Architecture | [docs/authentication/README.md](https://github.com/edwardcalderon/ComputeIntelligenceGraph/blob/main/docs/authentication/README.md) | Top-level auth architecture document covering the federated OAuth strategy, provider model, and session management design |
-| CIG Auth Package | [packages/auth/](https://github.com/edwardcalderon/ComputeIntelligenceGraph/tree/main/packages/auth) | The original monorepo auth package that `@edcalderon/auth` generalises |
+| CIG Auth Package | [packages/auth/](https://github.com/edwardcalderon/ComputeIntelligenceGraph/tree/main/packages/auth) | The original monorepo auth package that `@edcalderon/auth` generalizes |
 
 ---
 
@@ -53,7 +53,7 @@ This document maps each module in `@edcalderon/auth/authentik` back to its origi
 | Package Module | CIG Origin |
 |---------------|------------|
 | `SupabaseSyncAdapter` | [`apps/dashboard/app/api/auth/sync/route.ts`](https://github.com/edwardcalderon/ComputeIntelligenceGraph/blob/main/apps/dashboard/app/api/auth/sync/route.ts) + [`apps/dashboard/lib/authSync.ts`](https://github.com/edwardcalderon/ComputeIntelligenceGraph/blob/main/apps/dashboard/lib/authSync.ts) |
-| `normalizePayload()` | `authSync.ts` — payload normalisation before Supabase upsert |
+| `normalizePayload()` | `authSync.ts` — payload normalization before Supabase upsert |
 | `findShadowAuthUser()` (internal) | `authSync.ts` — paginated identity-first user search |
 | `ensureShadowAuthUser()` (internal) | `authSync.ts` — shadow auth.users create/update logic |
 | `NoopProvisioningAdapter` | New in package — no CIG equivalent (CIG always syncs) |
@@ -106,7 +106,7 @@ This document maps each module in `@edcalderon/auth/authentik` back to its origi
 
 ## Summary
 
-The `@edcalderon/auth/authentik` package is a direct generalisation of the CIG production Authentik integration. Every module preserves the battle-tested behavior from CIG while making it configurable and reusable across projects.
+The `@edcalderon/auth/authentik` package is a direct generalization of the CIG production Authentik integration. Every module preserves the battle-tested behavior from CIG while making it configurable and reusable across projects.
 
 Key design decisions traced back to CIG:
 
