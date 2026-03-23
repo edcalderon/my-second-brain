@@ -20,7 +20,7 @@ gcloud secrets create imap-password \
 ### Paso 2: Agregar la Contraseña
 
 ```bash
-echo -n "787VHez3Q1*" | gcloud secrets versions add imap-password \
+echo -n "[YOUR_IMAP_PASSWORD]" | gcloud secrets versions add imap-password \
   --data-file=- \
   --project=second-brain-482901
 ```

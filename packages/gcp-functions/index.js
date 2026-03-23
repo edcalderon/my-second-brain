@@ -241,7 +241,7 @@ async function sendEntranceNotification({ filename, subject, structuredData }) {
                 ` : ''}
 
                 <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #dee2e6; color: #6c757d; font-size: 12px;">
-                    <p>This notification was sent automatically when a new Rocketbook note was processed from edward@lsts.tech</p>
+                    <p>This notification was sent automatically when a new Rocketbook note was processed.</p>
                 </div>
             </div>
         `

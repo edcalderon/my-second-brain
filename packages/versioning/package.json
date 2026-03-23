@@ -71,7 +71,7 @@
     "conventional-changelog": "^5.1.0",
     "fs-extra": "^11.2.0",
     "semver": "^7.6.0",
-    "simple-git": "^3.22.0"
+    "simple-git": "^3.33.0"
   },
   "engines": {
     "node": ">=18.0.0"

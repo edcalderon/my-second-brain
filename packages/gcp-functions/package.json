@@ -15,14 +15,14 @@
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.0.0",
-    "@google-cloud/storage": "^7.0.0",
+    "@google-cloud/storage": "^7.19.0",
     "@google-cloud/vertexai": "^1.0.0",
-    "firebase-admin": "^12.0.0",
-    "firebase-functions": "^4.8.0",
+    "firebase-admin": "^13.7.0",
+    "firebase-functions": "^6.6.0",
     "imapflow": "^1.1.0",
-    "mailparser": "^3.6.0",
+    "mailparser": "^3.9.5",
     "nodemailer": "^8.0.1",
-    "puppeteer": "^24.34.0",
+    "puppeteer": "^24.40.0",
     "twitter-api-v2": "^1.28.0"
   },
   "devDependencies": {
@@ -32,7 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.52.0",
     "eslint": "^8.57.1",
-    "firebase-tools": "^13.0.0",
+    "firebase-tools": "^15.11.0",
     "typescript": "^5.3.0"
   },
   "engines": {

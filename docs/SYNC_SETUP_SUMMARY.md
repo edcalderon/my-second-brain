@@ -31,7 +31,7 @@ gcloud secrets create imap-password \
   --project=second-brain-482901
 
 # 3. Agregar contraseña
-echo -n "787VHez3Q1*" | gcloud secrets versions add imap-password \
+echo -n "[YOUR_IMAP_PASSWORD]" | gcloud secrets versions add imap-password \
   --data-file=- \
   --project=second-brain-482901
 
@@ -100,7 +100,7 @@ Función obtiene IMAP_PASSWORD de Secret Manager
     ↓
 Se conecta a imap.hostinger.com
     ↓
-Autentica con edward@lealsystem.net + contraseña
+Autentica con secondbrain@lealsystem.net + contraseña
     ↓
 Obtiene nuevos emails de Rocketbook
     ↓

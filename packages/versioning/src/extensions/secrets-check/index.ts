@@ -53,6 +53,14 @@ const DEFAULT_ALLOWLIST = [
     "[0-9a-fA-F]", // Hex regex character class in docs/examples
     "[a-f0-9]", // Hex regex character class in docs/examples
     "CUSTOM_API_KEY=", // Documentation example key name
+    "$IMAP_PASSWORD", // Bash variable reference
+    "$IMAP_USER", // Bash variable reference
+    "$IMAP_HOST", // Bash variable reference
+    "$PROJECT_ID", // Bash variable reference
+    "imap-password:", // GCP Secret Manager reference
+    "smtp-password:", // GCP Secret Manager reference
+    "--set-secrets", // gcloud deployment flag
+    "--set-env-vars", // gcloud deployment flag
 ];
 
 export interface SecretCheckResult {

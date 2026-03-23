@@ -16,7 +16,7 @@ PROJECT_NUMBER=${PROJECT_NUMBER:-"544207038128"}
 
 # Hostinger IMAP config
 IMAP_HOST=${IMAP_HOST:-"imap.hostinger.com"}
-IMAP_USER=${IMAP_USER:-"edward@lealsystem.net"}
+IMAP_USER=${IMAP_USER:-"secondbrain@lealsystem.net"}
 
 echo "🚀 Deploying Rocketbook Knowledge Base to GCP..."
 
@@ -96,4 +96,4 @@ echo ""
 echo "📋 Next Steps:"
 echo "1. Go to GCP Console -> Cloud Scheduler"
 echo "2. Create a job to hit $FETCH_URL every 15 minutes"
-echo "3. Ensure your Rocketbook app sends scans to edward@lealsystem.net"
+echo "3. Ensure your Rocketbook app sends scans to secondbrain@lealsystem.net"

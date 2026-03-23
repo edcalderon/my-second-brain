@@ -38,14 +38,14 @@ Successfully implemented automatic email movement from Junk to Archives/rocketbo
 ### 4. Environment Variables Configured
 ```
 IMAP_HOST: imap.hostinger.com
-IMAP_USER: edward@lealsystem.net
-IMAP_PASSWORD: 787VHez3Q1*
+IMAP_USER: secondbrain@lealsystem.net
+IMAP_PASSWORD: [REDACTED - ROTATED]
 GCP_PROJECT_ID: second-brain-482901
 SMTP_HOST: smtp.hostinger.com
 SMTP_PORT: 587
-SMTP_USER: edward@lealsystem.net
-SMTP_PASSWORD: 787VHez3Q1*
-NOTIFICATION_EMAIL: edward@lsts.tech
+SMTP_USER: secondbrain@lealsystem.net
+SMTP_PASSWORD: [REDACTED - ROTATED]
+NOTIFICATION_EMAIL: [SET VIA ENV VAR]
 ```
 
 ## Test Results
@@ -78,7 +78,7 @@ gcloud functions call rocketbook-fetch --region=us-central1 --project=second-bra
 
 ✅ **Email Notification Sent**:
 ```
-✅ Email notification sent to edward@lsts.tech
+✅ Email notification sent to configured NOTIFICATION_EMAIL
 ```
 
 ✅ **Entry Archived**:
