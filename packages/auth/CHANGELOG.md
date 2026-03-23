@@ -13,7 +13,7 @@
 - 🛡️ **Safe redirect resolver** — `resolveSafeRedirect()` with origin allowlist to prevent open-redirect vulnerabilities.
 - 📦 **New subpath export** — `@edcalderon/auth/authentik` barrel export for all Authentik-specific modules.
 - 🗄️ **SQL migration 003** — `003_authentik_shadow_auth_users.sql` adds shadow auth user linkage columns and `link_shadow_auth_user()` RPC.
-- 🧪 **79 tests** across 6 test suites covering relay, callback, logout, provisioning, config validation, and redirect safety.
+- 🧪 **96 tests** across 6 test suites covering relay, callback, logout, provisioning (incl. paginated page-2 lookups, shadow linkage RPC, rollback), config validation (incl. endpoint discovery), and redirect safety.
 
 ## [1.3.0] - 2026-03-19
 

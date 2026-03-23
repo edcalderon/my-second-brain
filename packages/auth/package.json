@@ -1,6 +1,6 @@
 {
   "name": "@edcalderon/auth",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A universal, provider-agnostic authentication package (Web + Next.js + Expo/React Native)",
   "exports": {
     ".": {
