@@ -9,6 +9,11 @@
       "require": "./dist/index.js",
       "react-native": "./dist/index.js"
     },
+    "./authentik": {
+      "types": "./dist/authentik/index.d.ts",
+      "import": "./dist/authentik/index.js",
+      "require": "./dist/authentik/index.js"
+    },
     "./supabase": {
       "types": "./dist/providers/SupabaseClient.d.ts",
       "import": "./dist/providers/SupabaseClient.js",
@@ -42,6 +47,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run build",
     "update-readme": "versioning update-readme"
   },
@@ -90,10 +98,20 @@
     }
   },
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "@types/react": "^19.2.7",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
     "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/__tests__/**/*.test.ts"],
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    }
   }
 }
