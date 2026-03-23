@@ -28,6 +28,16 @@ Swap between Supabase, Firebase, Hybrid, or any custom provider without changing
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
+### 📖 Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [Authentik Integration Guide](./docs/authentik-integration-guide.md) | Set up Authentik as your OIDC provider — resources, social login, logout flows, endpoint discovery |
+| [Provisioning Model](./docs/provisioning-model.md) | Three-layer identity model, identity-first matching, shadow auth.users, rollback behavior |
+| [Upgrade & Migration Guide](./docs/upgrade-migration.md) | Upgrade from v1.3.0 → v1.4.0, migrate custom relay/callback/logout code |
+| [Next.js Reference Examples](./docs/nextjs-examples.md) | Complete examples: same-origin, cross-origin relay, Supabase sync, logout |
+| [CIG Reference Map](./docs/cig-reference-map.md) | Map each module to its CIG origin for tracing design decisions |
+
 ---
 
 ## 🚀 Runtime Support Matrix
@@ -157,6 +167,7 @@ The package avoids bleeding `window` or `document` objects into Expo bundles or 
 - `@edcalderon/auth/firebase-native`
 - `@edcalderon/auth/hybrid-web`
 - `@edcalderon/auth/hybrid-native`
+- `@edcalderon/auth/authentik` (Authentik flow + provisioning kit — [docs](./docs/authentik-integration-guide.md))
 
 ---
 
