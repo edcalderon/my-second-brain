@@ -95,6 +95,13 @@
         }
       }
     },
+    "release-guard": {
+      "enabled": true,
+      "tagPrefix": "v",
+      "packageJsonPath": "package.json",
+      "allowBuildMetadata": true,
+      "packages": []
+    },
     "cleanup-repo": {
       "enabled": true,
       "defaultDestination": "docs",
