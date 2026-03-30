@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2] - 2026-03-30
+
+### Added
+
+- ✨ **Authentik preset helpers** — `createAuthentikPreset()`, `createAuthentikRelayHandler()`, `createAuthentikLogoutHandler()`, and `handleAuthentikCallback()` wrap the existing relay/callback/logout/provisioning primitives into a reusable config-first flow.
+- 📦 **New `@edcalderon/auth/authentik` exports** — the preset layer is now part of the Authentik subpath export surface.
+
 ## [1.4.1] - 2026-03-23
 
 ### Added
