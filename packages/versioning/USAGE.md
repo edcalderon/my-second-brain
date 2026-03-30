@@ -262,8 +262,21 @@ Use the built-in `guard-tag` command to validate a release tag before publishing
 
 ```bash
 versioning guard-tag --tag v1.2.3
-versioning guard-tag --tag versioning-v1.5.7 --tag-prefix versioning-v
+versioning guard-tag --tag versioning-v1.5.9 --tag-prefix versioning-v
 versioning guard-tag --tag v1.2.3+build.4 --allow-build-metadata
+```
+
+The guard also runs automatically from the `preRelease` hook when the built-in extension is loaded, and it accepts the older `extensionConfig["release-guard"]` shape for compatibility:
+
+```json
+{
+  "extensionConfig": {
+    "release-guard": {
+      "enabled": true,
+      "tagPrefix": "versioning-v"
+    }
+  }
+}
 ```
 
 For monorepos, the guard reads the configured root package plus each package directory in `packages`, and it can also check extra metadata files:

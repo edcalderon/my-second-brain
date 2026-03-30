@@ -12,6 +12,15 @@
     "checkReleaseFloor": true,
     "metadataFiles": []
   },
+  "extensionConfig": {
+    "release-guard": {
+      "enabled": true,
+      "tagPrefix": "versioning-v",
+      "allowBuildMetadata": true,
+      "checkReleaseFloor": true,
+      "metadataFiles": []
+    }
+  },
   "branchAwareness": {
     "enabled": false,
     "defaultBranch": "main",

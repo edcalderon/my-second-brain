@@ -8,11 +8,12 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.8)
+## 📋 Latest Changes (v1.5.9)
 
 ### Bug Fixes
 
-* **release-guard:** add tag consistency checks, stale-tag floor validation, and a standalone `guard-tag` command
+* **versioning:** run the release guard through the `preRelease` hook and accept `extensionConfig["release-guard"]`
+* **versioning:** keep the standalone `guard-tag` command compatible with the hook-driven guard flow
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
@@ -773,7 +774,7 @@ This package uses GitHub Actions for automated publishing to NPM when version ta
 
 4. **Guard the release tag first**: Validate the tag against the current package versions and release floor
   ```bash
-  npx versioning guard-tag --tag versioning-v1.5.7
+  npx versioning guard-tag --tag versioning-v1.5.9
   ```
 
 5. **Automated Publishing**: GitHub Actions will automatically publish to NPM using the publish extension

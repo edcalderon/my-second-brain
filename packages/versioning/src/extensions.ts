@@ -28,6 +28,7 @@ export interface ExtensionContext {
   syncManager?: any;
   releaseManager?: any;
   hooks: ExtensionHooks[];
+  loadedExtensions: string[];
 }
 
 let globalExtensionContext: ExtensionContext | null = null;
@@ -39,7 +40,8 @@ export function getExtensionContext(): ExtensionContext | null {
 export async function initializeExtensionContext(config: any): Promise<ExtensionContext> {
   globalExtensionContext = {
     config,
-    hooks: []
+    hooks: [],
+    loadedExtensions: []
   };
   return globalExtensionContext;
 }
@@ -104,6 +106,8 @@ export async function loadExtensions(program: Command): Promise<void> {
               context.hooks.push(extension.hooks);
             }
 
+            context.loadedExtensions.push(extension.name);
+
             console.log(`✅ Loaded extension: ${extension.name}@${extension.version}`);
           }
         } catch (error) {
@@ -138,6 +142,8 @@ export async function loadExtensions(program: Command): Promise<void> {
             context.hooks.push(extension.hooks);
           }
 
+          context.loadedExtensions.push(extension.name);
+
           console.log(`✅ Loaded external extension: ${extension.name}@${extension.version}`);
         }
       } catch (error) {
@@ -154,7 +160,8 @@ export async function loadExtensions(program: Command): Promise<void> {
 export function createExtensionContext(config: any): ExtensionContext {
   return {
     config,
-    hooks: []
+    hooks: [],
+    loadedExtensions: []
     // Managers will be injected when available
   };
 }

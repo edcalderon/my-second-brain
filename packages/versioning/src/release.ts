@@ -3,7 +3,7 @@ import * as path from 'path';
 import { VersionManager } from './index';
 import { ChangelogManager } from './changelog';
 import * as semver from 'semver';
-import { runExtensionHooks } from './extensions';
+import { getExtensionContext, runExtensionHooks } from './extensions';
 import { deriveTagPrefixFromFormat, renderTagFormat, runReleaseGuard } from './release-guard';
 
 export interface ReleaseConfig {
@@ -35,6 +35,7 @@ export class ReleaseManager {
   } = {}): Promise<void> {
     const { message, packages, skipSync, tagFormat = 'v{version}' } = options;
     const versionConfig = this.config.versionManager.getConfig();
+    const releaseGuardHookLoaded = getExtensionContext()?.loadedExtensions.includes('release-guard') ?? false;
 
     // Update versions
     await this.config.versionManager.updateVersion(version);
@@ -51,7 +52,15 @@ export class ReleaseManager {
       await this.config.syncManager.syncVersions(version);
     }
 
-    if (this.config.createTag !== false) {
+    if (releaseGuardHookLoaded) {
+      await runExtensionHooks('preRelease', version, {
+        config: versionConfig,
+        message,
+        packages,
+        skipSync,
+        tagFormat
+      });
+    } else if (this.config.createTag !== false) {
       const guardConfig = versionConfig.releaseGuard;
       if (guardConfig?.enabled) {
         const tag = renderTagFormat(tagFormat, version);
@@ -135,6 +144,7 @@ export class ReleaseManager {
     options: ReleaseOptions
   ): Promise<string> {
     const versionConfig = this.config.versionManager.getConfig();
+    const releaseGuardHookLoaded = getExtensionContext()?.loadedExtensions.includes('release-guard') ?? false;
     const result = await this.config.versionManager.bumpVersionBranchAware(releaseType, {
       targetBranch: options.targetBranch,
       forceBranchAware: options.forceBranchAware,
@@ -142,7 +152,15 @@ export class ReleaseManager {
       build: options.build
     });
 
-    if (this.config.createTag !== false) {
+    if (releaseGuardHookLoaded) {
+      await runExtensionHooks('preRelease', result.version, {
+        config: versionConfig,
+        message: options.message,
+        packages: options.packages,
+        skipSync: options.skipSync,
+        tagFormat: result.tagFormat
+      });
+    } else if (this.config.createTag !== false) {
       const guardConfig = versionConfig.releaseGuard;
       if (guardConfig?.enabled) {
         const tag = renderTagFormat(result.tagFormat, result.version);
