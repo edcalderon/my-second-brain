@@ -15,8 +15,8 @@ Swap between Supabase, Firebase, Hybrid, or any custom provider without changing
 
 ### Added
 
-- ✨ **Authentik preset helpers**: `createAuthentikPreset()`, `createAuthentikRelayHandler()`, `createAuthentikLogoutHandler()`, and `handleAuthentikCallback()` now package the existing relay/callback/logout/provisioning flow into a reusable preset layer.
-- 📦 **New subpath exports**: the preset layer is available from `@edcalderon/auth/authentik` alongside the lower-level helpers.
+- ✨ **Authentik preset helpers** — `createAuthentikPreset()`, `createAuthentikRelayHandler()`, `createAuthentikLogoutHandler()`, and `handleAuthentikCallback()` wrap the existing relay/callback/logout/provisioning primitives into a reusable config-first flow.
+- 📦 **New `@edcalderon/auth/authentik` exports** — the preset layer is now part of the Authentik subpath export surface.
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
