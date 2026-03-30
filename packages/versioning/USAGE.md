@@ -256,6 +256,32 @@ versioning patch --force-branch-aware
 versioning patch --branch-aware --format dev --build 396
 ```
 
+### Release Guards
+
+Use the built-in `guard-tag` command to validate a release tag before publishing:
+
+```bash
+versioning guard-tag --tag v1.2.3
+versioning guard-tag --tag versioning-v1.5.7 --tag-prefix versioning-v
+versioning guard-tag --tag v1.2.3+build.4 --allow-build-metadata
+```
+
+For monorepos, the guard reads the configured root package plus each package directory in `packages`, and it can also check extra metadata files:
+
+```json
+{
+  "rootPackageJson": "package.json",
+  "packages": ["packages/*", "apps/*"],
+  "releaseGuard": {
+    "enabled": true,
+    "tagPrefix": "v",
+    "allowBuildMetadata": true,
+    "checkReleaseFloor": true,
+    "metadataFiles": ["version.production.json", "version.development.json"]
+  }
+}
+```
+
 ## Re-entry + Roadmap
 
 The re-entry extension adds a two-layer status system:

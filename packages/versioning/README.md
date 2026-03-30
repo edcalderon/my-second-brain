@@ -8,11 +8,11 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.7)
+## 📋 Latest Changes (v1.5.8)
 
 ### Bug Fixes
 
-* **secrets-check:** extend allowlist with regex character-class patterns to prevent false positives on example code in documentation
+* **release-guard:** add tag consistency checks, stale-tag floor validation, and a standalone `guard-tag` command
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
@@ -771,7 +771,12 @@ This package uses GitHub Actions for automated publishing to NPM when version ta
    npm run create-tag
    ```
 
-4. **Automated Publishing**: GitHub Actions will automatically publish to NPM using the publish extension
+4. **Guard the release tag first**: Validate the tag against the current package versions and release floor
+  ```bash
+  npx versioning guard-tag --tag versioning-v1.5.7
+  ```
+
+5. **Automated Publishing**: GitHub Actions will automatically publish to NPM using the publish extension
 
 #### Quick Release Commands
 
@@ -809,9 +814,30 @@ To enable automated publishing:
 
 ### Version Tags
 
-Tags should follow the format `v{major}.{minor}.{patch}` (e.g., `v1.0.0`, `v1.1.0`, `v2.0.0`).
+Tags should follow the format `v{major}.{minor}.{patch}` for the CLI release flow and `versioning-v{major}.{minor}.{patch}` for this package's own publish flow (for example, `v1.0.0`, `v1.1.0`, `versioning-v1.5.7`).
 
 The `create-tag` script will:
 - Read the version from `package.json`
 - Create an annotated git tag
 - Push the tag to trigger the publish workflow
+- Validate the tag against the current package version and the latest release floor before pushing
+
+### Release Guard
+
+Enable release/tag consistency checks in `versioning.config.json`:
+
+```json
+{
+  "rootPackageJson": "package.json",
+  "packages": ["packages/*", "apps/*"],
+  "releaseGuard": {
+    "enabled": true,
+    "tagPrefix": "v",
+    "allowBuildMetadata": true,
+    "checkReleaseFloor": true,
+    "metadataFiles": ["version.production.json"]
+  }
+}
+```
+
+This will validate the root package, all configured package directories, and any extra release metadata files before a release tag is published.

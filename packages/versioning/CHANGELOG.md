@@ -1,3 +1,12 @@
+## [1.5.8](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.7...versioning-v1.5.8) (2026-03-30)
+
+### Bug Fixes
+
+* **versioning:** add release/tag consistency guards and a standalone `guard-tag` validation command
+* **versioning:** validate release floors before creating `versioning-v*` publish tags
+
+
+
 ## [1.5.7](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.6...versioning-v1.5.7) (2026-03-23)
 
 ### Bug Fixes

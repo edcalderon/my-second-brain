@@ -47,6 +47,13 @@ export interface VersionConfig {
   conventionalCommits?: boolean;
   extensionConfig?: Record<string, any>;
   branchAwareness?: BranchAwarenessConfig;
+  releaseGuard?: {
+    enabled?: boolean;
+    tagPrefix?: string;
+    allowBuildMetadata?: boolean;
+    checkReleaseFloor?: boolean;
+    metadataFiles?: string[];
+  };
 }
 
 export class VersionManager {
@@ -59,6 +66,10 @@ export class VersionManager {
       conventionalCommits: true,
       ...config
     };
+  }
+
+  getConfig(): VersionConfig {
+    return this.config;
   }
 
   async getCurrentVersion(): Promise<string> {

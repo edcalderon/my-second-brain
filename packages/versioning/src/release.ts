@@ -4,6 +4,7 @@ import { VersionManager } from './index';
 import { ChangelogManager } from './changelog';
 import * as semver from 'semver';
 import { runExtensionHooks } from './extensions';
+import { deriveTagPrefixFromFormat, renderTagFormat, runReleaseGuard } from './release-guard';
 
 export interface ReleaseConfig {
   versionManager: VersionManager;
@@ -30,8 +31,10 @@ export class ReleaseManager {
     message?: string;
     packages?: string[];
     skipSync?: boolean;
+    tagFormat?: string;
   } = {}): Promise<void> {
-    const { message, packages, skipSync } = options;
+    const { message, packages, skipSync, tagFormat = 'v{version}' } = options;
+    const versionConfig = this.config.versionManager.getConfig();
 
     // Update versions
     await this.config.versionManager.updateVersion(version);
@@ -48,6 +51,22 @@ export class ReleaseManager {
       await this.config.syncManager.syncVersions(version);
     }
 
+    if (this.config.createTag !== false) {
+      const guardConfig = versionConfig.releaseGuard;
+      if (guardConfig?.enabled) {
+        const tag = renderTagFormat(tagFormat, version);
+        await runReleaseGuard(versionConfig, {
+          tag,
+          tagFormat,
+          packages,
+          metadataFiles: guardConfig.metadataFiles,
+          allowBuildMetadata: guardConfig.allowBuildMetadata,
+          checkReleaseFloor: guardConfig.checkReleaseFloor,
+          tagPrefix: deriveTagPrefixFromFormat(tagFormat)
+        });
+      }
+    }
+
     // Generate changelog
     await this.config.changelogManager.generate();
     await runExtensionHooks('postChangelog', {});
@@ -59,7 +78,7 @@ export class ReleaseManager {
 
     // Create git tag
     if (this.config.createTag) {
-      await this.config.versionManager.createGitTag(version, message);
+      await this.config.versionManager.createGitTagWithFormat(version, tagFormat, message);
     }
 
     // Publish if requested (future implementation)
@@ -115,12 +134,29 @@ export class ReleaseManager {
     releaseType: semver.ReleaseType,
     options: ReleaseOptions
   ): Promise<string> {
+    const versionConfig = this.config.versionManager.getConfig();
     const result = await this.config.versionManager.bumpVersionBranchAware(releaseType, {
       targetBranch: options.targetBranch,
       forceBranchAware: options.forceBranchAware,
       format: options.format,
       build: options.build
     });
+
+    if (this.config.createTag !== false) {
+      const guardConfig = versionConfig.releaseGuard;
+      if (guardConfig?.enabled) {
+        const tag = renderTagFormat(result.tagFormat, result.version);
+        await runReleaseGuard(versionConfig, {
+          tag,
+          tagFormat: result.tagFormat,
+          packages: options.packages,
+          metadataFiles: [...(guardConfig.metadataFiles || []), ...result.syncFiles],
+          allowBuildMetadata: guardConfig.allowBuildMetadata,
+          checkReleaseFloor: guardConfig.checkReleaseFloor,
+          tagPrefix: deriveTagPrefixFromFormat(result.tagFormat)
+        });
+      }
+    }
 
     await this.config.changelogManager.generate();
     await runExtensionHooks('postChangelog', {});

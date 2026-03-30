@@ -5,6 +5,13 @@
   "conventionalCommits": true,
   "syncDependencies": false,
   "ignorePackages": [],
+  "releaseGuard": {
+    "enabled": true,
+    "tagPrefix": "versioning-v",
+    "allowBuildMetadata": true,
+    "checkReleaseFloor": true,
+    "metadataFiles": []
+  },
   "branchAwareness": {
     "enabled": false,
     "defaultBranch": "main",
