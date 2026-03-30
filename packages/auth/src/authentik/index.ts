@@ -75,3 +75,18 @@ export {
 
 // Safe redirect
 export { resolveSafeRedirect } from "./redirect";
+
+// Preset helpers
+export {
+    createAuthentikPreset,
+    createAuthentikRelayHandler,
+    createAuthentikLogoutHandler,
+    handleAuthentikCallback,
+} from "./preset";
+export type {
+    AuthentikPreset,
+    AuthentikPresetConfig,
+    CreateAuthentikPresetOptions,
+    HandleAuthentikCallbackInput,
+    AuthentikRelayHandler,
+} from "./preset";
