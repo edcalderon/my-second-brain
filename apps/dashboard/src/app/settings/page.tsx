@@ -7,7 +7,11 @@ import { useAuth } from "@/components/auth/AuthProvider";
 export default function SettingsPage() {
     const { user } = useAuth();
 
-    const apiBase = useMemo(() => {
+    const hummingbotApiBase = useMemo(() => {
+        return process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE || process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "(not set)";
+    }, []);
+
+    const dashboardApiBase = useMemo(() => {
         return process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "(not set)";
     }, []);
 
@@ -16,7 +20,7 @@ export default function SettingsPage() {
             <header>
                 <p className="text-xs uppercase tracking-[0.2em] text-emerald-700">Settings</p>
                 <h1 className="text-3xl font-semibold text-gray-900">Dashboard configuration</h1>
-                <p className="text-sm text-gray-600">Read-only settings for the public operations console.</p>
+                <p className="text-sm text-gray-600">Environment settings for the knowledge hub and paper-trading desk.</p>
             </header>
 
             <section className="glass-panel rounded-3xl p-8 space-y-6">
@@ -32,12 +36,13 @@ export default function SettingsPage() {
 
                 <div className="grid gap-3 text-sm text-gray-700">
                     <DataRow label="Auth provider" value={user?.provider || "supabase"} />
-                    <DataRow label="API base" value={apiBase} />
-                    <DataRow label="UI scope" value="Read-only" />
+                    <DataRow label="Hummingbot API base" value={hummingbotApiBase} />
+                    <DataRow label="Dashboard API base" value={dashboardApiBase} />
+                    <DataRow label="UI scope" value="Paper trading + knowledge base" />
                 </div>
 
                 <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
-                    To switch projects, use `scripts/set-gcloud-project.sh` in the Edward repo.
+                    Set `NEXT_PUBLIC_HUMMINGBOT_API_BASE` for the paper-trading desk and keep the dashboard base aligned with the same backend.
                 </div>
             </section>
         </div>

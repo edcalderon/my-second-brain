@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import Link from "next/link";
-import { Activity, AlertTriangle, CandlestickChart, Gauge, ShieldCheck, Brain, Zap, TrendingUp, BookOpen } from "lucide-react";
+import { Activity, CandlestickChart, Gauge, ShieldCheck, Brain, Zap, TrendingUp, BookOpen } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useSupabaseData } from "@/components/supabase/SupabaseProvider";
 
@@ -91,8 +91,8 @@ export default function OverviewPage() {
                         <MetricRow label="Last Fill" value={trades?.[0]?.price ? `$${trades[0].price.toFixed(2)}` : "N/A"} />
                     </div>
                     <div className="mt-4 pt-4 border-t border-border dark:border-gray-700 transition-colors">
-                        <Link href="/market" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 font-semibold text-xs uppercase tracking-wide transition-colors">
-                            View Operations Dashboard →
+                        <Link href="/strategy" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 font-semibold text-xs uppercase tracking-wide transition-colors">
+                            Open paper trading desk →
                         </Link>
                     </div>
                 </div>
@@ -145,10 +145,10 @@ export default function OverviewPage() {
                 >
                     <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400 transition-colors">
                         <p>
-                            Real-time trading data is streamed from your private a-quant services. All endpoints are read-only and authenticated.
+                            Real-time trading data is streamed from your private a-quant services and the Hummingbot paper-trading backend.
                         </p>
                         <p>
-                            Navigate to the Trading Operations section to monitor live execution, risk decisions, and market data.
+                            Navigate to the Trading Operations section to preview signals, inspect positions, and submit controlled test orders.
                         </p>
                     </div>
                 </Card>
@@ -228,4 +228,3 @@ function ActionLink({ href, icon, title, description }: ActionLinkProps) {
         </Link>
     );
 }
-
