@@ -6,8 +6,8 @@ import AppShell from "@/components/layout/AppShell";
 import "@/styles/globals.css";
 
 export const metadata = {
-    title: "A-Quant Ops Dashboard",
-    description: "Operational visibility into the A-Quant trading stack",
+    title: "My Second Brain",
+    description: "Knowledge workspace and project portal for edcalderon.io",
 };
 
 export default function RootLayout({

@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-    Activity,
-    CandlestickChart,
-    Gauge,
     Settings,
-    ShieldAlert,
     LayoutDashboard,
     Brain,
     Network,
@@ -15,6 +11,7 @@ import {
     Zap,
     BarChart3,
     Layers,
+    CandlestickChart,
     ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -39,13 +36,10 @@ const menuSections = [
         ]
     },
     {
-        title: "Trading Operations",
+        title: "Projects",
         items: [
-            { name: "Overview", href: "/", icon: LayoutDashboard },
-            { name: "Market Data", href: "/market", icon: CandlestickChart },
-            { name: "Strategy Desk", href: "/strategy", icon: Activity },
-            { name: "Risk View", href: "/risk", icon: ShieldAlert },
-            { name: "Execution Monitor", href: "/execution", icon: Gauge },
+            { name: "Project Directory", href: "https://edcalderon.io/", icon: LayoutDashboard },
+            { name: "A-Quant", href: "https://edcalderon.io/a-quant/", icon: CandlestickChart },
         ]
     },
     {
@@ -109,7 +103,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                             </div>
                             <div className="min-w-0">
                                 <p className="text-sm font-semibold tracking-tight truncate text-gray-900 dark:text-white">Second Brain</p>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">+ A-Quant Ops</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Knowledge first</p>
                             </div>
                         </div>
                     )}
@@ -165,6 +159,8 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                                                         : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
                                                 )}
                                                 title={isCollapsed ? item.name : undefined}
+                                                target={item.href.startsWith("http") ? "_blank" : undefined}
+                                                rel={item.href.startsWith("http") ? "noreferrer noopener" : undefined}
                                             >
                                                 <item.icon
                                                     className={cn(
@@ -195,7 +191,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                     <div className="px-4 py-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
                         <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 text-xs text-gray-600 dark:text-gray-400 space-y-2">
                             <p className="font-semibold text-gray-800 dark:text-gray-200">🧠 Knowledge Hub</p>
-                            <p className="text-gray-600 dark:text-gray-400">Your AI-powered knowledge engine</p>
+                            <p className="text-gray-600 dark:text-gray-400">Second Brain workspace with project links above</p>
                         </div>
                     </div>
                 )}
