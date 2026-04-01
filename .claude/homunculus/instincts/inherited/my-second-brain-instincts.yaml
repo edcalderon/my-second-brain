@@ -1,0 +1,719 @@
+# Instincts generated from https://github.com/edcalderon/my-second-brain
+# Generated: 2026-04-01T08:27:11.802Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: my-second-brain-commit-conventional
+trigger: "when writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Commit Conventional
+
+## Action
+
+Use conventional commit format with prefixes: chore, fix, feat, docs
+
+## Evidence
+
+- 178 commits analyzed
+- Detected conventional commit pattern
+- Examples: docs(auth): refine release notes, feat(auth): add authentik preset helpers
+
+---
+id: my-second-brain-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Commit Length
+
+## Action
+
+Write moderate-length commit messages (~57 characters)
+
+## Evidence
+
+- Average commit message length: 57 chars
+- Based on 178 commits
+
+---
+id: my-second-brain-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: my-second-brain-import-alias
+trigger: "when importing modules"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Import Alias
+
+## Action
+
+Use path aliases (@/, ~/) instead of relative imports
+
+## Evidence
+
+- Import analysis shows alias pattern
+- Example: import { x } from '@/lib/x'
+
+---
+id: my-second-brain-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Export Style
+
+## Action
+
+Prefer default exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: default
+
+---
+id: my-second-brain-arch-type-based
+trigger: "when adding new code"
+confidence: 0.8
+domain: architecture
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Arch Type Based
+
+## Action
+
+Place code in the appropriate type folder (components/, services/, utils/, etc.)
+
+## Evidence
+
+- Type-based module organization detected
+- Folders: 
+
+---
+id: my-second-brain-test-framework
+trigger: "when writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Test Framework
+
+## Action
+
+Use jest as the test framework
+
+## Evidence
+
+- Test framework detected: jest
+- File pattern: *.test.ts
+
+---
+id: my-second-brain-test-naming
+trigger: "when creating a test file"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Test Naming
+
+## Action
+
+Name test files using the pattern: *.test.ts
+
+## Evidence
+
+- File pattern: *.test.ts
+- Consistent across test files
+
+---
+id: my-second-brain-test-types
+trigger: "when planning tests for a feature"
+confidence: 0.7
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Test Types
+
+## Action
+
+Write unit, integration tests to match project standards
+
+## Evidence
+
+- Test types detected: unit, integration
+- Coverage config: no
+
+---
+id: my-second-brain-workflow-database-migration
+trigger: "when modifying the database schema or adding tables"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Database Migration
+
+## Action
+
+Follow the database-migration workflow:
+1. Create migration file
+2. Update schema definitions
+3. Generate/update types
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: migrations/*, **/types.ts
+
+---
+id: my-second-brain-workflow-feature-development
+trigger: "when implementing a new feature"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Feature Development
+
+## Action
+
+Follow the feature-development workflow:
+1. Add feature implementation
+2. Add tests for feature
+3. Update documentation
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~8x per month
+- Files: packages/auth/src/*, packages/auth/src/providers/*, packages/versioning/src/__tests__/*
+
+---
+id: my-second-brain-workflow-test-driven-development
+trigger: "when adding new functionality"
+confidence: 0.7
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Test Driven Development
+
+## Action
+
+Follow the test-driven-development workflow:
+1. Write failing test
+2. Implement code to pass test
+3. Refactor if needed
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~4x per month
+- Files: **/*.test.*, **/*.spec.*, src/**/*
+
+---
+id: my-second-brain-workflow-package-release-workflow
+trigger: "when doing package release workflow"
+confidence: 0.7
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Package Release Workflow
+
+## Action
+
+Follow the package-release-workflow workflow:
+1. Update CHANGELOG.md with release notes
+2. Update README.md with new documentation or version badge
+3. Bump version in package.json
+4. Optionally update or add migration/test files
+5. Commit with a release message
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~4x per month
+- Files: packages/*/CHANGELOG.md, packages/*/README.md, packages/*/package.json
+
+---
+id: my-second-brain-workflow-feature-addition-with-tests-and-docs
+trigger: "when doing feature addition with tests and docs"
+confidence: 0.65
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Feature Addition With Tests And Docs
+
+## Action
+
+Follow the feature-addition-with-tests-and-docs workflow:
+1. Implement new feature in src/ or subfolders
+2. Add or update tests in src/__tests__/
+3. Update README.md to document the new feature
+4. Update CHANGELOG.md to record the feature addition
+5. Bump version in package.json if releasing
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~3x per month
+- Files: packages/*/src/**/*.ts, packages/*/src/__tests__/**/*.test.ts, packages/*/README.md
+
+---
+id: my-second-brain-workflow-documentation-expansion-workflow
+trigger: "when doing documentation expansion workflow"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Documentation Expansion Workflow
+
+## Action
+
+Follow the documentation-expansion-workflow workflow:
+1. Create or update markdown files in docs/ subfolder
+2. Update README.md to reference new docs
+3. Optionally update CHANGELOG.md to mention doc changes
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: packages/*/docs/**/*.md, packages/*/README.md, packages/*/CHANGELOG.md
+
+---
+id: my-second-brain-workflow-readme-maintainer-sync
+trigger: "when doing readme maintainer sync"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Readme Maintainer Sync
+
+## Action
+
+Follow the readme-maintainer-sync workflow:
+1. Run or trigger readme-maintainer tool
+2. Update README.md with generated or synced content
+3. Commit README.md with a sync message
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: packages/*/README.md, apps/*/README.md
+
+---
+id: my-second-brain-workflow-add-database-migration-workflow
+trigger: "when doing add database migration workflow"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Add Database Migration Workflow
+
+## Action
+
+Follow the add-database-migration-workflow workflow:
+1. Create new SQL migration file in migrations/ folder
+2. Update README.md or docs to describe migration
+3. Update CHANGELOG.md to record migration
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: packages/*/supabase/migrations/*.sql, packages/*/README.md, packages/*/CHANGELOG.md
+
+---
+id: my-second-brain-camelcase-files
+trigger: "When creating or naming a new file in the repository"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Camelcase Files
+
+## Action
+
+Use camelCase for file names
+
+## Evidence
+
+- Pattern in namingConventions.files
+- Observed in files like AuthProvider.tsx
+
+---
+id: my-second-brain-camelcase-functions
+trigger: "When defining a new function"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Camelcase Functions
+
+## Action
+
+Use camelCase for function names
+
+## Evidence
+
+- Pattern in namingConventions.functions
+
+---
+id: my-second-brain-pascalcase-classes
+trigger: "When defining a new class"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Pascalcase Classes
+
+## Action
+
+Use PascalCase for class names
+
+## Evidence
+
+- Pattern in namingConventions.classes
+
+---
+id: my-second-brain-screaming-snake-constants
+trigger: "When defining a constant"
+confidence: 0.9
+domain: code-style
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Screaming Snake Constants
+
+## Action
+
+Use SCREAMING_SNAKE_CASE for constant names
+
+## Evidence
+
+- Pattern in namingConventions.constants
+
+---
+id: my-second-brain-alias-imports
+trigger: "When importing modules in TypeScript files"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Alias Imports
+
+## Action
+
+Use alias import style
+
+## Evidence
+
+- Pattern in importStyle: alias
+
+---
+id: my-second-brain-default-exports
+trigger: "When exporting a module or component"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Default Exports
+
+## Action
+
+Use default export style
+
+## Evidence
+
+- Pattern in exportStyle: default
+
+---
+id: my-second-brain-jest-test-pattern
+trigger: "When adding a new test file"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Jest Test Pattern
+
+## Action
+
+Name the file with the pattern *.test.ts and place it alongside or in __tests__ folders
+
+## Evidence
+
+- Pattern in testing.filePattern
+- Example: src/utils/validation.test.ts
+
+---
+id: my-second-brain-jest-framework
+trigger: "When writing tests"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Jest Framework
+
+## Action
+
+Use the Jest testing framework
+
+## Evidence
+
+- Pattern in testing.framework
+
+---
+id: my-second-brain-test-types
+trigger: "When planning tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Test Types
+
+## Action
+
+Write both unit and integration tests as appropriate
+
+## Evidence
+
+- Pattern in testing.testTypes
+
+---
+id: my-second-brain-conventional-commits
+trigger: "When writing a commit message"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Conventional Commits
+
+## Action
+
+Use conventional commit format: <type>(<scope>): <message>
+
+## Evidence
+
+- Pattern in commits.type: conventional
+- Examples: 'feat(auth): add authentik preset helpers'
+
+---
+id: my-second-brain-commit-prefixes
+trigger: "When choosing a commit type"
+confidence: 0.9
+domain: git
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Commit Prefixes
+
+## Action
+
+Use one of the prefixes: chore, fix, feat, docs, release
+
+## Evidence
+
+- Pattern in commits.prefixes
+- Examples in commit history
+
+---
+id: my-second-brain-commit-length
+trigger: "When writing a commit message"
+confidence: 0.7
+domain: git
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Commit Length
+
+## Action
+
+Keep commit messages concise, around 57 characters on average
+
+## Evidence
+
+- Pattern in commits.averageLength
+
+---
+id: my-second-brain-package-release-workflow
+trigger: "When someone wants to publish a new version of a package (auth or versioning)"
+confidence: 0.98
+domain: workflow
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Package Release Workflow
+
+## Action
+
+Update CHANGELOG.md, README.md, bump version in package.json, and commit with a release message
+
+## Evidence
+
+- Workflow: package-release-workflow
+- Files: packages/*/CHANGELOG.md, README.md, package.json
+- Commits: 'feat(versioning): release 1.5.9'
+
+---
+id: my-second-brain-feature-addition-workflow
+trigger: "When someone wants to add a new feature to a package (auth or versioning)"
+confidence: 0.92
+domain: workflow
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Feature Addition Workflow
+
+## Action
+
+Implement feature in src/, add/update tests in __tests__/, update README.md and CHANGELOG.md, bump version if releasing
+
+## Evidence
+
+- Workflow: feature-addition-with-tests-and-docs
+- Files: packages/*/src/**/*.ts, __tests__/**/*.test.ts, README.md, CHANGELOG.md, package.json
+- Commits: 'feat(auth): Upgrade to fully universal compatibility...'
+
+---
+id: my-second-brain-documentation-expansion-workflow
+trigger: "When someone wants to expand or improve documentation for a package"
+confidence: 0.87
+domain: workflow
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Documentation Expansion Workflow
+
+## Action
+
+Create or update markdown files in docs/, update README.md, optionally update CHANGELOG.md
+
+## Evidence
+
+- Workflow: documentation-expansion-workflow
+- Files: packages/*/docs/**/*.md, README.md, CHANGELOG.md
+
+---
+id: my-second-brain-readme-maintainer-sync
+trigger: "When someone wants to ensure README is up-to-date with code or config changes"
+confidence: 0.83
+domain: workflow
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Readme Maintainer Sync
+
+## Action
+
+Run or trigger readme-maintainer tool, update README.md, commit with a sync message
+
+## Evidence
+
+- Workflow: readme-maintainer-sync
+- Files: packages/*/README.md, apps/*/README.md
+- Commits: 'chore(husky): add readme maintainer check to pre-push hook'
+
+---
+id: my-second-brain-add-database-migration-workflow
+trigger: "When someone wants to add or update database tables or migrations"
+confidence: 0.81
+domain: workflow
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Add Database Migration Workflow
+
+## Action
+
+Create new SQL migration file in migrations/, update README.md or docs, update CHANGELOG.md
+
+## Evidence
+
+- Workflow: add-database-migration-workflow
+- Files: packages/*/supabase/migrations/*.sql, README.md, CHANGELOG.md
+- Commits: 'fix(auth): add Supabase SQL templates'
+
