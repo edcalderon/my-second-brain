@@ -4,166 +4,180 @@
 > Auto-generated skill from repository analysis
 
 ## Overview
-
-This skill teaches the core development patterns, coding conventions, and common workflows used in the `my-second-brain` monorepo. The codebase is written in TypeScript, built with Next.js, and organized into multiple packages and apps. It emphasizes clear commit messages, modular code, thorough testing, and robust documentation practices.
+This skill documents the development patterns, coding conventions, and key workflows for the `my-second-brain` monorepo, a TypeScript project built with Next.js. The repository follows conventional commit standards, uses camelCase file naming, alias imports, and default exports. It features automated workflows for package releases, feature development, documentation sync, versioning extensions, SQL migrations, and dependency upgrades. Testing is performed using Jest with a clear file pattern.
 
 ## Coding Conventions
 
-**File Naming**
-- Use camelCase for file and folder names.
-  - Example: `userProfile.ts`, `apiRoutes/`
-
-**Import Style**
-- Use alias imports for internal modules.
-  - Example:
-    ```typescript
-    import userService from '@services/userService';
-    ```
-
-**Export Style**
-- Use default exports for modules.
-  - Example:
-    ```typescript
-    // userProfile.ts
-    const userProfile = { /* ... */ };
-    export default userProfile;
-    ```
-
-**Commit Messages**
-- Follow the [Conventional Commits](https://www.conventionalcommits.org/) standard.
-- Prefixes: `chore`, `fix`, `feat`, `docs`
-- Example:
+- **File Naming:**  
+  Use camelCase for all file and folder names.  
+  _Example:_  
   ```
-  feat(auth): add JWT token refresh endpoint
+  src/userProfile.ts
+  src/auth/sessionManager.ts
+  ```
+
+- **Import Style:**  
+  Use alias imports for internal modules.  
+  _Example:_  
+  ```typescript
+  import userService from '@auth/userService'
+  import { getSession } from '@auth/sessionManager'
+  ```
+
+- **Export Style:**  
+  Use default exports for modules.  
+  _Example:_  
+  ```typescript
+  // src/auth/sessionManager.ts
+  const sessionManager = { /* ... */ }
+  export default sessionManager
+  ```
+
+- **Commit Messages:**  
+  Follow [Conventional Commits](https://www.conventionalcommits.org/) with prefixes: `chore`, `fix`, `feat`, `docs`.  
+  _Example:_  
+  ```
+  feat(auth): add support for OAuth2 login
+  fix(versioning): resolve migration file naming bug
   ```
 
 ## Workflows
 
-### Package Release Workflow
-**Trigger:** When you want to publish a new version of a package (auth or versioning).
+### Package Release Version Bump
+**Trigger:** When releasing a new version of a package (auth or versioning)  
 **Command:** `/release-package`
 
-1. Update `CHANGELOG.md` in the target package with release notes.
-2. Update `README.md` with new documentation or version badge.
+1. Update `CHANGELOG.md` with release notes.
+2. Update `README.md` if necessary.
 3. Bump the version in `package.json`.
-4. Optionally update or add migration/test files.
-5. Commit all changes with a release message.
+4. Optionally, update or generate release artifacts (e.g., patch or migration files).
 
-**Example:**
-```bash
-# Step 1: Edit files
-vim packages/auth/CHANGELOG.md
-vim packages/auth/README.md
-npm version minor
-
-# Step 2: Commit
-git add .
-git commit -m "chore(release): v1.2.0"
-```
+_Files involved:_  
+- `packages/*/CHANGELOG.md`  
+- `packages/*/README.md`  
+- `packages/*/package.json`
 
 ---
 
-### Feature Addition with Tests and Docs
-**Trigger:** When adding a new feature to a package (auth or versioning).
-**Command:** `/add-feature`
+### Feature Development in Auth Package
+**Trigger:** When adding a new feature to the auth package  
+**Command:** `/add-auth-feature`
 
-1. Implement the new feature in `src/` or a subfolder.
-2. Add or update tests in `src/__tests__/`.
-3. Update `README.md` to document the new feature.
-4. Update `CHANGELOG.md` to record the feature addition.
-5. Bump the version in `package.json` if releasing.
+1. Implement the feature in `packages/auth/src/` or its subfolders.
+2. Add or update tests in `packages/auth/src/__tests__/`.
+3. Update `CHANGELOG.md` with feature details.
+4. Update `README.md` with usage or documentation.
+5. Bump the version in `package.json`.
 
-**Example:**
-```typescript
-// packages/auth/src/tokenManager.ts
-export default function refreshToken() { /* ... */ }
-```
-```typescript
-// packages/auth/src/__tests__/tokenManager.test.ts
-import refreshToken from '../tokenManager';
-test('refreshToken works', () => { /* ... */ });
-```
+_Files involved:_  
+- `packages/auth/src/**/*.ts`  
+- `packages/auth/src/__tests__/*.ts`  
+- `packages/auth/CHANGELOG.md`  
+- `packages/auth/README.md`  
+- `packages/auth/package.json`
 
 ---
 
-### Documentation Expansion Workflow
-**Trigger:** When expanding or improving documentation for a package.
-**Command:** `/add-docs`
-
-1. Create or update markdown files in the `docs/` subfolder.
-2. Update `README.md` to reference new docs.
-3. Optionally update `CHANGELOG.md` to mention doc changes.
-
-**Example:**
-```bash
-vim packages/auth/docs/usage.md
-vim packages/auth/README.md
-git commit -am "docs(auth): add usage guide"
-```
-
----
-
-### Readme Maintainer Sync
-**Trigger:** When ensuring `README.md` is up-to-date with code or config changes.
+### Documentation Sync (readme-maintainer)
+**Trigger:** When synchronizing documentation after changes or releases  
 **Command:** `/sync-readme`
 
-1. Run or trigger the readme-maintainer tool.
-2. Update `README.md` with generated or synced content.
-3. Commit `README.md` with a sync message.
+1. Run `readme-maintainer` or a similar tool.
+2. Update the relevant `README.md` file(s).
 
-**Example:**
-```bash
-npm run readme-maintainer
-git add README.md
-git commit -m "chore(readme): sync with latest changes"
-```
+_Files involved:_  
+- `packages/auth/README.md`  
+- `packages/versioning/README.md`  
+- `apps/dashboard/README.md`
 
 ---
 
-### Add Database Migration Workflow
-**Trigger:** When adding or updating database tables or migrations.
-**Command:** `/new-migration`
+### Add or Update Versioning Extension
+**Trigger:** When adding or enhancing a versioning extension  
+**Command:** `/add-versioning-extension`
 
-1. Create a new SQL migration file in the `migrations/` folder.
-2. Update `README.md` or docs to describe the migration.
-3. Update `CHANGELOG.md` to record the migration.
+1. Implement or update the extension in `packages/versioning/src/extensions/`.
+2. Add or update tests in `packages/versioning/src/__tests__/`.
+3. Update `CHANGELOG.md` and `README.md`.
+4. Update `package.json` and `versioning.config.json` if needed.
 
-**Example:**
-```sql
--- packages/auth/supabase/migrations/20240601_add_sessions.sql
-ALTER TABLE sessions ADD COLUMN expires_at TIMESTAMP;
-```
-```bash
-vim packages/auth/README.md
-vim packages/auth/CHANGELOG.md
-git commit -am "feat(db): add expires_at to sessions"
-```
+_Files involved:_  
+- `packages/versioning/src/extensions/**/index.ts`  
+- `packages/versioning/src/__tests__/*.ts`  
+- `packages/versioning/CHANGELOG.md`  
+- `packages/versioning/README.md`  
+- `packages/versioning/package.json`  
+- `packages/versioning/versioning.config.json`
+
+---
+
+### Add SQL Migration to Auth Supabase
+**Trigger:** When updating the auth database schema or sync logic  
+**Command:** `/add-auth-migration`
+
+1. Create a new SQL migration file in `supabase/migrations/`.
+2. Update or add documentation in `supabase/README.md` or the main `README.md`.
+3. Update `CHANGELOG.md`.
+4. Bump the version in `package.json`.
+
+_Files involved:_  
+- `packages/auth/supabase/migrations/*.sql`  
+- `packages/auth/supabase/README.md`  
+- `packages/auth/README.md`  
+- `packages/auth/CHANGELOG.md`  
+- `packages/auth/package.json`
+
+---
+
+### Dependency Upgrade and Security Harden
+**Trigger:** When addressing CVEs or upgrading dependencies for compatibility  
+**Command:** `/upgrade-dependencies`
+
+1. Update dependencies in all relevant `package.json` files.
+2. Update lockfiles (`pnpm-lock.yaml`, `package-lock.json`).
+3. Update override sections if needed.
+4. Document changes in relevant markdown files.
+
+_Files involved:_  
+- `package.json`  
+- `pnpm-lock.yaml`  
+- `packages/*/package.json`  
+- `packages/*/package-lock.json`  
+- `docs/*.md`
 
 ---
 
 ## Testing Patterns
 
-- Use [Jest](https://jestjs.io/) for all tests.
-- Test files follow the pattern: `*.test.ts` and are placed in `src/__tests__/`.
-- Example:
-  ```typescript
-  // packages/auth/src/__tests__/userService.test.ts
-  import userService from '../userService';
+- **Framework:** Jest
+- **Test File Pattern:**  
+  All test files use the `*.test.ts` suffix and are typically placed alongside or within a `__tests__` directory.
 
-  describe('userService', () => {
-    it('should create a user', () => {
-      // test implementation
-    });
-  });
-  ```
+_Example:_  
+```
+packages/auth/src/__tests__/sessionManager.test.ts
+```
+
+_Basic test example:_  
+```typescript
+import sessionManager from '../sessionManager'
+
+describe('sessionManager', () => {
+  it('should create a session', () => {
+    const session = sessionManager.create('user123')
+    expect(session.userId).toBe('user123')
+  })
+})
+```
 
 ## Commands
 
-| Command           | Purpose                                                        |
-|-------------------|----------------------------------------------------------------|
-| /release-package  | Release a new version of a package                             |
-| /add-feature      | Add a new feature with tests and documentation                 |
-| /add-docs         | Expand or update documentation                                 |
-| /sync-readme      | Sync README.md with latest code or config changes              |
-| /new-migration    | Add a new database migration and update related documentation  |
+| Command                   | Purpose                                                        |
+|---------------------------|----------------------------------------------------------------|
+| /release-package          | Release a new version of a package                             |
+| /add-auth-feature         | Add a new feature to the auth package                          |
+| /sync-readme              | Synchronize README documentation across packages and apps      |
+| /add-versioning-extension | Add or update a versioning extension                          |
+| /add-auth-migration       | Add a new SQL migration for auth Supabase integration          |
+| /upgrade-dependencies     | Upgrade dependencies and address security vulnerabilities      |
 ```

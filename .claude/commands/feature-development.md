@@ -14,8 +14,8 @@ Standard feature implementation workflow
 
 ## Common Files
 
-- `packages/auth/src/*`
 - `packages/auth/src/providers/*`
+- `packages/auth/src/*`
 - `packages/versioning/src/__tests__/*`
 - `**/*.test.*`
 

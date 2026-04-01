@@ -1,5 +1,5 @@
 # Instincts generated from https://github.com/edcalderon/my-second-brain
-# Generated: 2026-04-01T08:27:11.802Z
+# Generated: 2026-04-01T08:33:33.949Z
 # Version: 2.0
 # NOTE: This file supplements (does not replace) any existing curated instincts.
 # High-confidence manually curated instincts should be preserved alongside these.
@@ -21,7 +21,7 @@ Use conventional commit format with prefixes: chore, fix, feat, docs
 
 ## Evidence
 
-- 178 commits analyzed
+- 179 commits analyzed
 - Detected conventional commit pattern
 - Examples: docs(auth): refine release notes, feat(auth): add authentik preset helpers
 
@@ -38,12 +38,12 @@ source_repo: https://github.com/edcalderon/my-second-brain
 
 ## Action
 
-Write moderate-length commit messages (~57 characters)
+Write moderate-length commit messages (~56 characters)
 
 ## Evidence
 
-- Average commit message length: 57 chars
-- Based on 178 commits
+- Average commit message length: 56 chars
+- Based on 179 commits
 
 ---
 id: my-second-brain-naming-files
@@ -231,7 +231,7 @@ Follow the feature-development workflow:
 
 - Workflow detected from commit patterns
 - Frequency: ~8x per month
-- Files: packages/auth/src/*, packages/auth/src/providers/*, packages/versioning/src/__tests__/*
+- Files: packages/auth/src/providers/*, packages/auth/src/*, packages/versioning/src/__tests__/*
 
 ---
 id: my-second-brain-workflow-test-driven-development
@@ -258,24 +258,23 @@ Follow the test-driven-development workflow:
 - Files: **/*.test.*, **/*.spec.*, src/**/*
 
 ---
-id: my-second-brain-workflow-package-release-workflow
-trigger: "when doing package release workflow"
+id: my-second-brain-workflow-package-release-version-bump
+trigger: "when doing package release version bump"
 confidence: 0.7
 domain: workflow
 source: repo-analysis
 source_repo: https://github.com/edcalderon/my-second-brain
 ---
 
-# My Second Brain Workflow Package Release Workflow
+# My Second Brain Workflow Package Release Version Bump
 
 ## Action
 
-Follow the package-release-workflow workflow:
-1. Update CHANGELOG.md with release notes
-2. Update README.md with new documentation or version badge
-3. Bump version in package.json
-4. Optionally update or add migration/test files
-5. Commit with a release message
+Follow the package-release-version-bump workflow:
+1. Update CHANGELOG.md with release notes.
+2. Update README.md if necessary.
+3. Bump version in package.json.
+4. Optionally, update or generate release artifacts (patch files, migration files, etc.).
 
 ## Evidence
 
@@ -284,113 +283,139 @@ Follow the package-release-workflow workflow:
 - Files: packages/*/CHANGELOG.md, packages/*/README.md, packages/*/package.json
 
 ---
-id: my-second-brain-workflow-feature-addition-with-tests-and-docs
-trigger: "when doing feature addition with tests and docs"
+id: my-second-brain-workflow-feature-development-in-auth-package
+trigger: "when doing feature development in auth package"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Feature Development In Auth Package
+
+## Action
+
+Follow the feature-development-in-auth-package workflow:
+1. Implement feature in src/ or subfolders.
+2. Add or update tests in src/__tests__.
+3. Update CHANGELOG.md with feature details.
+4. Update README.md with usage or documentation.
+5. Bump version in package.json.
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: packages/auth/src/**/*.ts, packages/auth/src/__tests__/*.ts, packages/auth/CHANGELOG.md
+
+---
+id: my-second-brain-workflow-documentation-sync-readme-maintainer
+trigger: "when doing documentation sync readme maintainer"
 confidence: 0.65
 domain: workflow
 source: repo-analysis
 source_repo: https://github.com/edcalderon/my-second-brain
 ---
 
-# My Second Brain Workflow Feature Addition With Tests And Docs
+# My Second Brain Workflow Documentation Sync Readme Maintainer
 
 ## Action
 
-Follow the feature-addition-with-tests-and-docs workflow:
-1. Implement new feature in src/ or subfolders
-2. Add or update tests in src/__tests__/
-3. Update README.md to document the new feature
-4. Update CHANGELOG.md to record the feature addition
-5. Bump version in package.json if releasing
+Follow the documentation-sync-readme-maintainer workflow:
+1. Run readme-maintainer or similar tool.
+2. Update the relevant README.md file(s).
 
 ## Evidence
 
 - Workflow detected from commit patterns
 - Frequency: ~3x per month
-- Files: packages/*/src/**/*.ts, packages/*/src/__tests__/**/*.test.ts, packages/*/README.md
+- Files: packages/auth/README.md, packages/versioning/README.md, apps/dashboard/README.md
 
 ---
-id: my-second-brain-workflow-documentation-expansion-workflow
-trigger: "when doing documentation expansion workflow"
+id: my-second-brain-workflow-add-or-update-versioning-extension
+trigger: "when doing add or update versioning extension"
 confidence: 0.6
 domain: workflow
 source: repo-analysis
 source_repo: https://github.com/edcalderon/my-second-brain
 ---
 
-# My Second Brain Workflow Documentation Expansion Workflow
+# My Second Brain Workflow Add Or Update Versioning Extension
 
 ## Action
 
-Follow the documentation-expansion-workflow workflow:
-1. Create or update markdown files in docs/ subfolder
-2. Update README.md to reference new docs
-3. Optionally update CHANGELOG.md to mention doc changes
+Follow the add-or-update-versioning-extension workflow:
+1. Implement or update extension in src/extensions/.
+2. Add or update tests in src/__tests__.
+3. Update CHANGELOG.md and README.md.
+4. Update package.json and versioning.config.json if needed.
 
 ## Evidence
 
 - Workflow detected from commit patterns
 - Frequency: ~2x per month
-- Files: packages/*/docs/**/*.md, packages/*/README.md, packages/*/CHANGELOG.md
+- Files: packages/versioning/src/extensions/**/index.ts, packages/versioning/src/__tests__/*.ts, packages/versioning/CHANGELOG.md
 
 ---
-id: my-second-brain-workflow-readme-maintainer-sync
-trigger: "when doing readme maintainer sync"
-confidence: 0.6
+id: my-second-brain-workflow-add-sql-migration-to-auth-supabase
+trigger: "when doing add sql migration to auth supabase"
+confidence: 0.55
 domain: workflow
 source: repo-analysis
 source_repo: https://github.com/edcalderon/my-second-brain
 ---
 
-# My Second Brain Workflow Readme Maintainer Sync
+# My Second Brain Workflow Add Sql Migration To Auth Supabase
 
 ## Action
 
-Follow the readme-maintainer-sync workflow:
-1. Run or trigger readme-maintainer tool
-2. Update README.md with generated or synced content
-3. Commit README.md with a sync message
+Follow the add-sql-migration-to-auth-supabase workflow:
+1. Create new SQL migration file in supabase/migrations/.
+2. Update or add documentation in supabase/README.md or main README.md.
+3. Update CHANGELOG.md.
+4. Bump version in package.json.
 
 ## Evidence
 
 - Workflow detected from commit patterns
-- Frequency: ~2x per month
-- Files: packages/*/README.md, apps/*/README.md
+- Frequency: ~1x per month
+- Files: packages/auth/supabase/migrations/*.sql, packages/auth/supabase/README.md, packages/auth/README.md
 
 ---
-id: my-second-brain-workflow-add-database-migration-workflow
-trigger: "when doing add database migration workflow"
-confidence: 0.6
+id: my-second-brain-workflow-dependency-upgrade-and-security-harden
+trigger: "when doing dependency upgrade and security harden"
+confidence: 0.55
 domain: workflow
 source: repo-analysis
 source_repo: https://github.com/edcalderon/my-second-brain
 ---
 
-# My Second Brain Workflow Add Database Migration Workflow
+# My Second Brain Workflow Dependency Upgrade And Security Harden
 
 ## Action
 
-Follow the add-database-migration-workflow workflow:
-1. Create new SQL migration file in migrations/ folder
-2. Update README.md or docs to describe migration
-3. Update CHANGELOG.md to record migration
+Follow the dependency-upgrade-and-security-harden workflow:
+1. Update dependencies in package.json files.
+2. Update lockfiles (pnpm-lock.yaml, package-lock.json).
+3. Update override sections if needed.
+4. Document changes in relevant markdown files.
 
 ## Evidence
 
 - Workflow detected from commit patterns
-- Frequency: ~2x per month
-- Files: packages/*/supabase/migrations/*.sql, packages/*/README.md, packages/*/CHANGELOG.md
+- Frequency: ~1x per month
+- Files: package.json, pnpm-lock.yaml, packages/*/package.json
 
 ---
-id: my-second-brain-camelcase-files
-trigger: "When creating or naming a new file in the repository"
+id: my-second-brain-naming-convention-files
+trigger: "When creating or renaming a file"
 confidence: 0.9
 domain: code-style
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Camelcase Files
+# My Second Brain Naming Convention Files
 
 ## Action
 
@@ -398,19 +423,19 @@ Use camelCase for file names
 
 ## Evidence
 
-- Pattern in namingConventions.files
-- Observed in files like AuthProvider.tsx
+- Pattern in codeStyle.namingConventions.files
+- Observed in src/utils/validation.test.ts
 
 ---
-id: my-second-brain-camelcase-functions
-trigger: "When defining a new function"
+id: my-second-brain-naming-convention-functions
+trigger: "When defining a function"
 confidence: 0.9
 domain: code-style
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Camelcase Functions
+# My Second Brain Naming Convention Functions
 
 ## Action
 
@@ -418,18 +443,18 @@ Use camelCase for function names
 
 ## Evidence
 
-- Pattern in namingConventions.functions
+- Pattern in codeStyle.namingConventions.functions
 
 ---
-id: my-second-brain-pascalcase-classes
-trigger: "When defining a new class"
+id: my-second-brain-naming-convention-classes
+trigger: "When defining a class"
 confidence: 0.9
 domain: code-style
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Pascalcase Classes
+# My Second Brain Naming Convention Classes
 
 ## Action
 
@@ -437,10 +462,10 @@ Use PascalCase for class names
 
 ## Evidence
 
-- Pattern in namingConventions.classes
+- Pattern in codeStyle.namingConventions.classes
 
 ---
-id: my-second-brain-screaming-snake-constants
+id: my-second-brain-naming-convention-constants
 trigger: "When defining a constant"
 confidence: 0.9
 domain: code-style
@@ -448,7 +473,7 @@ source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Screaming Snake Constants
+# My Second Brain Naming Convention Constants
 
 ## Action
 
@@ -456,18 +481,18 @@ Use SCREAMING_SNAKE_CASE for constant names
 
 ## Evidence
 
-- Pattern in namingConventions.constants
+- Pattern in codeStyle.namingConventions.constants
 
 ---
-id: my-second-brain-alias-imports
-trigger: "When importing modules in TypeScript files"
-confidence: 0.8
+id: my-second-brain-import-style
+trigger: "When importing modules"
+confidence: 0.85
 domain: code-style
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Alias Imports
+# My Second Brain Import Style
 
 ## Action
 
@@ -475,18 +500,18 @@ Use alias import style
 
 ## Evidence
 
-- Pattern in importStyle: alias
+- Pattern in codeStyle.importStyle
 
 ---
-id: my-second-brain-default-exports
-trigger: "When exporting a module or component"
-confidence: 0.8
+id: my-second-brain-export-style
+trigger: "When exporting modules"
+confidence: 0.85
 domain: code-style
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Default Exports
+# My Second Brain Export Style
 
 ## Action
 
@@ -494,30 +519,30 @@ Use default export style
 
 ## Evidence
 
-- Pattern in exportStyle: default
+- Pattern in codeStyle.exportStyle
 
 ---
-id: my-second-brain-jest-test-pattern
-trigger: "When adding a new test file"
+id: my-second-brain-testing-file-pattern
+trigger: "When creating a test file"
 confidence: 0.9
 domain: testing
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Jest Test Pattern
+# My Second Brain Testing File Pattern
 
 ## Action
 
-Name the file with the pattern *.test.ts and place it alongside or in __tests__ folders
+Name the file with a .test.ts suffix
 
 ## Evidence
 
 - Pattern in testing.filePattern
-- Example: src/utils/validation.test.ts
+- Seen in src/utils/validation.test.ts
 
 ---
-id: my-second-brain-jest-framework
+id: my-second-brain-testing-framework
 trigger: "When writing tests"
 confidence: 0.9
 domain: testing
@@ -525,26 +550,26 @@ source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Jest Framework
+# My Second Brain Testing Framework
 
 ## Action
 
-Use the Jest testing framework
+Use Jest as the testing framework
 
 ## Evidence
 
 - Pattern in testing.framework
 
 ---
-id: my-second-brain-test-types
-trigger: "When planning tests"
+id: my-second-brain-testing-types
+trigger: "When writing tests"
 confidence: 0.8
 domain: testing
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Test Types
+# My Second Brain Testing Types
 
 ## Action
 
@@ -555,7 +580,7 @@ Write both unit and integration tests as appropriate
 - Pattern in testing.testTypes
 
 ---
-id: my-second-brain-conventional-commits
+id: my-second-brain-git-commit-format
 trigger: "When writing a commit message"
 confidence: 0.9
 domain: git
@@ -563,19 +588,38 @@ source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Conventional Commits
+# My Second Brain Git Commit Format
 
 ## Action
 
-Use conventional commit format: <type>(<scope>): <message>
+Use conventional commit format: <type>(<scope>): <description>
 
 ## Evidence
 
 - Pattern in commits.type: conventional
-- Examples: 'feat(auth): add authentik preset helpers'
+- Examples: 'feat(auth): add authentik preset helpers', 'fix: remove conflicting minimatch override from pnpm config'
 
 ---
-id: my-second-brain-commit-prefixes
+id: my-second-brain-git-commit-length
+trigger: "When writing a commit message"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Git Commit Length
+
+## Action
+
+Keep commit message length around 56 characters on average
+
+## Evidence
+
+- Pattern in commits.averageLength
+
+---
+id: my-second-brain-git-commit-prefixes
 trigger: "When choosing a commit type"
 confidence: 0.9
 domain: git
@@ -583,137 +627,137 @@ source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Commit Prefixes
+# My Second Brain Git Commit Prefixes
 
 ## Action
 
-Use one of the prefixes: chore, fix, feat, docs, release
+Use one of: chore, fix, feat, docs, release
 
 ## Evidence
 
 - Pattern in commits.prefixes
-- Examples in commit history
+- Examples: 'docs(auth): refine release notes', 'feat(versioning): release 1.5.9'
 
 ---
-id: my-second-brain-commit-length
-trigger: "When writing a commit message"
-confidence: 0.7
-domain: git
-source: repo-analysis
-source_repo: edcalderon/my-second-brain
----
-
-# My Second Brain Commit Length
-
-## Action
-
-Keep commit messages concise, around 57 characters on average
-
-## Evidence
-
-- Pattern in commits.averageLength
-
----
-id: my-second-brain-package-release-workflow
-trigger: "When someone wants to publish a new version of a package (auth or versioning)"
-confidence: 0.98
+id: my-second-brain-workflow-package-release-version-bump
+trigger: "When releasing a new version of a package"
+confidence: 0.99
 domain: workflow
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Package Release Workflow
+# My Second Brain Workflow Package Release Version Bump
 
 ## Action
 
-Update CHANGELOG.md, README.md, bump version in package.json, and commit with a release message
+Update CHANGELOG.md, update README.md if needed, bump version in package.json, and optionally update release artifacts
 
 ## Evidence
 
-- Workflow: package-release-workflow
-- Files: packages/*/CHANGELOG.md, README.md, package.json
-- Commits: 'feat(versioning): release 1.5.9'
+- Workflow: package-release-version-bump
+- Commits: 'feat(versioning): release 1.5.9', 'docs(auth): refine release notes'
+- Files: packages/*/CHANGELOG.md, packages/*/README.md, packages/*/package.json
 
 ---
-id: my-second-brain-feature-addition-workflow
-trigger: "When someone wants to add a new feature to a package (auth or versioning)"
+id: my-second-brain-workflow-feature-development-in-auth-package
+trigger: "When adding a new feature to the auth package"
+confidence: 0.95
+domain: workflow
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Feature Development In Auth Package
+
+## Action
+
+Implement feature in src/, add/update tests in src/__tests__, update CHANGELOG.md, update README.md, bump version in package.json
+
+## Evidence
+
+- Workflow: feature-development-in-auth-package
+- Commits: 'feat(auth): add authentik preset helpers', 'docs(auth): sync README and remove deprecated husky init from pre-push'
+- Files: packages/auth/src/**/*.ts, packages/auth/src/__tests__/*.ts, packages/auth/CHANGELOG.md, packages/auth/README.md, packages/auth/package.json
+
+---
+id: my-second-brain-workflow-documentation-sync-readme-maintainer
+trigger: "When synchronizing documentation after changes or releases"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: edcalderon/my-second-brain
+---
+
+# My Second Brain Workflow Documentation Sync Readme Maintainer
+
+## Action
+
+Run readme-maintainer or similar tool and update the relevant README.md file(s)
+
+## Evidence
+
+- Workflow: documentation-sync-readme-maintainer
+- Commits: 'docs(auth): sync generated README'
+- Files: packages/auth/README.md, packages/versioning/README.md, apps/dashboard/README.md
+
+---
+id: my-second-brain-workflow-add-or-update-versioning-extension
+trigger: "When adding or updating a versioning extension"
 confidence: 0.92
 domain: workflow
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Feature Addition Workflow
+# My Second Brain Workflow Add Or Update Versioning Extension
 
 ## Action
 
-Implement feature in src/, add/update tests in __tests__/, update README.md and CHANGELOG.md, bump version if releasing
+Implement/update extension in src/extensions/, add/update tests in src/__tests__, update CHANGELOG.md and README.md, update package.json and versioning.config.json if needed
 
 ## Evidence
 
-- Workflow: feature-addition-with-tests-and-docs
-- Files: packages/*/src/**/*.ts, __tests__/**/*.test.ts, README.md, CHANGELOG.md, package.json
-- Commits: 'feat(auth): Upgrade to fully universal compatibility...'
+- Workflow: add-or-update-versioning-extension
+- Files: packages/versioning/src/extensions/**/index.ts, packages/versioning/src/__tests__/*.ts, packages/versioning/CHANGELOG.md, packages/versioning/README.md, packages/versioning/package.json, packages/versioning/versioning.config.json
 
 ---
-id: my-second-brain-documentation-expansion-workflow
-trigger: "When someone wants to expand or improve documentation for a package"
-confidence: 0.87
+id: my-second-brain-workflow-add-sql-migration-to-auth-supabase
+trigger: "When updating the auth database schema or sync logic"
+confidence: 0.85
 domain: workflow
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Documentation Expansion Workflow
+# My Second Brain Workflow Add Sql Migration To Auth Supabase
 
 ## Action
 
-Create or update markdown files in docs/, update README.md, optionally update CHANGELOG.md
+Create new SQL migration in supabase/migrations/, update documentation in supabase/README.md or main README.md, update CHANGELOG.md, bump version in package.json
 
 ## Evidence
 
-- Workflow: documentation-expansion-workflow
-- Files: packages/*/docs/**/*.md, README.md, CHANGELOG.md
+- Workflow: add-sql-migration-to-auth-supabase
+- Files: packages/auth/supabase/migrations/*.sql, packages/auth/supabase/README.md, packages/auth/README.md, packages/auth/CHANGELOG.md, packages/auth/package.json
 
 ---
-id: my-second-brain-readme-maintainer-sync
-trigger: "When someone wants to ensure README is up-to-date with code or config changes"
-confidence: 0.83
+id: my-second-brain-workflow-dependency-upgrade-and-security-harden
+trigger: "When addressing CVEs or updating dependencies"
+confidence: 0.88
 domain: workflow
 source: repo-analysis
 source_repo: edcalderon/my-second-brain
 ---
 
-# My Second Brain Readme Maintainer Sync
+# My Second Brain Workflow Dependency Upgrade And Security Harden
 
 ## Action
 
-Run or trigger readme-maintainer tool, update README.md, commit with a sync message
+Update dependencies in package.json, update lockfiles, update override sections if needed, document changes in markdown files
 
 ## Evidence
 
-- Workflow: readme-maintainer-sync
-- Files: packages/*/README.md, apps/*/README.md
-- Commits: 'chore(husky): add readme maintainer check to pre-push hook'
-
----
-id: my-second-brain-add-database-migration-workflow
-trigger: "When someone wants to add or update database tables or migrations"
-confidence: 0.81
-domain: workflow
-source: repo-analysis
-source_repo: edcalderon/my-second-brain
----
-
-# My Second Brain Add Database Migration Workflow
-
-## Action
-
-Create new SQL migration file in migrations/, update README.md or docs, update CHANGELOG.md
-
-## Evidence
-
-- Workflow: add-database-migration-workflow
-- Files: packages/*/supabase/migrations/*.sql, README.md, CHANGELOG.md
-- Commits: 'fix(auth): add Supabase SQL templates'
+- Workflow: dependency-upgrade-and-security-harden
+- Files: package.json, pnpm-lock.yaml, packages/*/package.json, packages/*/package-lock.json, docs/*.md
 
