@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Book, Calendar, Tag, ExternalLink, RefreshCw, ChevronLeft, ChevronRight, Filter } from "lucide-react";
-import { apiCall } from "@/lib/api-config";
+import { getApiEndpoint } from "@/lib/api-config";
 
 export default function KnowledgePage() {
     const [entries, setEntries] = useState<any[]>([]);
@@ -36,7 +36,7 @@ export default function KnowledgePage() {
                 params.append('source', currentSource);
             }
 
-            const response = await fetch(`/my-second-brain/api/knowledge?${params}`);
+            const response = await fetch(`${getApiEndpoint("knowledge")}?${params.toString()}`);
             const data = await response.json();
 
             if (response.ok) {
@@ -57,7 +57,7 @@ export default function KnowledgePage() {
             setSyncing(true);
             setSyncStatus({ type: 'info', message: 'Starting sync...' });
             
-            const response = await fetch('/my-second-brain/api/sync', {
+            const response = await fetch(getApiEndpoint("sync"), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ source: 'rocketbook' })
@@ -105,7 +105,7 @@ export default function KnowledgePage() {
 
     const fetchStatus = async () => {
         try {
-            const response = await fetch('/my-second-brain/api/status');
+            const response = await fetch(getApiEndpoint("status"));
             const statusData = await response.json();
             
             if (response.ok) {

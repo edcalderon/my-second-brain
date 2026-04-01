@@ -3,18 +3,17 @@
 import { ReactNode, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { stripDashboardBasePath } from "@/lib/public-site";
 
 // Public routes that don't require authentication
-const PUBLIC_ROUTES = ["/login", "/my-second-brain/login", "/knowledge", "/memory-graph", "/documentation", "/agents", "/usage"];
+const PUBLIC_ROUTES = ["/login", "/knowledge", "/memory-graph", "/documentation", "/agents", "/usage"];
 
 export default function AuthGate({ children }: { children: ReactNode }) {
     const { user, loading } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
 
-    const normalizedPath = pathname?.startsWith("/my-second-brain")
-        ? pathname.replace("/my-second-brain", "") || "/"
-        : pathname || "/";
+    const normalizedPath = stripDashboardBasePath(pathname || "/");
 
     const isPublic = PUBLIC_ROUTES.includes(normalizedPath);
 

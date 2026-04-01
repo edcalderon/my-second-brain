@@ -1,6 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+const dashboardBasePath = isDevelopment ? '' : '/my-second-brain';
+const dashboardAssetPrefix = dashboardBasePath ? `${dashboardBasePath}/` : undefined;
+
 let edwardVersion = process.env.NEXT_PUBLIC_EDWARD_VERSION || "unknown";
 let aQuantVersion = process.env.NEXT_PUBLIC_A_QUANT_VERSION || "unknown";
 
@@ -24,17 +28,29 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_EDWARD_VERSION: edwardVersion,
     NEXT_PUBLIC_A_QUANT_VERSION: aQuantVersion,
+    NEXT_PUBLIC_DASHBOARD_BASE_PATH: dashboardBasePath,
+    NEXT_PUBLIC_SITE_ORIGIN: process.env.NEXT_PUBLIC_SITE_ORIGIN || (isDevelopment ? "http://localhost:3000" : "https://edcalderon.io"),
   },
   output: 'export',
   trailingSlash: true,
-  basePath: '/my-second-brain',
-  assetPrefix: '/my-second-brain/',
+  basePath: dashboardBasePath || undefined,
+  assetPrefix: dashboardAssetPrefix,
   turbopack: {
     root: '../../',
   },
   async redirects() {
-    if (process.env.NODE_ENV === 'development') {
+    if (isDevelopment) {
       return [
+        {
+          source: '/my-second-brain',
+          destination: '/',
+          permanent: false,
+        },
+        {
+          source: '/my-second-brain/:path*',
+          destination: '/:path*',
+          permanent: false,
+        },
         {
           source: '/documentation/:path*',
           destination: 'http://localhost:3001/my-second-brain/documentation/:path*',
@@ -42,6 +58,9 @@ const nextConfig = {
         },
       ];
     }
+    return [];
+  },
+  async rewrites() {
     return [];
   },
   // Exclude API routes from static export

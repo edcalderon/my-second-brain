@@ -46,6 +46,7 @@ export type Trade = {
 
 type SupabaseContextType = {
     portfolio: PortfolioSnapshot | null;
+    portfolioHistory: PortfolioSnapshot[];
     signals: Signal[];
     trades: Trade[];
     loading: boolean;
@@ -54,6 +55,7 @@ type SupabaseContextType = {
 
 const SupabaseContext = createContext<SupabaseContextType>({
     portfolio: null,
+    portfolioHistory: [],
     signals: [],
     trades: [],
     loading: true,
@@ -62,6 +64,7 @@ const SupabaseContext = createContext<SupabaseContextType>({
 
 export function SupabaseProvider({ children }: { children: ReactNode }) {
     const [portfolio, setPortfolio] = useState<PortfolioSnapshot | null>(null);
+    const [portfolioHistory, setPortfolioHistory] = useState<PortfolioSnapshot[]>([]);
     const [signals, setSignals] = useState<Signal[]>([]);
     const [trades, setTrades] = useState<Trade[]>([]);
     const [loading, setLoading] = useState(true);
@@ -77,10 +80,12 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
                     .from("portfolio_snapshots")
                     .select("*")
                     .order("time", { ascending: false })
-                    .limit(1)
-                    .single();
+                    .limit(24);
 
-                if (portError && portError.code !== "PGRST116") throw portError; // Ignore 0 rows error
+                if (portError) throw portError;
+
+                const portfolioRows = (portData || []) as PortfolioSnapshot[];
+                const latestPortfolio = portfolioRows[0] || null;
 
                 // Fetch recent signals (last 50)
                 const { data: sigData, error: sigError } = await supabase
@@ -101,7 +106,8 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
                 if (tradeError) throw tradeError;
 
                 if (isMounted) {
-                    setPortfolio(portData);
+                    setPortfolio(latestPortfolio);
+                    setPortfolioHistory(portfolioRows);
                     setSignals(sigData || []);
                     setTrades(tradeData || []);
                     setLoading(false);
@@ -123,7 +129,9 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
                 "postgres_changes",
                 { event: "INSERT", schema: "public", table: "portfolio_snapshots" },
                 (payload) => {
-                    setPortfolio(payload.new as PortfolioSnapshot);
+                    const nextSnapshot = payload.new as PortfolioSnapshot;
+                    setPortfolio(nextSnapshot);
+                    setPortfolioHistory((prev) => [nextSnapshot, ...prev].slice(0, 24));
                 }
             )
             .on(
@@ -165,7 +173,7 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
     }, []);
 
     return (
-        <SupabaseContext.Provider value={{ portfolio, signals, trades, loading, error }}>
+        <SupabaseContext.Provider value={{ portfolio, portfolioHistory, signals, trades, loading, error }}>
             {children}
         </SupabaseContext.Provider>
     );

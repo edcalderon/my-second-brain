@@ -1,20 +1,16 @@
 "use client";
 
-import { useMemo } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { DEFAULT_HUMMINGBOT_API_BASE } from "@/lib/hummingbot-api";
+import { getHummingbotApiBase } from "@/lib/hummingbot-config";
 
 export default function SettingsPage() {
     const { user } = useAuth();
 
-    const hummingbotApiBase = useMemo(() => {
-        return process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE || process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || DEFAULT_HUMMINGBOT_API_BASE;
-    }, []);
-
-    const dashboardApiBase = useMemo(() => {
-        return process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || DEFAULT_HUMMINGBOT_API_BASE;
-    }, []);
+    const hummingbotApiBase = getHummingbotApiBase();
+    const siteOrigin =
+        process.env.NEXT_PUBLIC_SITE_ORIGIN ||
+        (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://edcalderon.io");
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-16">
@@ -38,12 +34,13 @@ export default function SettingsPage() {
                 <div className="grid gap-3 text-sm text-gray-700">
                     <DataRow label="Auth provider" value={user?.provider || "supabase"} />
                     <DataRow label="Hummingbot API base" value={hummingbotApiBase} />
-                    <DataRow label="Dashboard API base" value={dashboardApiBase} />
+                    <DataRow label="Site origin" value={siteOrigin} />
                     <DataRow label="UI scope" value="Paper trading + knowledge base" />
                 </div>
 
                 <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
-                    Set `NEXT_PUBLIC_HUMMINGBOT_API_BASE` to `https://api.a-quant.xyz` for the paper-trading desk and keep the dashboard base aligned with the same backend.
+                    Set `NEXT_PUBLIC_HUMMINGBOT_API_BASE` to `https://api.a-quant.xyz` for the paper-trading desk. The dashboard
+                    base should stay on the knowledge-site origin.
                 </div>
             </section>
         </div>

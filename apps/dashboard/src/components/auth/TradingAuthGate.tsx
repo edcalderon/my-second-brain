@@ -3,18 +3,17 @@
 import { ReactNode, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { stripDashboardBasePath } from "@/lib/public-site";
 
 // Trading operations pages that require authentication
-const TRADING_ROUTES = ["/", "/market", "/strategy", "/risk", "/execution"];
+const TRADING_ROUTES = ["/", "/portfolio", "/market", "/strategy", "/risk", "/execution"];
 
 export default function TradingAuthGate({ children }: { children: ReactNode }) {
     const { user, loading } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
 
-    const normalizedPath = pathname?.startsWith("/my-second-brain")
-        ? pathname.replace("/my-second-brain", "") || "/"
-        : pathname || "/";
+    const normalizedPath = stripDashboardBasePath(pathname || "/");
 
     const isTraditingRoute = TRADING_ROUTES.includes(normalizedPath);
 
