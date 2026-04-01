@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { Space_Grotesk, IBM_Plex_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SupabaseProvider } from "@/components/supabase/SupabaseProvider";
@@ -10,17 +9,6 @@ export const metadata = {
     title: "A-Quant Ops Dashboard",
     description: "Operational visibility into the A-Quant trading stack",
 };
-
-const spaceGrotesk = Space_Grotesk({
-    subsets: ["latin"],
-    variable: "--font-sans",
-});
-
-const plexMono = IBM_Plex_Mono({
-    subsets: ["latin"],
-    weight: ["400", "500", "700"],
-    variable: "--font-mono",
-});
 
 export default function RootLayout({
     children,
@@ -54,7 +42,7 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className={`${spaceGrotesk.variable} ${plexMono.variable} bg-white dark:bg-gray-950 text-gray-900 dark:text-white antialiased transition-colors duration-300`}>
+            <body className="bg-white dark:bg-gray-950 text-gray-900 dark:text-white antialiased transition-colors duration-300">
                 <ThemeProvider>
                     <AuthProvider>
                         <SupabaseProvider>
