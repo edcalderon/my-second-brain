@@ -58,6 +58,7 @@ jobs:
           NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_PUBLIC_DASHBOARD_API_BASE: ${{ secrets.NEXT_PUBLIC_DASHBOARD_API_BASE }}
+          NEXT_PUBLIC_HUMMINGBOT_API_BASE: ${{ secrets.NEXT_PUBLIC_HUMMINGBOT_API_BASE }}
           NEXT_PUBLIC_SUPERMEMORY_API_KEY: ${{ secrets.NEXT_PUBLIC_SUPERMEMORY_API_KEY }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -105,6 +106,15 @@ jobs:
             --trigger-http \
             --allow-unauthenticated \
             --entry-point=status \
+            --source=packages/gcp-functions \
+            --project=${{ env.GCP_PROJECT_ID }} \
+            --region=${{ env.GCP_REGION }}
+
+          gcloud functions deploy dailyGithubScreenshot \
+            --runtime nodejs22 \
+            --trigger-http \
+            --allow-unauthenticated \
+            --entry-point=dailyGithubScreenshot \
             --source=packages/gcp-functions \
             --project=${{ env.GCP_PROJECT_ID }} \
             --region=${{ env.GCP_REGION }}

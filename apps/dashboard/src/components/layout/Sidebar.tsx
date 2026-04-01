@@ -43,9 +43,9 @@ const menuSections = [
         items: [
             { name: "Overview", href: "/", icon: LayoutDashboard },
             { name: "Market Data", href: "/market", icon: CandlestickChart },
-            { name: "Strategy", href: "/strategy", icon: Activity },
-            { name: "Risk", href: "/risk", icon: ShieldAlert },
-            { name: "Execution", href: "/execution", icon: Gauge },
+            { name: "Strategy Desk", href: "/strategy", icon: Activity },
+            { name: "Risk View", href: "/risk", icon: ShieldAlert },
+            { name: "Execution Monitor", href: "/execution", icon: Gauge },
         ]
     },
     {

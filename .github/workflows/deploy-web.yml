@@ -27,6 +27,7 @@ jobs:
       NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_HUMMINGBOT_API_BASE: ${{ secrets.NEXT_PUBLIC_HUMMINGBOT_API_BASE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,6 +50,11 @@ jobs:
           else
             echo "✅ NEXT_PUBLIC_SUPERMEMORY_API_KEY is set"
           fi
+          if [ -z "$NEXT_PUBLIC_HUMMINGBOT_API_BASE" ]; then
+            echo "⚠️  NEXT_PUBLIC_HUMMINGBOT_API_BASE is not set"
+          else
+            echo "✅ NEXT_PUBLIC_HUMMINGBOT_API_BASE is set"
+          fi
           echo "✅ Environment check complete"
 
       - name: Install dependencies
@@ -70,6 +76,7 @@ jobs:
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_HUMMINGBOT_API_BASE: ${{ secrets.NEXT_PUBLIC_HUMMINGBOT_API_BASE }}
           NEXT_PUBLIC_EDWARD_VERSION: ${{ steps.version.outputs.EDWARD_VERSION }}
           NEXT_PUBLIC_A_QUANT_VERSION: "0.4.0"
 
