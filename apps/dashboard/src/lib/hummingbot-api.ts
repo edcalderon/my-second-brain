@@ -1,9 +1,11 @@
 import { authClient } from "@/components/auth/AuthProvider";
 
+export const DEFAULT_HUMMINGBOT_API_BASE = "https://api.a-quant.xyz";
+
 const API_BASE =
     process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE ||
     process.env.NEXT_PUBLIC_DASHBOARD_API_BASE ||
-    (process.env.NODE_ENV === "development" ? "http://localhost:8000" : "");
+    (process.env.NODE_ENV === "development" ? "http://localhost:8000" : DEFAULT_HUMMINGBOT_API_BASE);
 const NORMALIZED_API_BASE = API_BASE.replace(/\/$/, "");
 
 async function getAuthToken(): Promise<string | null> {
