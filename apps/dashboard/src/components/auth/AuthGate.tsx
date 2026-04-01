@@ -19,7 +19,7 @@ export default function AuthGate({ children }: { children: ReactNode }) {
     const isPublic = PUBLIC_ROUTES.includes(normalizedPath);
 
     useEffect(() => {
-        // Second Brain pages are public, trading pages require auth
+        // Second Brain pages are public; protected routes still require auth
         if (!loading && !user && !isPublic) {
             router.replace("/login");
         }

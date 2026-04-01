@@ -4,6 +4,25 @@
 ![Deploy Static](https://github.com/edcalderon/my-second-brain/actions/workflows/deploy-static.yml/badge.svg)
 ![Publish NPM](https://github.com/edcalderon/my-second-brain/actions/workflows/publish-npm.yml/badge.svg)
 
+## Project Directory
+
+The public site now lives on `https://edcalderon.io` and acts as a directory for multiple projects.
+
+| Route | Purpose |
+| --- | --- |
+| [`/`](https://edcalderon.io/) | Public project directory and entrypoint |
+| [`/my-second-brain/`](https://edcalderon.io/my-second-brain/) | Second Brain dashboard |
+| [`/my-second-brain/documentation/`](https://edcalderon.io/my-second-brain/documentation/) | Docusaurus docs for the knowledge workspace |
+| [`/a-quant/`](https://edcalderon.io/a-quant/) | Dedicated A-Quant project portal |
+
+## Packages
+
+- [`packages/versioning`](packages/versioning) - release automation, changelog management, and repo guardrails.
+- [`packages/auth`](packages/auth) - auth helpers, provisioning docs, and UI integrations.
+- [`packages/gcp-functions`](packages/gcp-functions) - Cloud Functions for sync, status, and screenshot automation.
+
+The root landing page is implemented as static HTML in `apps/dashboard/public/index.html`, with a matching dedicated A-Quant portal in `apps/dashboard/public/a-quant/index.html`. That keeps the root fast, gives each project its own surface, and leaves room for more projects later.
+
 
 A personal knowledge laboratory leveraged by **Obsidian** as the markdown foundation, designed for agentic intelligence and deep reflection.
 

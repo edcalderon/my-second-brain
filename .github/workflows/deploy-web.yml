@@ -85,10 +85,8 @@ jobs:
       - name: Build docs
         run: pnpm --filter @ed/docs build
 
-      - name: Combine builds
-        run: |
-          mkdir -p ./apps/dashboard/out/documentation
-          cp -r ./apps/docs/build/* ./apps/dashboard/out/documentation/
+      - name: Assemble published site
+        run: node scripts/package-site.mjs
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -96,7 +94,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./apps/dashboard/out
+          path: ./apps/dashboard/site
 
   deploy:
     environment:
