@@ -3,16 +3,17 @@
 import { useMemo } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { DEFAULT_HUMMINGBOT_API_BASE } from "@/lib/hummingbot-api";
 
 export default function SettingsPage() {
     const { user } = useAuth();
 
     const hummingbotApiBase = useMemo(() => {
-        return process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE || process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "(not set)";
+        return process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE || process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || DEFAULT_HUMMINGBOT_API_BASE;
     }, []);
 
     const dashboardApiBase = useMemo(() => {
-        return process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "(not set)";
+        return process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || DEFAULT_HUMMINGBOT_API_BASE;
     }, []);
 
     return (
@@ -42,7 +43,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
-                    Set `NEXT_PUBLIC_HUMMINGBOT_API_BASE` for the paper-trading desk and keep the dashboard base aligned with the same backend.
+                    Set `NEXT_PUBLIC_HUMMINGBOT_API_BASE` to `https://api.a-quant.xyz` for the paper-trading desk and keep the dashboard base aligned with the same backend.
                 </div>
             </section>
         </div>
