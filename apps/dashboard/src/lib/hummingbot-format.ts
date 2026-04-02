@@ -109,6 +109,18 @@ export function formatTime(value: string): string {
     return date.toLocaleString();
 }
 
+export function formatAddress(value: string, prefix = 6, suffix = 4): string {
+    if (!value) {
+        return "--";
+    }
+
+    if (value.length <= prefix + suffix + 1) {
+        return value;
+    }
+
+    return `${value.slice(0, prefix)}…${value.slice(-suffix)}`;
+}
+
 export function formatRelativeTime(value: string): string {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) {

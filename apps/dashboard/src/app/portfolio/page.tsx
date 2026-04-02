@@ -30,7 +30,7 @@ import {
     type HummingbotPortfolioTracker,
     type HummingbotStatus,
 } from "@/lib/hummingbot-api";
-import { formatCurrency, formatJson, formatNumber, formatRelativeTime, formatTime, normalizePosition } from "@/lib/hummingbot-format";
+import { formatAddress, formatCurrency, formatJson, formatNumber, formatRelativeTime, formatTime, normalizePosition } from "@/lib/hummingbot-format";
 
 const quickLinks = [
     {
@@ -129,7 +129,7 @@ export default function PortfolioPage() {
             const summary = nextTracker?.summary ?? nextStatus?.portfolio_summary ?? null;
             const sample = createLiveBalanceSample(
                 summary?.snapshot_time ?? nextTracker?.snapshot_time ?? new Date().toISOString(),
-                summary?.total_value_usd,
+                summary?.current_balance_usd ?? summary?.total_value_usd,
                 summary?.total_value_eth,
             );
 
@@ -170,24 +170,29 @@ export default function PortfolioPage() {
     const history = portfolioHistory.slice(0, 12);
     const latestStoredSnapshot = portfolio || history[0] || null;
     const liveSummary = tracker?.summary ?? status?.portfolio_summary ?? null;
-    const liveBalanceUsd = liveSummary?.total_value_usd ?? null;
-    const liveBalanceEth = liveSummary?.total_value_eth ?? null;
+    const mainWallet = tracker?.main_wallet ?? status?.main_wallet ?? null;
+    const liveBalanceUsd = liveSummary?.current_balance_usd ?? liveSummary?.total_value_usd ?? mainWallet?.balance_usd ?? mainWallet?.balance ?? null;
+    const liveBalanceEth = liveSummary?.current_balance_eth ?? (liveSummary?.total_value_eth && liveSummary.total_value_eth > 0 ? liveSummary.total_value_eth : null);
     const hasPositiveLiveBalance = typeof liveBalanceUsd === "number" && liveBalanceUsd > 0;
     const displayedBalanceUsd = hasPositiveLiveBalance ? liveBalanceUsd : latestStoredSnapshot?.total_value_usd ?? liveBalanceUsd;
     const displayedBalanceEth = hasPositiveLiveBalance ? liveBalanceEth : latestStoredSnapshot?.total_value_eth ?? liveBalanceEth;
     const balanceSourceLabel = hasPositiveLiveBalance
-        ? cacheSnapshot
-            ? "Live tracker + warm cache"
-            : "Live tracker"
+        ? mainWallet?.balance
+            ? "Live tracker + main wallet"
+            : cacheSnapshot
+                ? "Live tracker + warm cache"
+                : "Live tracker"
         : latestStoredSnapshot
             ? "Latest stored snapshot"
             : cacheSnapshot
                 ? "Warm cached tracker"
                 : "Live tracker";
     const balanceFallbackNote = hasPositiveLiveBalance
-        ? cacheSnapshot
-            ? "The live tracker is publishing a positive balance and the chart below is driven by the live update stream. A warm session cache keeps the page responsive between refreshes."
-            : "The live tracker is publishing a positive balance and the chart below is driven by the live update stream."
+        ? mainWallet?.balance
+            ? `The live tracker is publishing a positive balance and the chart below uses the main wallet USDC balance (${formatAddress(mainWallet.wallet_address)}) as a real fallback.`
+            : cacheSnapshot
+                ? "The live tracker is publishing a positive balance and the chart below is driven by the live update stream. A warm session cache keeps the page responsive between refreshes."
+                : "The live tracker is publishing a positive balance and the chart below is driven by the live update stream."
         : latestStoredSnapshot
             ? "The live tracker has not published a positive balance yet, so the latest stored snapshot is used as the current balance."
             : cacheSnapshot
@@ -221,20 +226,20 @@ export default function PortfolioPage() {
     }
 
     return (
-        <div className="mx-auto max-w-7xl space-y-8 pb-16">
-            <header className="rounded-[32px] border border-emerald-200/70 bg-gradient-to-br from-white via-emerald-50/50 to-amber-50/60 p-6 shadow-[0_30px_100px_rgba(15,23,42,0.08)] dark:border-emerald-900/30 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900 lg:p-7">
+        <div className="mx-auto max-w-7xl space-y-6 pb-16">
+            <header className="border border-border bg-white/90 p-5 lg:p-6 dark:bg-slate-950/90">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                     <div className="space-y-3">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700 shadow-sm dark:border-emerald-900/30 dark:bg-slate-900 dark:text-emerald-300">
+                        <div className="inline-flex items-center gap-2 border border-emerald-200/70 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:border-emerald-900/30 dark:bg-slate-900 dark:text-emerald-300">
                             <TrendingUp className="h-3.5 w-3.5" />
                             Trading Desk / Portfolio
                         </div>
                         <div className="space-y-2">
-                            <h1 className="text-4xl font-semibold tracking-tight text-gray-900 dark:text-white lg:text-5xl">
+                            <h1 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white lg:text-4xl">
                                 Hyperliquid tracker
                             </h1>
-                            <p className="max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400 sm:text-base">
-                                Live balance, Supabase snapshots, and position exposure in one clean view. The page now keeps the tracked
+                            <p className="max-w-3xl text-sm leading-7 text-gray-600 dark:text-gray-400">
+                                Live balance, Supabase snapshots, and position exposure in one technical view. The page keeps the tracked
                                 balance visible even when the live feed is still warming up.
                             </p>
                         </div>
@@ -244,7 +249,7 @@ export default function PortfolioPage() {
                         <button
                             type="button"
                             onClick={() => setRefreshCounter((value) => value + 1)}
-                            className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-4 py-2.5 text-xs font-semibold text-emerald-700 shadow-sm transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-slate-900 dark:text-emerald-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30"
+                            className="inline-flex items-center gap-2 border border-emerald-200 bg-white px-4 py-2 text-xs font-semibold text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-slate-900 dark:text-emerald-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30"
                         >
                             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
                             Refresh tracker
@@ -263,7 +268,7 @@ export default function PortfolioPage() {
             </header>
 
             {(error || portfolioError) && (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+                <div className="border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
                     <div className="flex items-start gap-2">
                         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
                         <p>{error || portfolioError}</p>
@@ -275,6 +280,8 @@ export default function PortfolioPage() {
                 history={chartPoints}
                 currentBalanceUsd={displayedBalanceUsd ?? null}
                 currentBalanceEth={displayedBalanceEth ?? null}
+                mainWalletAddress={mainWallet?.wallet_address ?? liveSummary?.main_wallet_address ?? null}
+                mainWalletUsdc={mainWallet?.balance_usd ?? mainWallet?.balance ?? liveSummary?.main_wallet_usdc ?? null}
                 sourceLabel={balanceSourceLabel}
                 updatedAt={latestUpdatedAt}
                 loading={loading || (portfolioLoading && !cacheSnapshot)}
@@ -282,7 +289,7 @@ export default function PortfolioPage() {
             />
 
             <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-                <div className="glass-panel rounded-[32px] p-6 lg:p-7">
+                <div className="border border-border bg-white p-5 lg:p-6 dark:bg-slate-950">
                     <SectionHeader
                         eyebrow="Live tracker"
                         title="Identity and live feed"
@@ -292,6 +299,18 @@ export default function PortfolioPage() {
 
                     <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                         <MetricTile label="Wallet" value={liveWallet} mono helper="Hyperliquid wallet address" />
+                        <MetricTile label="Main wallet" value={mainWallet?.wallet_address || liveSummary?.main_wallet_address || "--"} mono helper="USDC wallet under watch" />
+                        <MetricTile
+                            label="Main wallet USDC"
+                            value={
+                                mainWallet?.balance_usd !== undefined
+                                    ? formatCurrency(mainWallet.balance_usd, 2)
+                                    : liveSummary?.main_wallet_usdc !== undefined
+                                        ? formatCurrency(liveSummary.main_wallet_usdc, 2)
+                                        : "--"
+                            }
+                            helper="Stablecoin balance on-chain"
+                        />
                         <MetricTile label="Account" value={String(liveAccount)} helper="Default Hummingbot account" />
                         <MetricTile label="Connector" value={String(liveConnector)} helper="Live market connector" />
                         <MetricTile
@@ -309,7 +328,7 @@ export default function PortfolioPage() {
                         />
                     </div>
 
-                    <div className="mt-5 rounded-[24px] border border-emerald-200/70 bg-white/80 p-4 shadow-sm dark:border-emerald-900/30 dark:bg-slate-900/80">
+                    <div className="mt-5 border border-emerald-200/70 bg-white/85 p-4 dark:border-emerald-900/30 dark:bg-slate-900/80">
                         <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
                             <ShieldCheck className="h-4 w-4" />
                             <span className="font-semibold">
@@ -341,7 +360,7 @@ export default function PortfolioPage() {
                         />
                     </div>
 
-                    <div className="mt-5 rounded-[24px] border border-border bg-white/85 p-4 shadow-sm dark:bg-slate-900">
+                    <div className="mt-5 border border-border bg-white/85 p-4 dark:bg-slate-900">
                         <div className="flex items-center justify-between gap-4">
                             <div>
                                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">
@@ -363,7 +382,7 @@ export default function PortfolioPage() {
                                     <AllocationBar label="Reserve" value={liveSummary.reserve} basis={allocationBase} />
                                 </>
                             ) : (
-                                <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-sm text-gray-500 dark:text-gray-400">
+                                <div className="border border-dashed border-border px-4 py-6 text-sm text-gray-500 dark:text-gray-400">
                                     Allocation details will appear once the tracker publishes a non-zero portfolio state.
                                 </div>
                             )}
@@ -371,7 +390,7 @@ export default function PortfolioPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-[32px] p-6 lg:p-7">
+                <div className="border border-border bg-white p-5 lg:p-6 dark:bg-slate-950">
                     <SectionHeader
                         eyebrow="Capital summary"
                         title="Tracked balance and account health"
@@ -413,9 +432,20 @@ export default function PortfolioPage() {
                             value={liveSummary ? formatNumber(liveSummary.reserve, 4) : "--"}
                             helper="Unallocated reserve in the portfolio"
                         />
+                        <MetricTile
+                            label="Main wallet USDC"
+                            value={
+                                mainWallet?.balance_usd !== undefined
+                                    ? formatCurrency(mainWallet.balance_usd, 2)
+                                    : liveSummary?.main_wallet_usdc !== undefined
+                                        ? formatCurrency(liveSummary.main_wallet_usdc, 2)
+                                        : "--"
+                            }
+                            helper="Tracked on-chain cash balance"
+                        />
                     </div>
 
-                    <div className="mt-5 rounded-[24px] border border-border bg-white/85 p-4 shadow-sm dark:bg-slate-900">
+                    <div className="mt-5 border border-border bg-white/85 p-4 dark:bg-slate-900">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <div>
                                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">
@@ -435,7 +465,7 @@ export default function PortfolioPage() {
             </section>
 
             <section className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
-                <div className="glass-panel rounded-[32px] p-6 lg:p-7">
+                <div className="border border-border bg-white p-5 lg:p-6 dark:bg-slate-950">
                     <SectionHeader
                         eyebrow="Recent snapshots"
                         title="Supabase history from the tracker feed"
@@ -444,7 +474,7 @@ export default function PortfolioPage() {
                         icon={<Clock3 className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />}
                     />
 
-                    <div className="mt-5 overflow-hidden rounded-[24px] border border-border bg-white/90 shadow-sm dark:bg-slate-900">
+                    <div className="mt-5 overflow-hidden border border-border bg-white/90 dark:bg-slate-900">
                         <table className="min-w-full divide-y divide-gray-200 text-sm dark:divide-gray-800">
                             <thead className="bg-gray-50/90 dark:bg-slate-950/70">
                                 <tr>
@@ -486,7 +516,7 @@ export default function PortfolioPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-[32px] p-6 lg:p-7">
+                <div className="border border-border bg-white p-5 lg:p-6 dark:bg-slate-950">
                     <SectionHeader
                         eyebrow="Open positions"
                         title="Positions currently exposed by the tracker"
@@ -513,12 +543,12 @@ export default function PortfolioPage() {
                 </div>
             </section>
 
-            <section className="glass-panel rounded-[32px] p-6 lg:p-7">
+            <section className="border border-border bg-white p-5 lg:p-6 dark:bg-slate-950">
                 <details>
                     <summary className="cursor-pointer text-sm font-semibold text-gray-800 dark:text-gray-200">
                         Raw tracker state
                     </summary>
-                    <pre className="mt-4 overflow-x-auto rounded-[24px] border border-border bg-slate-950 p-4 text-xs leading-6 text-slate-100 dark:bg-slate-950">
+                    <pre className="mt-4 overflow-x-auto border border-border bg-slate-950 p-4 text-xs leading-6 text-slate-100 dark:bg-slate-950">
                         {formatJson(tracker?.portfolio_state || status?.portfolio_state)}
                     </pre>
                 </details>
@@ -542,7 +572,7 @@ function QuickLink({
         <Link
             href={href}
             prefetch={false}
-            className="group inline-flex min-w-0 items-center gap-3 rounded-full border border-emerald-200 bg-white px-4 py-2.5 text-sm font-medium text-emerald-700 shadow-sm transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-slate-900 dark:text-emerald-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30"
+            className="group inline-flex min-w-0 items-center gap-3 border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-slate-900 dark:text-emerald-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30"
             title={description}
         >
             <Icon className="h-4 w-4 shrink-0" />
@@ -575,7 +605,7 @@ function SectionHeader({
 
             <div className="flex items-center gap-3">
                 {badge && <Pill label={badge} tone="slate" />}
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+                <div className="flex h-10 w-10 items-center justify-center border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
                     {icon}
                 </div>
             </div>
@@ -600,7 +630,7 @@ function MetricTile({
 }) {
     return (
         <div
-            className={`rounded-2xl border px-4 py-3 shadow-sm transition-colors ${
+            className={`border px-4 py-3 transition-colors ${
                 highlight
                     ? "border-emerald-200 bg-emerald-50/65 dark:border-emerald-900/40 dark:bg-emerald-950/30"
                     : "border-border bg-white dark:bg-slate-900"
@@ -630,7 +660,7 @@ function PositionCard({
     const pnlPositive = position.unrealizedPnl >= 0;
 
     return (
-        <div className="rounded-[24px] border border-border bg-white/90 p-4 shadow-sm transition-colors hover:border-emerald-200 hover:bg-emerald-50/40 dark:bg-slate-900 dark:hover:border-emerald-900/40 dark:hover:bg-emerald-950/20">
+        <div className="border border-border bg-white/90 p-4 transition-colors hover:border-emerald-200 hover:bg-emerald-50/40 dark:bg-slate-900 dark:hover:border-emerald-900/40 dark:hover:bg-emerald-950/20">
             <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">Pair</p>
@@ -638,7 +668,7 @@ function PositionCard({
                 </div>
 
                 <span
-                    className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+                    className={`px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
                         isBuy
                             ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
                             : "bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"
@@ -684,9 +714,9 @@ function AllocationBar({
                 <span className="font-medium text-gray-700 dark:text-gray-300">{label}</span>
                 <span className="font-semibold text-gray-900 dark:text-white">{formatNumber(value, 4)}</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+            <div className="h-2 overflow-hidden bg-gray-100 dark:bg-gray-800">
                 <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-400"
+                    className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-400"
                     style={{ width: `${Math.min(percent, 100)}%` }}
                 />
             </div>
@@ -708,7 +738,7 @@ function Pill({
     }[tone];
 
     return (
-        <span className={`inline-flex items-center rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${toneClasses}`}>
+        <span className={`inline-flex items-center border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${toneClasses}`}>
             {label}
         </span>
     );
@@ -716,7 +746,7 @@ function Pill({
 
 function EmptyState({ title, description }: { title: string; description: string }) {
     return (
-        <div className="rounded-[24px] border border-dashed border-border bg-white/70 px-5 py-8 text-center dark:bg-slate-900/70">
+        <div className="border border-dashed border-border bg-white/70 px-5 py-8 text-center dark:bg-slate-900/70">
             <p className="text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
             <p className="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{description}</p>
         </div>
