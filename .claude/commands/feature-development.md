@@ -14,10 +14,11 @@ Standard feature implementation workflow
 
 ## Common Files
 
-- `packages/auth/src/providers/*`
-- `packages/auth/src/*`
+- `packages/versioning/src/extensions/secrets-check/*`
 - `packages/versioning/src/__tests__/*`
+- `packages/versioning/src/extensions/release-guard/*`
 - `**/*.test.*`
+- `**/api/**`
 
 ## Suggested Sequence
 

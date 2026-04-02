@@ -4,180 +4,166 @@
 > Auto-generated skill from repository analysis
 
 ## Overview
-This skill documents the development patterns, coding conventions, and key workflows for the `my-second-brain` monorepo, a TypeScript project built with Next.js. The repository follows conventional commit standards, uses camelCase file naming, alias imports, and default exports. It features automated workflows for package releases, feature development, documentation sync, versioning extensions, SQL migrations, and dependency upgrades. Testing is performed using Jest with a clear file pattern.
+
+This skill documents the core development patterns, coding conventions, and automated workflows for the `my-second-brain` repository. The project is built with TypeScript and Next.js, featuring modular dashboard applications, versioned packages, and agent/skill bundles for Claude and Codex AI agents. The repository emphasizes maintainability, clear commit conventions, and robust automation for feature releases and deployments.
+
+---
 
 ## Coding Conventions
 
-- **File Naming:**  
-  Use camelCase for all file and folder names.  
-  _Example:_  
-  ```
-  src/userProfile.ts
-  src/auth/sessionManager.ts
-  ```
+### File Naming
 
-- **Import Style:**  
-  Use alias imports for internal modules.  
-  _Example:_  
+- **CamelCase** is used for file names.
+  - Example: `myComponent.tsx`, `userProfile.ts`
+
+### Import Style
+
+- **Alias imports** are preferred for referencing modules.
   ```typescript
-  import userService from '@auth/userService'
-  import { getSession } from '@auth/sessionManager'
+  import myUtil from '@lib/myUtil';
+  import DashboardLayout from '@components/layout/DashboardLayout';
   ```
 
-- **Export Style:**  
-  Use default exports for modules.  
-  _Example:_  
+### Export Style
+
+- **Default exports** are standard.
   ```typescript
-  // src/auth/sessionManager.ts
-  const sessionManager = { /* ... */ }
-  export default sessionManager
+  // Good
+  export default function Dashboard() { ... }
+
+  // Avoid
+  export { Dashboard };
   ```
 
-- **Commit Messages:**  
-  Follow [Conventional Commits](https://www.conventionalcommits.org/) with prefixes: `chore`, `fix`, `feat`, `docs`.  
-  _Example:_  
-  ```
-  feat(auth): add support for OAuth2 login
-  fix(versioning): resolve migration file naming bug
-  ```
+### Commit Messages
+
+- **Conventional commits** with prefixes: `chore`, `feat`, `fix`, `docs`
+  - Example: `feat: add multi-page dashboard support`
+  - Average length: ~58 characters
+
+---
 
 ## Workflows
 
-### Package Release Version Bump
-**Trigger:** When releasing a new version of a package (auth or versioning)  
-**Command:** `/release-package`
+### ecc-bundle-addition
 
-1. Update `CHANGELOG.md` with release notes.
-2. Update `README.md` if necessary.
-3. Bump the version in `package.json`.
-4. Optionally, update or generate release artifacts (e.g., patch or migration files).
+**Trigger:** When adding or updating the `my-second-brain` ECC bundle or its components for Claude/Codex agents  
+**Command:** `/add-ecc-bundle`
 
-_Files involved:_  
-- `packages/*/CHANGELOG.md`  
-- `packages/*/README.md`  
-- `packages/*/package.json`
+1. Add or update `SKILL.md` and agent YAML files under `.agents/skills/my-second-brain/`
+2. Add or update `SKILL.md` under `.claude/skills/my-second-brain/`
+3. Add or update command markdown files under `.claude/commands/` (e.g., `feature-development.md`, `test-driven-development.md`, `database-migration.md`)
+4. Add or update instincts YAML under `.claude/homunculus/instincts/inherited/`
+5. Update `.claude/ecc-tools.json` and `.claude/identity.json`
+6. Add or update agent TOML files and `AGENTS.md` under `.codex/agents/` and `.codex/AGENTS.md`
+7. Update `.codex/config.toml`
 
----
-
-### Feature Development in Auth Package
-**Trigger:** When adding a new feature to the auth package  
-**Command:** `/add-auth-feature`
-
-1. Implement the feature in `packages/auth/src/` or its subfolders.
-2. Add or update tests in `packages/auth/src/__tests__/`.
-3. Update `CHANGELOG.md` with feature details.
-4. Update `README.md` with usage or documentation.
-5. Bump the version in `package.json`.
-
-_Files involved:_  
-- `packages/auth/src/**/*.ts`  
-- `packages/auth/src/__tests__/*.ts`  
-- `packages/auth/CHANGELOG.md`  
-- `packages/auth/README.md`  
-- `packages/auth/package.json`
+**Example:**
+```bash
+/add-ecc-bundle
+```
 
 ---
 
-### Documentation Sync (readme-maintainer)
-**Trigger:** When synchronizing documentation after changes or releases  
-**Command:** `/sync-readme`
+### dashboard-multi-page-feature-release
 
-1. Run `readme-maintainer` or a similar tool.
-2. Update the relevant `README.md` file(s).
+**Trigger:** When releasing a new dashboard feature involving multiple pages or splitting/merging dashboard portals  
+**Command:** `/release-dashboard-feature`
 
-_Files involved:_  
-- `packages/auth/README.md`  
-- `packages/versioning/README.md`  
-- `apps/dashboard/README.md`
+1. Add or update page components under `apps/dashboard/src/app/`
+2. Update shared layout components (e.g., `Sidebar.tsx`, `Footer.tsx`, `AppShell.tsx`)
+3. Update or add API/config files under `apps/dashboard/src/lib/`
+4. Update public assets or HTML files under `apps/dashboard/public/`
+5. Update environment files (`.env.*`) if needed
+6. Update deployment workflow YAMLs if required
 
----
-
-### Add or Update Versioning Extension
-**Trigger:** When adding or enhancing a versioning extension  
-**Command:** `/add-versioning-extension`
-
-1. Implement or update the extension in `packages/versioning/src/extensions/`.
-2. Add or update tests in `packages/versioning/src/__tests__/`.
-3. Update `CHANGELOG.md` and `README.md`.
-4. Update `package.json` and `versioning.config.json` if needed.
-
-_Files involved:_  
-- `packages/versioning/src/extensions/**/index.ts`  
-- `packages/versioning/src/__tests__/*.ts`  
-- `packages/versioning/CHANGELOG.md`  
-- `packages/versioning/README.md`  
-- `packages/versioning/package.json`  
-- `packages/versioning/versioning.config.json`
+**Example:**
+```typescript
+// apps/dashboard/src/app/newFeaturePage.tsx
+export default function NewFeaturePage() {
+  return <div>Welcome to the new feature!</div>;
+}
+```
+```bash
+/release-dashboard-feature
+```
 
 ---
 
-### Add SQL Migration to Auth Supabase
-**Trigger:** When updating the auth database schema or sync logic  
-**Command:** `/add-auth-migration`
+### versioning-package-release
 
-1. Create a new SQL migration file in `supabase/migrations/`.
-2. Update or add documentation in `supabase/README.md` or the main `README.md`.
-3. Update `CHANGELOG.md`.
-4. Bump the version in `package.json`.
+**Trigger:** When releasing a new version or patch of the versioning package  
+**Command:** `/release-versioning`
 
-_Files involved:_  
-- `packages/auth/supabase/migrations/*.sql`  
-- `packages/auth/supabase/README.md`  
-- `packages/auth/README.md`  
-- `packages/auth/CHANGELOG.md`  
-- `packages/auth/package.json`
+1. Update `CHANGELOG.md` and `README.md` in `packages/versioning/`
+2. Update `package.json` version
+3. Update or add source files and tests under `packages/versioning/src/`
+4. Update `versioning.config.json`
+5. Optionally add or update scripts and usage docs
+
+**Example:**
+```json
+// packages/versioning/package.json
+{
+  "version": "1.2.0"
+}
+```
+```bash
+/release-versioning
+```
 
 ---
 
-### Dependency Upgrade and Security Harden
-**Trigger:** When addressing CVEs or upgrading dependencies for compatibility  
-**Command:** `/upgrade-dependencies`
+### dashboard-deployment-workflow-update
 
-1. Update dependencies in all relevant `package.json` files.
-2. Update lockfiles (`pnpm-lock.yaml`, `package-lock.json`).
-3. Update override sections if needed.
-4. Document changes in relevant markdown files.
+**Trigger:** When updating deployment workflows or environment settings for the dashboard  
+**Command:** `/update-deployment-workflow`
 
-_Files involved:_  
-- `package.json`  
-- `pnpm-lock.yaml`  
-- `packages/*/package.json`  
-- `packages/*/package-lock.json`  
-- `docs/*.md`
+1. Update `.github/workflows/deploy-static.yml` and/or `deploy-web.yml`
+2. Update dashboard environment files (`apps/dashboard/.env.*`) if needed
+3. Update dashboard source or config files as required
+
+**Example:**
+```yaml
+# .github/workflows/deploy-static.yml
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Deploy Dashboard
+        run: npm run deploy
+```
+```bash
+/update-deployment-workflow
+```
 
 ---
 
 ## Testing Patterns
 
 - **Framework:** Jest
-- **Test File Pattern:**  
-  All test files use the `*.test.ts` suffix and are typically placed alongside or within a `__tests__` directory.
+- **Test file pattern:** `*.test.ts`
+- **Location:** Next to source files or in dedicated `__tests__` directories
 
-_Example:_  
-```
-packages/auth/src/__tests__/sessionManager.test.ts
-```
-
-_Basic test example:_  
+**Example:**
 ```typescript
-import sessionManager from '../sessionManager'
+// apps/dashboard/src/lib/myUtil.test.ts
+import myUtil from './myUtil';
 
-describe('sessionManager', () => {
-  it('should create a session', () => {
-    const session = sessionManager.create('user123')
-    expect(session.userId).toBe('user123')
-  })
-})
+test('myUtil returns expected result', () => {
+  expect(myUtil(2, 3)).toBe(5);
+});
 ```
+
+---
 
 ## Commands
 
-| Command                   | Purpose                                                        |
-|---------------------------|----------------------------------------------------------------|
-| /release-package          | Release a new version of a package                             |
-| /add-auth-feature         | Add a new feature to the auth package                          |
-| /sync-readme              | Synchronize README documentation across packages and apps      |
-| /add-versioning-extension | Add or update a versioning extension                          |
-| /add-auth-migration       | Add a new SQL migration for auth Supabase integration          |
-| /upgrade-dependencies     | Upgrade dependencies and address security vulnerabilities      |
+| Command                   | Purpose                                                           |
+|---------------------------|-------------------------------------------------------------------|
+| /add-ecc-bundle           | Add or update the my-second-brain ECC bundle for Claude/Codex     |
+| /release-dashboard-feature| Release a new multi-page dashboard feature                        |
+| /release-versioning       | Release a new version of the versioning package                   |
+| /update-deployment-workflow| Update dashboard deployment workflows or environment settings     |
 ```
