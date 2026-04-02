@@ -41,7 +41,7 @@ export default function OverviewPage() {
                         Second Brain Dashboard
                     </h1>
                     <p className="max-w-3xl text-gray-600 dark:text-gray-400 transition-colors">
-                        A focused workspace for notes, memory graphs, documents, and agents. The second brain now stays separate from the A-Quant portal, which is published at <code className="rounded bg-slate-100 px-1.5 py-0.5 text-[0.9em] text-slate-700 dark:bg-slate-800 dark:text-slate-200">{publicSiteUrl("/a-quant/")}</code>.
+                        A focused workspace for notes, memory graphs, documents, and agents. The second brain now keeps the A-Quant workspace inside the app shell at <code className="rounded bg-slate-100 px-1.5 py-0.5 text-[0.9em] text-slate-700 dark:bg-slate-800 dark:text-slate-200">{dashboardPath("/a-quant")}</code>.
                     </p>
                 </div>
 
@@ -107,10 +107,10 @@ export default function OverviewPage() {
                                 description="Portal for all public project surfaces"
                             />
                             <ActionLink
-                                href={publicSiteUrl("/a-quant/")}
+                                href={dashboardPath("/a-quant")}
                                 icon={<Package className="h-4 w-4" />}
-                                title="A-Quant Portal"
-                                description="Dedicated trading and infra entrypoint"
+                                title="A-Quant Workspace"
+                                description="Dedicated trading and infra entrypoint inside the app shell"
                             />
                             {packageLinks.map((pkg) => (
                                 <ActionLink

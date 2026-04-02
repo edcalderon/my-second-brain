@@ -8,7 +8,7 @@ import {
     Sparkles,
     Wallet,
 } from "lucide-react";
-import { publicSiteUrl } from "@/lib/public-site";
+import { dashboardPath, publicSiteUrl } from "@/lib/public-site";
 import { getHummingbotApiBase } from "@/lib/hummingbot-config";
 
 const API_BASE = getHummingbotApiBase();
@@ -79,17 +79,20 @@ const checklist = [
 
 export default function AQuantPortalPage() {
     return (
-        <div className="relative min-h-[calc(100vh-1px)] overflow-hidden bg-[#050814] text-slate-100">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_28%),radial-gradient(circle_at_top_right,rgba(16,185,129,0.16),transparent_22%),radial-gradient(circle_at_bottom_right,rgba(251,191,36,0.12),transparent_24%)]" />
-            <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:44px_44px]" />
-
-            <main className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
-                <section className="rounded-[32px] border border-white/10 bg-white/[0.04] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.45)] backdrop-blur-xl sm:p-8 lg:p-10">
+        <div className="max-w-7xl mx-auto space-y-8 pb-16">
+            <section className="rounded-[32px] border border-slate-200 bg-slate-950 p-6 text-slate-100 shadow-[0_30px_120px_rgba(15,23,42,0.45)] sm:p-8 lg:p-10">
                     <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.28em]">
                         <span className="rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-cyan-200">/a-quant/</span>
                         <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-emerald-200">
-                            Hyperliquid paper trading
+                            App shell enabled
                         </span>
+                        <Link
+                            href={dashboardPath("/")}
+                            className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
+                        >
+                            Dashboard home
+                            <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Link>
                         <Link
                             href={publicSiteUrl("/")}
                             className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
@@ -107,7 +110,7 @@ export default function AQuantPortalPage() {
                                 </h1>
                                 <p className="max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
                                     Dedicated control surface for the main Hyperliquid account. Use this page to test paper trading, inspect the
-                                    portfolio tracker, and keep the market, strategy, risk, and execution flows separated from the Second Brain UI.
+                                    portfolio tracker, and keep the market, strategy, risk, and execution flows inside the dashboard shell.
                                 </p>
                             </div>
 
@@ -140,7 +143,7 @@ export default function AQuantPortalPage() {
 
                         <div className="grid gap-3">
                             <InfoTile label="Main account" value={walletAddress} mono />
-                            <InfoTile label="Local route" value={publicSiteUrl("/a-quant/")} mono />
+                            <InfoTile label="App route" value={dashboardPath("/a-quant")} mono />
                             <InfoTile label="API base" value={API_BASE} mono />
                             <InfoTile label="Paper mode" value="Enabled for testing" />
                         </div>
@@ -222,8 +225,7 @@ export default function AQuantPortalPage() {
                             ))}
                         </div>
                     </div>
-                </section>
-            </main>
+            </section>
         </div>
     );
 }
