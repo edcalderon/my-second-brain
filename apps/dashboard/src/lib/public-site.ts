@@ -19,6 +19,10 @@ export function dashboardPath(path = "/") {
     return `${DASHBOARD_BASE_PATH}${normalizedPath}`;
 }
 
+export function dashboardHref(path = "/") {
+    return path.startsWith("/") ? path : `/${path}`;
+}
+
 export function stripDashboardBasePath(pathname = "/") {
     if (!DASHBOARD_BASE_PATH) {
         return pathname || "/";

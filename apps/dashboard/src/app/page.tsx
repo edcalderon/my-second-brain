@@ -107,7 +107,7 @@ export default function OverviewPage() {
                                 description="Portal for all public project surfaces"
                             />
                             <ActionLink
-                                href={dashboardPath("/a-quant")}
+                                href="/a-quant"
                                 icon={<Package className="h-4 w-4" />}
                                 title="A-Quant Workspace"
                                 description="Dedicated trading and infra entrypoint inside the app shell"
