@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      name="description"
+      content="A-Quant is the dedicated trading portal for paper trading, market monitoring, and the live API surface."
+    />
+    <title>A-Quant Portal | /a-quant/</title>
+    <style>
+      :root {
+        --bg: #070b12;
+        --bg-soft: #111827;
+        --panel: rgba(13, 20, 33, 0.82);
+        --panel-border: rgba(148, 163, 184, 0.18);
+        --text: #edf4ff;
+        --muted: #a6b3c4;
+        --accent: #79d6ff;
+        --accent-2: #f7c873;
+        --accent-3: #9ef0c2;
+        --shadow: 0 28px 90px rgba(0, 0, 0, 0.4);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 15% 15%, rgba(121, 214, 255, 0.18), transparent 25%),
+          radial-gradient(circle at 85% 15%, rgba(247, 200, 115, 0.16), transparent 22%),
+          radial-gradient(circle at 70% 90%, rgba(158, 240, 194, 0.14), transparent 28%),
+          linear-gradient(160deg, #04070c 0%, #08101a 38%, #0b1220 100%);
+        font-family: "Inter", "Avenir Next", "Segoe UI", sans-serif;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), transparent 96%);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .shell {
+        position: relative;
+        z-index: 1;
+        width: min(1200px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 40px;
+      }
+
+      .hero {
+        display: grid;
+        gap: 22px;
+        padding: 32px;
+        border-radius: 30px;
+        border: 1px solid var(--panel-border);
+        background: linear-gradient(180deg, rgba(13, 19, 32, 0.94), rgba(10, 15, 26, 0.78));
+        backdrop-filter: blur(22px);
+        box-shadow: var(--shadow);
+      }
+
+      .eyebrow {
+        margin: 0;
+        font-size: 0.74rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--accent-2);
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 10ch;
+        font-size: clamp(3.5rem, 11vw, 7rem);
+        line-height: 0.9;
+        letter-spacing: -0.08em;
+      }
+
+      .lede {
+        max-width: 760px;
+        margin: 0;
+        font-size: clamp(1rem, 2vw, 1.18rem);
+        line-height: 1.75;
+        color: var(--muted);
+      }
+
+      .pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      }
+
+      .pill:hover {
+        transform: translateY(-1px);
+        border-color: rgba(121, 214, 255, 0.45);
+        background: rgba(121, 214, 255, 0.08);
+      }
+
+      .pill strong {
+        font-size: 0.92rem;
+      }
+
+      .pill span {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        margin-top: 18px;
+      }
+
+      .card {
+        grid-column: span 6;
+        padding: 24px;
+        border-radius: 24px;
+        border: 1px solid var(--panel-border);
+        background: var(--panel);
+        backdrop-filter: blur(18px);
+        box-shadow: var(--shadow);
+      }
+
+      .card.full {
+        grid-column: span 12;
+      }
+
+      .card.small {
+        grid-column: span 4;
+      }
+
+      .card h2 {
+        margin: 0 0 8px;
+        font-size: 1.2rem;
+        letter-spacing: -0.03em;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .link-card {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        background: rgba(255, 255, 255, 0.03);
+        transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+      }
+
+      .link-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(247, 200, 115, 0.35);
+        background: rgba(247, 200, 115, 0.08);
+      }
+
+      .link-card .meta {
+        display: grid;
+        gap: 4px;
+      }
+
+      .link-card .meta strong {
+        font-size: 0.98rem;
+      }
+
+      .link-card .meta span {
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.5;
+      }
+
+      .tag {
+        align-self: flex-start;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(121, 214, 255, 0.12);
+        color: var(--accent);
+        font-size: 0.74rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .section-title {
+        margin: 36px 0 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .section-title h2 {
+        margin: 0;
+        font-size: 0.92rem;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--accent-3);
+      }
+
+      .footer {
+        margin-top: 20px;
+        padding: 22px 2px 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 16px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .footer a:hover {
+        color: var(--text);
+      }
+
+      .inline-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      code {
+        padding: 0.18rem 0.4rem;
+        border-radius: 0.45rem;
+        background: rgba(255, 255, 255, 0.08);
+        color: #f5f9ff;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.92em;
+      }
+
+      @media (max-width: 960px) {
+        .card,
+        .card.small {
+          grid-column: span 12;
+        }
+
+        .hero {
+          padding: 24px;
+        }
+
+        .shell {
+          width: min(100% - 20px, 1180px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">/a-quant/</p>
+        <div>
+          <h1>A-Quant Portal</h1>
+          <p class="lede">
+            Dedicated trading entrypoint for paper testing, market monitoring, and the live API surface. The
+            public portal stays separate from the knowledge workspace and routes you straight to the trading tools.
+          </p>
+        </div>
+
+        <div class="pills">
+          <a class="pill" href="https://api.a-quant.xyz" target="_blank" rel="noreferrer noopener">
+            <strong>Live API</strong>
+            <span>api.a-quant.xyz</span>
+          </a>
+          <a class="pill" href="/my-second-brain/index.html">
+            <strong>Project Directory</strong>
+            <span>/</span>
+          </a>
+          <a class="pill" href="/my-second-brain/">
+            <strong>My Second Brain</strong>
+            <span>/my-second-brain</span>
+          </a>
+        </div>
+      </section>
+
+      <div class="section-title">
+        <h2>Trading Surface</h2>
+      </div>
+
+      <section class="grid">
+        <article class="card">
+          <div class="tag">Market</div>
+          <h2>Paper Trading Views</h2>
+          <p>
+            Open the core trading screens used for market review, strategy testing, risk checks, and order
+            execution.
+          </p>
+          <div class="stack">
+            <a class="link-card" href="/my-second-brain/market">
+              <div class="meta">
+                <strong>Market feed</strong>
+                <span>Review candles and validate entries before sending a paper trade.</span>
+              </div>
+              <span class="tag">Open</span>
+            </a>
+            <a class="link-card" href="/my-second-brain/strategy">
+              <div class="meta">
+                <strong>Strategy desk</strong>
+                <span>Preview signals, state, and execution intent.</span>
+              </div>
+              <span class="tag">Desk</span>
+            </a>
+            <a class="link-card" href="/my-second-brain/risk">
+              <div class="meta">
+                <strong>Risk console</strong>
+                <span>Check exposure, sizing, and trade previews.</span>
+              </div>
+              <span class="tag">Risk</span>
+            </a>
+            <a class="link-card" href="/my-second-brain/execution">
+              <div class="meta">
+                <strong>Execution view</strong>
+                <span>Track fills, open positions, and runtime status.</span>
+              </div>
+              <span class="tag">Exec</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="tag">Backend</div>
+          <h2>API & Runtime</h2>
+          <p>
+            The API is isolated behind <code>api.a-quant.xyz</code>, so the trading backend can evolve without
+            touching the knowledge workspace.
+          </p>
+          <div class="stack">
+            <a class="link-card" href="https://api.a-quant.xyz" target="_blank" rel="noreferrer noopener">
+              <div class="meta">
+                <strong>Primary API</strong>
+                <span>Entrypoint for market data, paper order flows, and Hummingbot connectivity.</span>
+              </div>
+              <span class="tag">API</span>
+            </a>
+            <a class="link-card" href="/my-second-brain/">
+              <div class="meta">
+                <strong>Workspace UI</strong>
+                <span>Second Brain remains the knowledge hub and separate dashboard shell.</span>
+              </div>
+              <span class="tag">UI</span>
+            </a>
+          </div>
+        </article>
+      </section>
+
+      <div class="section-title">
+        <h2>Why It Exists</h2>
+      </div>
+
+      <section class="grid">
+        <article class="card small">
+          <h2>Separated routing</h2>
+          <p>The trading portal gets its own path instead of living inside the knowledge landing page.</p>
+        </article>
+        <article class="card small">
+          <h2>Scalable structure</h2>
+          <p>Each project can add its own static portal without changing the root directory surface.</p>
+        </article>
+        <article class="card small">
+          <h2>Paper-first</h2>
+          <p>The surface is tuned for testing strategies safely before anything reaches production.</p>
+        </article>
+      </section>
+
+      <div class="footer">
+        <span>Built as a dedicated trading portal for the monorepo.</span>
+        <div class="inline-links">
+          <a href="/my-second-brain/index.html">Project Directory</a>
+          <a href="/my-second-brain/">My Second Brain</a>
+          <a href="https://api.a-quant.xyz" target="_blank" rel="noreferrer noopener">Live API</a>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

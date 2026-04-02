@@ -20,9 +20,9 @@ export const API_CONFIG = {
   
   // API routes mapping
   routes: {
-    knowledge: '/api/knowledge',
-    sync: '/api/sync',
-    status: '/api/status',
+    knowledge: '/api/knowledge/',
+    sync: '/api/sync/',
+    status: '/api/status/',
   },
 };
 
@@ -42,9 +42,9 @@ export function getApiEndpoint(route: keyof typeof API_CONFIG.routes): string {
   // Prod mode: use cloud functions
   // Map Next.js routes to cloud function names
   const cloudFunctionMap: Record<string, string> = {
-    '/api/knowledge': `${API_CONFIG.cloudFunctionUrl}/knowledge`,
-    '/api/sync': `${API_CONFIG.cloudFunctionUrl}/sync`,
-    '/api/status': `${API_CONFIG.cloudFunctionUrl}/status`,
+    '/api/knowledge/': `${API_CONFIG.cloudFunctionUrl}/knowledge`,
+    '/api/sync/': `${API_CONFIG.cloudFunctionUrl}/sync`,
+    '/api/status/': `${API_CONFIG.cloudFunctionUrl}/status`,
   };
   
   return cloudFunctionMap[path] || `${API_CONFIG.baseUrl}${path}`;

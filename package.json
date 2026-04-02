@@ -43,6 +43,7 @@
     "secrets:husky": "versioning check-secrets husky",
     "dev:dashboard": "pnpm --filter @ed/dashboard dev -p 3000",
     "build:dashboard": "pnpm --filter @ed/dashboard build",
+    "package:site": "node scripts/package-site.mjs",
     "build:all": "pnpm --recursive build",
     "__workspace_scripts_managed": "[\"dev:dashboard\",\"dev:docs\",\"dev:all\",\"dev\",\"build:dashboard\",\"build:docs\",\"build:all\",\"build\"]",
     "prepare": "husky"
@@ -60,7 +61,8 @@
       "next": "^16.2.1",
       "fast-xml-parser": "^5.5.7",
       "@tootallnate/once": "^3.0.1",
-      "basic-ftp": "^5.2.0"
+      "basic-ftp": "^5.2.0",
+      "handlebars": "^4.7.9"
     }
   }
 }

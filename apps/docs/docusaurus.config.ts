@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Edward\'s Second Brain',
+  title: 'My Second Brain',
   tagline: 'Knowledge Base & Documentation',
   favicon: 'img/favicon.ico',
 
@@ -15,7 +15,7 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://edcalderon.github.io',
+  url: 'https://edcalderon.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/my-second-brain/documentation/',
@@ -75,9 +75,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'My Site',
+      title: 'My Second Brain',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'My Second Brain Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -138,7 +138,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} My Second Brain. Built with Docusaurus.`,
     },
     prism: {
       theme: prismThemes.github,

@@ -24,7 +24,7 @@ export default function SettingsPage() {
             <header>
                 <p className="text-xs uppercase tracking-[0.2em] text-emerald-700">Settings</p>
                 <h1 className="text-3xl font-semibold text-gray-900">Dashboard configuration</h1>
-                <p className="text-sm text-gray-600">Read-only settings for the public operations console.</p>
+                <p className="text-sm text-gray-600">Environment settings for the knowledge hub and paper-trading desk.</p>
             </header>
 
             <section className="glass-panel rounded-3xl p-8 space-y-6">

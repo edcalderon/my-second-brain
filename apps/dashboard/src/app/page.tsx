@@ -1,157 +1,136 @@
-"use client";
-
-import { useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Activity, AlertTriangle, CandlestickChart, Gauge, ShieldCheck, Brain, Zap, TrendingUp, BookOpen } from "lucide-react";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { useSupabaseData } from "@/components/supabase/SupabaseProvider";
+import type { ReactNode } from "react";
+import { Brain, BookOpen, Layers, ExternalLink, Globe, Package } from "lucide-react";
+import { dashboardPath, publicSiteUrl } from "@/lib/public-site";
+
+const packageLinks = [
+    {
+        name: "versioning",
+        href: "https://github.com/edcalderon/my-second-brain/tree/main/packages/versioning",
+        description: "Release automation, README sync, and repo guardrails",
+    },
+    {
+        name: "auth",
+        href: "https://github.com/edcalderon/my-second-brain/tree/main/packages/auth",
+        description: "Auth utilities, provisioning docs, and client helpers",
+    },
+    {
+        name: "gcp-functions",
+        href: "https://github.com/edcalderon/my-second-brain/tree/main/packages/gcp-functions",
+        description: "Cloud Functions for sync, status, and screenshot automation",
+    },
+];
 
 export default function OverviewPage() {
-    const { user } = useAuth();
-    const { portfolio, signals, trades, loading, error } = useSupabaseData();
-
-
-
-    const pauseStatus = useMemo(() => {
-        return "Running";
-    }, []);
-
     return (
         <div className="max-w-7xl mx-auto space-y-10 pb-16">
-            {/* Header */}
-            <header className="space-y-3">
-                <p className="text-xs uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 transition-colors">Knowledge + Trading Hub</p>
-                <h1 className="text-4xl font-semibold text-gray-900 dark:text-white transition-colors">
-                    Second Brain Dashboard
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400 max-w-2xl transition-colors">
-                    Your integrated knowledge management and live trading operations center. Explore your memory graph, manage learning, and monitor real-time trading execution.
-                </p>
+            <header className="space-y-5">
+                <div className="flex flex-wrap items-center gap-3">
+                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+                        {dashboardPath("/")}
+                    </span>
+                    <span className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-700 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
+                        A-Quant now lives at /a-quant
+                    </span>
+                </div>
+                <div className="space-y-3">
+                    <p className="text-xs uppercase tracking-[0.3em] text-emerald-600 dark:text-emerald-400 transition-colors">
+                        Knowledge Workspace
+                    </p>
+                    <h1 className="text-4xl font-semibold text-gray-900 dark:text-white transition-colors">
+                        Second Brain Dashboard
+                    </h1>
+                    <p className="max-w-3xl text-gray-600 dark:text-gray-400 transition-colors">
+                        A focused workspace for notes, memory graphs, documents, and agents. The second brain now stays separate from the A-Quant portal, which is published at <code className="rounded bg-slate-100 px-1.5 py-0.5 text-[0.9em] text-slate-700 dark:bg-slate-800 dark:text-slate-200">{publicSiteUrl("/a-quant/")}</code>.
+                    </p>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                    <InlineLink href="/knowledge" icon={<BookOpen className="h-4 w-4" />} label="Open Knowledge Base" />
+                    <InlineLink href="/memory-graph" icon={<Brain className="h-4 w-4" />} label="View Memory Graph" />
+                    <InlineLink href="/documentation" icon={<Layers className="h-4 w-4" />} label="Read Documentation" />
+                    <InlineLink href={publicSiteUrl("/")} icon={<Globe className="h-4 w-4" />} label="Project Directory" />
+                </div>
             </header>
 
-            {error && (
-                <div className="rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 px-6 py-4 text-sm text-red-600 dark:text-red-400 transition-colors">
-                    {error}
-                </div>
-            )}
-
-            {/* Quick Access Sections */}
-            <section className="grid gap-4 lg:grid-cols-2">
-                {/* Second Brain Quick Actions */}
-                <div className="glass-panel rounded-3xl p-6 border border-emerald-200/40 dark:border-emerald-900/30 transition-colors">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
-                            <Brain className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
-                            Knowledge Management
-                        </h2>
-                    </div>
-                    <div className="grid gap-3">
-                        <ActionLink
-                            href="/knowledge"
-                            icon={<BookOpen className="h-4 w-4" />}
-                            title="Knowledge Base"
-                            description="Browse and search your collected intelligence"
-                        />
-                        <ActionLink
-                            href="/memory-graph"
-                            icon={<Zap className="h-4 w-4" />}
-                            title="Memory Graph"
-                            description="Visualize connections in your knowledge network"
-                        />
-                        <ActionLink
-                            href="/documentation"
-                            icon={<TrendingUp className="h-4 w-4" />}
-                            title="Documents"
-                            description="Access your learning resources and analysis"
-                        />
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-border dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 transition-colors">
-                        <p>Manage your personal knowledge base and track learning progress.</p>
-                    </div>
-                </div>
-
-                {/* Trading Operations Quick Status */}
-                <div className="glass-panel rounded-3xl p-6 border border-amber-200/40 dark:border-amber-900/30 transition-colors">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 transition-colors">
-                            <CandlestickChart className="h-5 w-5 text-amber-700 dark:text-amber-400 transition-colors" />
-                            Trading Operations
-                        </h2>
-                        <div className={`text-xs px-3 py-1 rounded-full font-semibold transition-colors ${loading
-                            ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400"
-                            : "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
-                            }`}>
-                            {pauseStatus}
-                        </div>
-                    </div>
-                    <div className="space-y-3 text-sm">
-                        <MetricRow label="Status" value={loading ? "Loading..." : "Live"} />
-                        <MetricRow label="Filled Orders" value={`${trades?.length ?? 0}`} />
-                        <MetricRow label="Latest Signal" value={`${signals?.[0]?.signal_type ?? "N/A"}`} />
-                        <MetricRow label="Last Fill" value={trades?.[0]?.price ? `$${trades[0].price.toFixed(2)}` : "N/A"} />
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-border dark:border-gray-700 transition-colors">
-                        <Link href="/market" className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-900 dark:hover:text-emerald-300 font-semibold text-xs uppercase tracking-wide transition-colors">
-                            View Operations Dashboard →
-                        </Link>
-                    </div>
-                </div>
-            </section>
-
-            {/* Detailed Trading Metrics */}
-            <section className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">Live Execution Feed</h2>
-                <div className="grid gap-4 md:grid-cols-3">
-                    <MetricCard
-                        title="Latest Trade Symbol"
-                        value={trades?.[0]?.symbol || "No trade yet"}
-                        icon={<CandlestickChart className="h-5 w-5" />}
-                        detail={trades?.[0] ? `Size: ${trades[0].size}` : "Awaiting data"}
-                    />
-                    <MetricCard
-                        title="Strategy Signal"
-                        value={signals?.[0]?.signal_type || "No intent"}
-                        icon={<Activity className="h-5 w-5" />}
-                        detail={signals?.[0]?.confidence ? `${(signals[0].confidence * 100).toFixed(1)}% confidence` : "Awaiting signal"}
-                    />
-                    <MetricCard
-                        title="Portfolio Total (ETH)"
-                        value={portfolio?.total_value_eth ? portfolio.total_value_eth.toFixed(4) : "N/A"}
-                        icon={<ShieldCheck className="h-5 w-5" />}
-                        detail={portfolio?.total_value_usd ? `$${portfolio.total_value_usd.toFixed(2)}` : "Awaiting sync"}
-                    />
-                </div>
-            </section>
-
-            {/* Info Cards */}
             <section className="grid gap-4 lg:grid-cols-2">
                 <Card
-                    title="About This Dashboard"
+                    title="Second Brain Workspace"
                     icon={<Brain className="h-5 w-5" />}
                 >
                     <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400 transition-colors">
                         <p>
-                            <strong className="text-gray-900 dark:text-white transition-colors">Second Brain</strong> is your personal knowledge management system. Store insights, track learning, and visualize connections in your knowledge graph.
+                            Keep the knowledge system centered on notes, documents, and the memory graph. This is the canonical surface for the personal brain.
                         </p>
-                        <p>
-                            Use the sidebar to explore your memory network, manage documents, and review analytics.
-                        </p>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <ActionLink
+                                href="/knowledge"
+                                icon={<BookOpen className="h-4 w-4" />}
+                                title="Knowledge Base"
+                                description="Browse captured notes and summaries"
+                            />
+                            <ActionLink
+                                href="/memory-graph"
+                                icon={<Brain className="h-4 w-4" />}
+                                title="Memory Graph"
+                                description="Inspect linked ideas and context"
+                            />
+                            <ActionLink
+                                href="/documentation"
+                                icon={<Layers className="h-4 w-4" />}
+                                title="Docs"
+                                description="Read the live runbook and docs"
+                            />
+                            <ActionLink
+                                href="/agents"
+                                icon={<ExternalLink className="h-4 w-4" />}
+                                title="Agents"
+                                description="Open the execution and helper tools"
+                            />
+                        </div>
                     </div>
                 </Card>
 
                 <Card
-                    title="A-Quant Integration"
-                    icon={<Zap className="h-5 w-5" />}
+                    title="Project Registry"
+                    icon={<Globe className="h-5 w-5" />}
                 >
                     <div className="space-y-3 text-sm text-gray-600 dark:text-gray-400 transition-colors">
                         <p>
-                            Real-time trading data is streamed from your private a-quant services. All endpoints are read-only and authenticated.
+                            The root site is a directory, not an application shell. Use it to navigate between the published projects and package surfaces.
                         </p>
-                        <p>
-                            Navigate to the Trading Operations section to monitor live execution, risk decisions, and market data.
-                        </p>
+                        <div className="grid gap-3 sm:grid-cols-2">
+                            <ActionLink
+                                href={publicSiteUrl("/")}
+                                icon={<Globe className="h-4 w-4" />}
+                                title="Directory Root"
+                                description="Portal for all public project surfaces"
+                            />
+                            <ActionLink
+                                href={publicSiteUrl("/a-quant/")}
+                                icon={<Package className="h-4 w-4" />}
+                                title="A-Quant Portal"
+                                description="Dedicated trading and infra entrypoint"
+                            />
+                            {packageLinks.map((pkg) => (
+                                <ActionLink
+                                    key={pkg.name}
+                                    href={pkg.href}
+                                    icon={<ExternalLink className="h-4 w-4" />}
+                                    title={`Package: ${pkg.name}`}
+                                    description={pkg.description}
+                                    external
+                                />
+                            ))}
+                        </div>
                     </div>
                 </Card>
+            </section>
+
+            <section className="grid gap-4 lg:grid-cols-3">
+                <StatCard title="Primary Path" value="Knowledge first" detail="Second Brain stays focused on context and recall" />
+                <StatCard title="Project Split" value="Cleanly separated" detail="A-Quant moves to its own portal and domain" />
+                <StatCard title="Packages" value="3 core workspaces" detail="Versioning, auth, and GCP functions" />
             </section>
         </div>
     );
@@ -161,7 +140,7 @@ function Card({ title, icon, children }: { title: string; icon: ReactNode; child
     return (
         <div className="glass-panel rounded-3xl p-6 transition-colors">
             <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">{title}</h3>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">{title}</h2>
                 <div className="text-emerald-700 dark:text-emerald-400 transition-colors">{icon}</div>
             </div>
             <div className="mt-4">{children}</div>
@@ -169,34 +148,12 @@ function Card({ title, icon, children }: { title: string; icon: ReactNode; child
     );
 }
 
-function MetricCard({
-    title,
-    value,
-    detail,
-    icon,
-}: {
-    title: string;
-    value: string;
-    detail: string;
-    icon: ReactNode;
-}) {
+function StatCard({ title, value, detail }: { title: string; value: string; detail: string }) {
     return (
         <div className="rounded-3xl border border-border dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-4 shadow-sm transition-colors">
-            <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 transition-colors">
-                <span>{title}</span>
-                <div className="text-emerald-700 dark:text-emerald-400 transition-colors">{icon}</div>
-            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">{title}</div>
             <div className="mt-3 text-2xl font-semibold text-gray-900 dark:text-white transition-colors">{value}</div>
             <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 transition-colors">{detail}</div>
-        </div>
-    );
-}
-
-function MetricRow({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex items-center justify-between rounded-xl border border-border dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm transition-colors">
-            <span className="text-gray-600 dark:text-gray-400 transition-colors">{label}</span>
-            <span className="font-semibold text-gray-900 dark:text-white transition-colors">{value}</span>
         </div>
     );
 }
@@ -206,11 +163,17 @@ interface ActionLinkProps {
     icon: ReactNode;
     title: string;
     description: string;
+    external?: boolean;
 }
 
-function ActionLink({ href, icon, title, description }: ActionLinkProps) {
+function ActionLink({ href, icon, title, description, external = false }: ActionLinkProps) {
     return (
-        <Link href={href} className="block min-w-0 overflow-hidden">
+        <Link
+            href={href}
+            target={external ? "_blank" : undefined}
+            rel={external ? "noreferrer noopener" : undefined}
+            className="block min-w-0 overflow-hidden"
+        >
             <div className="group w-full rounded-xl border border-border dark:border-gray-700 bg-white dark:bg-gray-800 p-3 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 transition-all cursor-pointer">
                 <div className="flex items-center gap-3 w-full border-box">
                     <div className="text-emerald-700 dark:text-emerald-400 group-hover:text-emerald-900 dark:group-hover:text-emerald-300 transition-colors flex-shrink-0">
@@ -229,3 +192,14 @@ function ActionLink({ href, icon, title, description }: ActionLinkProps) {
     );
 }
 
+function InlineLink({ href, icon, label }: { href: string; icon: ReactNode; label: string }) {
+    return (
+        <Link
+            href={href}
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700 shadow-sm transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-slate-900 dark:text-emerald-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30"
+        >
+            {icon}
+            <span>{label}</span>
+        </Link>
+    );
+}

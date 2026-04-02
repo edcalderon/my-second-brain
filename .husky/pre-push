@@ -2,14 +2,40 @@
 echo "Running pre-push checks..."
 pnpm --filter @ed/gcp-functions validate || echo "⚠️  GCP Functions validate failed. Bypassing for now."
 
-echo "Running Readme Maintainer..."
-# Run the update-readme script on any package that supports it
-pnpm --recursive run --if-present update-readme
+run_readme_sync=false
+while read local_ref local_sha remote_ref remote_sha
+do
+  [ -z "$local_ref" ] && continue
+  [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
 
-# Check if the readme maintainer modified any files. If so, fail the push so they can be committed.
-if ! git diff --exit-code; then
-  echo "❌ Readme maintainer updated some README files. Please commit the changes before pushing."
-  exit 1
+  if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    base_ref=$(git merge-base "$local_sha" origin/main 2>/dev/null || true)
+    if [ -z "$base_ref" ]; then
+      base_ref=$(git rev-list --max-parents=0 "$local_sha" | tail -n 1)
+    fi
+    changed_files=$(git diff --name-only "$base_ref" "$local_sha")
+  else
+    changed_files=$(git diff --name-only "$remote_sha" "$local_sha")
+  fi
+
+  if printf '%s\n' "$changed_files" | grep -Eq '(^|/)(package\.json|CHANGELOG\.md|versioning\.config\.json|pnpm-lock\.yaml)$|(^|/)packages/versioning/'; then
+    run_readme_sync=true
+    break
+  fi
+done
+
+if [ "$run_readme_sync" = true ]; then
+  echo "Running Readme Maintainer..."
+  # Run the update-readme script on any package that supports it.
+  pnpm --recursive run --if-present update-readme
+
+  # Check if the readme maintainer modified any files. If so, fail the push so they can be committed.
+  if ! git diff --exit-code; then
+    echo "❌ Readme maintainer updated some README files. Please commit the changes before pushing."
+    exit 1
+  fi
+else
+  echo "Skipping Readme Maintainer: no versioning-related files changed in this push."
 fi
 
 echo "Running secrets scan on tracked files..."

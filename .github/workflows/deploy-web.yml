@@ -27,6 +27,8 @@ jobs:
       NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_DASHBOARD_API_BASE: https://api.a-quant.xyz
+      NEXT_PUBLIC_HUMMINGBOT_API_BASE: https://api.a-quant.xyz
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,6 +51,11 @@ jobs:
           else
             echo "✅ NEXT_PUBLIC_SUPERMEMORY_API_KEY is set"
           fi
+          if [ -z "$NEXT_PUBLIC_HUMMINGBOT_API_BASE" ]; then
+            echo "⚠️  NEXT_PUBLIC_HUMMINGBOT_API_BASE is not set"
+          else
+            echo "✅ NEXT_PUBLIC_HUMMINGBOT_API_BASE is set"
+          fi
           echo "✅ Environment check complete"
 
       - name: Install dependencies
@@ -70,16 +77,16 @@ jobs:
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_DASHBOARD_API_BASE: https://api.a-quant.xyz
+          NEXT_PUBLIC_HUMMINGBOT_API_BASE: https://api.a-quant.xyz
           NEXT_PUBLIC_EDWARD_VERSION: ${{ steps.version.outputs.EDWARD_VERSION }}
           NEXT_PUBLIC_A_QUANT_VERSION: "0.4.0"
 
       - name: Build docs
         run: pnpm --filter @ed/docs build
 
-      - name: Combine builds
-        run: |
-          mkdir -p ./apps/dashboard/out/documentation
-          cp -r ./apps/docs/build/* ./apps/dashboard/out/documentation/
+      - name: Assemble published site
+        run: node scripts/package-site.mjs
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -87,7 +94,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./apps/dashboard/out
+          path: ./apps/dashboard/site
 
   deploy:
     environment:

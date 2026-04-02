@@ -6,13 +6,15 @@ import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import TradingAuthGate from "@/components/auth/TradingAuthGate";
+import { stripDashboardBasePath } from "@/lib/public-site";
 
 export default function AppShell({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
-    const isAuthPage = pathname === "/login" || pathname === "/my-second-brain/login";
+    const isAuthPage = stripDashboardBasePath(pathname || "/") === "/login";
+    const isStandalonePortal = stripDashboardBasePath(pathname || "/") === "/a-quant";
 
     // Detect screen size and set initial collapsed state
     useEffect(() => {
@@ -28,7 +30,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
 
-    if (isAuthPage) {
+    if (isAuthPage || isStandalonePortal) {
         return <div className="min-h-screen">{children}</div>;
     }
 

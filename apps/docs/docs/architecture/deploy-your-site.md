@@ -4,22 +4,27 @@ sidebar_position: 5
 
 # Deployment & CI/CD
 
-Learn about the **deployment process** and CI/CD pipelines for Edward's Second Brain.
+Learn about the **deployment process** and CI/CD pipelines for My Second Brain.
 
 ## Overview
 
 The monorepo uses GitHub Actions for automated deployment to GitHub Pages with different pipelines for each application.
+The published web artifact is assembled so the root domain serves the project directory, the dashboard lives under `/my-second-brain/`, docs live under `/my-second-brain/documentation/`, and A-Quant lives under `/a-quant/`.
 
 ## Deployment Targets
 
+### Public Directory
+- **URL**: `https://edcalderon.io/`
+- **Purpose**: Shared root landing page for the monorepo projects
+
 ### Dashboard Application
-- **URL**: `https://edcalderon.github.io/my-second-brain/`
+- **URL**: `https://edcalderon.io/my-second-brain/`
 - **Technology**: Next.js static export
 - **Workflow**: `.github/workflows/deploy-dashboard.yml`
 - **Trigger**: Push to `main` branch
 
 ### Documentation Site
-- **URL**: `https://edcalderon.github.io/my-second-brain/`
+- **URL**: `https://edcalderon.io/my-second-brain/documentation/`
 - **Technology**: Docusaurus static site
 - **Workflow**: `.github/workflows/deploy-docs.yml`
 - **Trigger**: Push to `main` branch, paths in `apps/docs/**`
