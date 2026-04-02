@@ -8,7 +8,7 @@ import {
     Sparkles,
     Wallet,
 } from "lucide-react";
-import { dashboardPath, publicSiteUrl } from "@/lib/public-site";
+import { dashboardPath, dashboardHref, publicSiteUrl } from "@/lib/public-site";
 import { getHummingbotApiBase } from "@/lib/hummingbot-config";
 
 const API_BASE = getHummingbotApiBase();
@@ -87,7 +87,7 @@ export default function AQuantPortalPage() {
                             App shell enabled
                         </span>
                         <Link
-                            href={dashboardPath("/")}
+                            href={dashboardHref("/")}
                             className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
                         >
                             Dashboard home

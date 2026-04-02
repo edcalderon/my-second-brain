@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { dashboardPath, publicSiteUrl } from "@/lib/public-site";
+import { dashboardHref, dashboardPath, publicSiteUrl } from "@/lib/public-site";
 
 export default function Footer() {
     // Both versions will be supplied via Next.js env parsing at build time
@@ -14,7 +14,7 @@ export default function Footer() {
                     Project Directory
                 </Link>
                 <span className="hidden sm:inline-block text-gray-300 dark:text-gray-700">|</span>
-                <Link href={dashboardPath("/a-quant")} className="hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline transition-colors">
+                <Link href={dashboardHref("/a-quant")} className="hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline transition-colors">
                     A-Quant
                 </Link>
                 <span className="hidden sm:inline-block text-gray-300 dark:text-gray-700">|</span>
