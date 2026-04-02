@@ -15,6 +15,7 @@ Database schema changes with migration files
 ## Common Files
 
 - `migrations/*`
+- `**/types.ts`
 
 ## Suggested Sequence
 

@@ -14,9 +14,9 @@ Standard feature implementation workflow
 
 ## Common Files
 
-- `packages/versioning/src/extensions/secrets-check/*`
+- `packages/auth/src/*`
+- `packages/auth/src/providers/*`
 - `packages/versioning/src/__tests__/*`
-- `packages/versioning/src/extensions/release-guard/*`
 - `**/*.test.*`
 - `**/api/**`
 

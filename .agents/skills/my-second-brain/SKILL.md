@@ -5,165 +5,162 @@
 
 ## Overview
 
-This skill documents the core development patterns, coding conventions, and automated workflows for the `my-second-brain` repository. The project is built with TypeScript and Next.js, featuring modular dashboard applications, versioned packages, and agent/skill bundles for Claude and Codex AI agents. The repository emphasizes maintainability, clear commit conventions, and robust automation for feature releases and deployments.
-
----
+This skill documents the development conventions and workflows for the `my-second-brain` monorepo, a TypeScript project built on Next.js. The repository is organized into packages, each with its own source, documentation, and changelog files. Development emphasizes clear commit messages, modular code, comprehensive testing, and well-maintained documentation. The workflows described here streamline feature development, releases, documentation, extension modules, and database migrations.
 
 ## Coding Conventions
 
-### File Naming
-
-- **CamelCase** is used for file names.
-  - Example: `myComponent.tsx`, `userProfile.ts`
-
-### Import Style
-
-- **Alias imports** are preferred for referencing modules.
-  ```typescript
-  import myUtil from '@lib/myUtil';
-  import DashboardLayout from '@components/layout/DashboardLayout';
-  ```
-
-### Export Style
-
-- **Default exports** are standard.
-  ```typescript
-  // Good
-  export default function Dashboard() { ... }
-
-  // Avoid
-  export { Dashboard };
-  ```
-
-### Commit Messages
-
-- **Conventional commits** with prefixes: `chore`, `feat`, `fix`, `docs`
-  - Example: `feat: add multi-page dashboard support`
-  - Average length: ~58 characters
-
----
+- **File Naming:** Use `camelCase` for file and directory names.
+  - Example: `userProfile.ts`, `dataFetcher/index.ts`
+- **Import Style:** Use path aliases for imports.
+  - Example:
+    ```typescript
+    import userService from '@services/userService';
+    ```
+- **Export Style:** Default exports are preferred.
+  - Example:
+    ```typescript
+    // userProfile.ts
+    const userProfile = { /* ... */ };
+    export default userProfile;
+    ```
+- **Commit Messages:** Follow [Conventional Commits](https://www.conventionalcommits.org/) with these prefixes: `chore`, `fix`, `feat`, `docs`.
+  - Example: `feat(auth): add OAuth2 support to login flow`
 
 ## Workflows
 
-### ecc-bundle-addition
+### Package Release Version Bump
+**Trigger:** When you want to publish a new version of a package (e.g., after new features or fixes).  
+**Command:** `/release-package`
 
-**Trigger:** When adding or updating the `my-second-brain` ECC bundle or its components for Claude/Codex agents  
-**Command:** `/add-ecc-bundle`
+1. Update `CHANGELOG.md` with release notes:
+    ```markdown
+    ## 1.2.0
+    - Added OAuth2 support to login flow
+    - Fixed session expiration bug
+    ```
+2. Update `README.md` as needed to reflect new changes.
+3. Update the `version` field in `package.json`.
+4. Commit changes with a release message:
+    ```
+    chore(release): bump version to 1.2.0
+    ```
 
-1. Add or update `SKILL.md` and agent YAML files under `.agents/skills/my-second-brain/`
-2. Add or update `SKILL.md` under `.claude/skills/my-second-brain/`
-3. Add or update command markdown files under `.claude/commands/` (e.g., `feature-development.md`, `test-driven-development.md`, `database-migration.md`)
-4. Add or update instincts YAML under `.claude/homunculus/instincts/inherited/`
-5. Update `.claude/ecc-tools.json` and `.claude/identity.json`
-6. Add or update agent TOML files and `AGENTS.md` under `.codex/agents/` and `.codex/AGENTS.md`
-7. Update `.codex/config.toml`
-
-**Example:**
-```bash
-/add-ecc-bundle
-```
-
----
-
-### dashboard-multi-page-feature-release
-
-**Trigger:** When releasing a new dashboard feature involving multiple pages or splitting/merging dashboard portals  
-**Command:** `/release-dashboard-feature`
-
-1. Add or update page components under `apps/dashboard/src/app/`
-2. Update shared layout components (e.g., `Sidebar.tsx`, `Footer.tsx`, `AppShell.tsx`)
-3. Update or add API/config files under `apps/dashboard/src/lib/`
-4. Update public assets or HTML files under `apps/dashboard/public/`
-5. Update environment files (`.env.*`) if needed
-6. Update deployment workflow YAMLs if required
-
-**Example:**
-```typescript
-// apps/dashboard/src/app/newFeaturePage.tsx
-export default function NewFeaturePage() {
-  return <div>Welcome to the new feature!</div>;
-}
-```
-```bash
-/release-dashboard-feature
-```
+**Files involved:**
+- `packages/*/CHANGELOG.md`
+- `packages/*/README.md`
+- `packages/*/package.json`
 
 ---
 
-### versioning-package-release
+### Feature Development with Tests and Docs
+**Trigger:** When adding a new feature to an existing package.  
+**Command:** `/new-feature`
 
-**Trigger:** When releasing a new version or patch of the versioning package  
-**Command:** `/release-versioning`
+1. Implement the new feature in the relevant source files:
+    ```typescript
+    // packages/user/src/userProfile.ts
+    export default function getUserProfile(id: string) { /* ... */ }
+    ```
+2. Add or update tests in the `__tests__` directory:
+    ```typescript
+    // packages/user/src/__tests__/userProfile.test.ts
+    import getUserProfile from '../userProfile';
+    test('fetches user profile', () => { /* ... */ });
+    ```
+3. Update `README.md` with usage or documentation for the new feature.
+4. Update `CHANGELOG.md` with a summary of the feature.
+5. If necessary, update `package.json` for a version bump.
 
-1. Update `CHANGELOG.md` and `README.md` in `packages/versioning/`
-2. Update `package.json` version
-3. Update or add source files and tests under `packages/versioning/src/`
-4. Update `versioning.config.json`
-5. Optionally add or update scripts and usage docs
+**Files involved:**
+- `packages/*/src/**/*.ts`
+- `packages/*/src/__tests__/**/*.test.ts`
+- `packages/*/README.md`
+- `packages/*/CHANGELOG.md`
+- `packages/*/package.json`
 
-**Example:**
-```json
-// packages/versioning/package.json
-{
-  "version": "1.2.0"
-}
-```
-```bash
-/release-versioning
-```
+---
+
+### Documentation Expansion or Sync
+**Trigger:** When improving or adding documentation for a package or app.  
+**Command:** `/add-docs`
+
+1. Add new markdown files under `docs/` or `packages/*/docs/`.
+2. Update `README.md` to reference or summarize new documentation.
+3. Optionally, update `CHANGELOG.md` to note documentation changes.
+
+**Files involved:**
+- `docs/**/*.md`
+- `packages/*/docs/**/*.md`
+- `packages/*/README.md`
 
 ---
 
-### dashboard-deployment-workflow-update
+### Add or Update Extension Module
+**Trigger:** When introducing or enhancing an extension in the versioning system.  
+**Command:** `/new-extension`
 
-**Trigger:** When updating deployment workflows or environment settings for the dashboard  
-**Command:** `/update-deployment-workflow`
+1. Implement or update extension code under `src/extensions/`:
+    ```typescript
+    // packages/versioning/src/extensions/myExtension/index.ts
+    export default function myExtension() { /* ... */ }
+    ```
+2. Add or update tests for the extension:
+    ```typescript
+    // packages/versioning/src/__tests__/myExtension-extension.test.ts
+    import myExtension from '../extensions/myExtension';
+    test('myExtension works', () => { /* ... */ });
+    ```
+3. Update the extension-specific `CHANGELOG.md`.
+4. Update the main package `CHANGELOG.md` and `README.md`.
 
-1. Update `.github/workflows/deploy-static.yml` and/or `deploy-web.yml`
-2. Update dashboard environment files (`apps/dashboard/.env.*`) if needed
-3. Update dashboard source or config files as required
-
-**Example:**
-```yaml
-# .github/workflows/deploy-static.yml
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Deploy Dashboard
-        run: npm run deploy
-```
-```bash
-/update-deployment-workflow
-```
+**Files involved:**
+- `packages/versioning/src/extensions/*/index.ts`
+- `packages/versioning/src/extensions/*/CHANGELOG.md`
+- `packages/versioning/src/__tests__/*-extension.test.ts`
+- `packages/versioning/CHANGELOG.md`
+- `packages/versioning/README.md`
 
 ---
+
+### Add SQL Migration to Auth Package
+**Trigger:** When updating the database schema for authentication features.  
+**Command:** `/new-auth-migration`
+
+1. Add a new SQL migration file under `supabase/migrations/`:
+    ```
+    packages/auth/supabase/migrations/20240615_add_user_roles.sql
+    ```
+2. Update `README.md` and/or docs with migration details.
+3. Update `CHANGELOG.md` to record the migration.
+
+**Files involved:**
+- `packages/auth/supabase/migrations/*.sql`
+- `packages/auth/README.md`
+- `packages/auth/CHANGELOG.md`
 
 ## Testing Patterns
 
-- **Framework:** Jest
-- **Test file pattern:** `*.test.ts`
-- **Location:** Next to source files or in dedicated `__tests__` directories
+- **Framework:** [Jest](https://jestjs.io/)
+- **Test File Pattern:** Files end with `.test.ts` and are placed in `__tests__` directories within each package's `src/`.
+    - Example: `packages/user/src/__tests__/userProfile.test.ts`
+- **Test Example:**
+    ```typescript
+    import getUserProfile from '../userProfile';
 
-**Example:**
-```typescript
-// apps/dashboard/src/lib/myUtil.test.ts
-import myUtil from './myUtil';
-
-test('myUtil returns expected result', () => {
-  expect(myUtil(2, 3)).toBe(5);
-});
-```
-
----
+    describe('getUserProfile', () => {
+      it('returns user data for valid ID', () => {
+        expect(getUserProfile('123')).toEqual({ id: '123', name: 'Alice' });
+      });
+    });
+    ```
 
 ## Commands
 
-| Command                   | Purpose                                                           |
-|---------------------------|-------------------------------------------------------------------|
-| /add-ecc-bundle           | Add or update the my-second-brain ECC bundle for Claude/Codex     |
-| /release-dashboard-feature| Release a new multi-page dashboard feature                        |
-| /release-versioning       | Release a new version of the versioning package                   |
-| /update-deployment-workflow| Update dashboard deployment workflows or environment settings     |
+| Command             | Purpose                                                    |
+|---------------------|------------------------------------------------------------|
+| /release-package    | Release a new version of a package                         |
+| /new-feature        | Add a new feature with tests and documentation             |
+| /add-docs           | Expand or synchronize documentation                        |
+| /new-extension      | Add or update an extension module in the versioning system |
+| /new-auth-migration | Add a new SQL migration to the auth package                |
 ```
