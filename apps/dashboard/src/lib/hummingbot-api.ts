@@ -58,6 +58,7 @@ export type HummingbotStatus = {
     default_account: string;
     default_connector: string;
     wallet_address?: string;
+    main_wallet?: HummingbotWalletSnapshot | null;
     connectors: string[];
     connector_count: number;
     portfolio_state: Record<string, unknown> | null;
@@ -66,9 +67,25 @@ export type HummingbotStatus = {
     open_positions_count: number;
 };
 
+export type HummingbotWalletSnapshot = {
+    wallet_address: string;
+    token_symbol: string;
+    token_address: string;
+    chain?: string;
+    balance: number;
+    balance_usd?: number | null;
+};
+
 export type HummingbotPortfolioSummary = {
     snapshot_time?: string;
     wallet_address: string;
+    main_wallet_address?: string;
+    main_wallet_usdc?: number;
+    main_wallet_token_symbol?: string;
+    main_wallet_token_address?: string;
+    main_wallet_chain?: string;
+    current_balance_usd?: number;
+    current_balance_eth?: number | null;
     account_name: string;
     connector_name: string;
     paper_mode: boolean;
@@ -87,6 +104,7 @@ export type HummingbotPortfolioTracker = {
     service: string;
     snapshot_time: string;
     wallet_address: string;
+    main_wallet?: HummingbotWalletSnapshot | null;
     account_name: string;
     connector_name: string;
     paper_mode: boolean;

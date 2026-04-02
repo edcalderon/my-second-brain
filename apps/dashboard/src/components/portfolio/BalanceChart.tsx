@@ -9,6 +9,8 @@ type BalanceChartCardProps = {
     history: BalancePoint[];
     currentBalanceUsd: number | null;
     currentBalanceEth: number | null;
+    mainWalletAddress?: string | null;
+    mainWalletUsdc?: number | null;
     sourceLabel: string;
     updatedAt?: string | null;
     loading?: boolean;
@@ -19,11 +21,15 @@ export function BalanceChartCard({
     history,
     currentBalanceUsd,
     currentBalanceEth,
+    mainWalletAddress,
+    mainWalletUsdc,
     sourceLabel,
     updatedAt,
     loading = false,
     fallbackNote,
 }: BalanceChartCardProps) {
+    const chartId = useId().replace(/:/g, "");
+
     if (loading) {
         return <BalanceChartSkeleton />;
     }
@@ -42,7 +48,6 @@ export function BalanceChartCard({
             ? `${formatCompactCurrency(summary.min, 2)} - ${formatCompactCurrency(summary.max, 2)}`
             : "--";
 
-    const chartId = useId().replace(/:/g, "");
     const gradientId = `portfolio-balance-gradient-${chartId}`;
     const lineId = `portfolio-balance-line-${chartId}`;
     const sampleCount = series.length;
@@ -50,27 +55,28 @@ export function BalanceChartCard({
     const chart = series.length ? buildChartPath(series) : null;
 
     return (
-        <section className="glass-panel rounded-[32px] p-6 lg:p-7">
+        <section className="border border-border bg-white/90 p-5 sm:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div className="space-y-2">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/70 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+                    <div className="inline-flex items-center gap-2 border border-emerald-200/70 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
                         <Activity className="h-3.5 w-3.5" />
                         Current balance
                     </div>
-                    <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Live equity and balance trend</h2>
+                    <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Live equity and balance trend</h2>
                     <p className="max-w-2xl text-sm leading-6 text-gray-600 dark:text-gray-400">
-                        A live balance view stitched together from the Hummingbot tracker and the stored Supabase snapshot trail.
+                        A live balance view stitched together from the Hummingbot tracker, the main USDC wallet, and the stored Supabase snapshot trail.
                     </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                     <InfoChip icon={<Clock3 className="h-3.5 w-3.5" />} label={updatedAt ? formatTime(updatedAt) : "Waiting for live update"} />
                     <InfoChip icon={<Gauge className="h-3.5 w-3.5" />} label={sourceLabel} />
+                    {mainWalletAddress && <InfoChip icon={<Activity className="h-3.5 w-3.5" />} label={`${mainWalletAddress.slice(0, 8)}…${mainWalletAddress.slice(-4)}`} />}
                 </div>
             </div>
 
-            <div className="mt-6 grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
-                <div className="rounded-[28px] border border-emerald-200/70 bg-gradient-to-br from-white via-emerald-50/55 to-amber-50/65 p-5 shadow-[0_16px_48px_rgba(15,23,42,0.08)] dark:border-emerald-900/30 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-900 dark:to-slate-900">
+            <div className="mt-5 grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
+                <div className="border border-emerald-200/70 bg-gradient-to-br from-white via-emerald-50/50 to-slate-50/80 p-5 dark:border-emerald-900/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-900">
                     <div className="flex items-start justify-between gap-4">
                         <div>
                             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500 dark:text-gray-400">Tracked balance</p>
@@ -85,7 +91,7 @@ export function BalanceChartCard({
                             </p>
                         </div>
 
-                        <div className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] ${trendIsPositive ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" : "bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"}`}>
+                        <div className={`px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] ${trendIsPositive ? "border border-emerald-200 bg-emerald-100 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/50 dark:text-emerald-300" : "border border-rose-200 bg-rose-100 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/40 dark:text-rose-300"}`}>
                             <span className="inline-flex items-center gap-1.5">
                                 {trendIsPositive ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
                                 {deltaLabel}
@@ -94,7 +100,7 @@ export function BalanceChartCard({
                         </div>
                     </div>
 
-                    <div className="mt-6 rounded-[24px] border border-white/70 bg-white/70 p-4 shadow-inner backdrop-blur-sm dark:border-white/5 dark:bg-slate-950/50">
+                    <div className="mt-5 border border-border bg-white/80 p-4 dark:bg-slate-950/60">
                         {chart ? (
                             <svg viewBox="0 0 120 64" className="h-44 w-full" role="img" aria-label="Portfolio balance chart">
                                 <defs>
@@ -119,7 +125,7 @@ export function BalanceChartCard({
                                     />
                                     {chart.points.map((point, index) => (
                                         <circle
-                                            key={`${point.time}-${index}`}
+                                            key={point.time}
                                             cx={point.x}
                                             cy={point.y}
                                             r={index === chart.points.length - 1 ? 2.9 : 1.8}
@@ -129,16 +135,17 @@ export function BalanceChartCard({
                                 </g>
                             </svg>
                         ) : (
-                            <div className="flex h-44 items-center justify-center rounded-[20px] border border-dashed border-emerald-200/70 bg-white/70 text-sm text-gray-500 dark:border-emerald-900/40 dark:bg-slate-950/50 dark:text-gray-400">
+                            <div className="flex h-44 items-center justify-center border border-dashed border-emerald-200/70 bg-white/70 text-sm text-gray-500 dark:border-emerald-900/40 dark:bg-slate-950/50 dark:text-gray-400">
                                 Waiting for enough balance samples to draw the live chart.
                             </div>
                         )}
                     </div>
 
-                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="mt-4 grid gap-3 sm:grid-cols-4">
                         <StatBadge label="Latest ETH" value={currentEth === null ? "--" : formatNumber(currentEth, 4)} />
                         <StatBadge label="Tracked range" value={rangeLabel} />
                         <StatBadge label="Samples" value={`${sampleCount}`} />
+                        <StatBadge label="Main wallet USDC" value={mainWalletUsdc === null ? "--" : formatCurrency(mainWalletUsdc, 2)} />
                     </div>
                 </div>
 
@@ -146,6 +153,7 @@ export function BalanceChartCard({
                     <MetricCard label="Balance source" value={sourceLabel} helper="The UI prefers the live tracker and falls back to stored snapshots when the live value is unavailable." />
                     <MetricCard label="Last sync" value={updatedAt ? formatTime(updatedAt) : "--"} helper="Most recent live snapshot timestamp from the backend." />
                     <MetricCard label="Trend window" value={summary ? `${summary.first ? formatTime(summary.first.time) : "--"} → ${summary.latest ? formatTime(summary.latest.time) : "--"}` : "--"} helper="The current chart window is derived from the latest tracked points." />
+                    <MetricCard label="Main wallet" value={mainWalletAddress || "--"} helper="Tracked USDC wallet paired with the portfolio view." />
                 </div>
             </div>
         </section>
@@ -154,34 +162,34 @@ export function BalanceChartCard({
 
 export function BalanceChartSkeleton() {
     return (
-        <section className="glass-panel animate-pulse rounded-[32px] p-6 lg:p-7">
+        <section className="animate-pulse border border-border bg-white/90 p-5 sm:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div className="space-y-3">
-                    <div className="h-6 w-36 rounded-full bg-slate-200/80 dark:bg-slate-700/70" />
-                    <div className="h-8 w-72 rounded-2xl bg-slate-200/80 dark:bg-slate-700/70" />
-                    <div className="h-4 w-[min(100%,34rem)] rounded-full bg-slate-200/70 dark:bg-slate-700/60" />
+                    <div className="h-6 w-36 bg-slate-200/80 dark:bg-slate-700/70" />
+                    <div className="h-8 w-72 bg-slate-200/80 dark:bg-slate-700/70" />
+                    <div className="h-4 w-[min(100%,34rem)] bg-slate-200/70 dark:bg-slate-700/60" />
                 </div>
                 <div className="flex gap-2">
-                    <div className="h-8 w-28 rounded-full bg-slate-200/70 dark:bg-slate-700/60" />
-                    <div className="h-8 w-28 rounded-full bg-slate-200/70 dark:bg-slate-700/60" />
+                    <div className="h-8 w-28 bg-slate-200/70 dark:bg-slate-700/60" />
+                    <div className="h-8 w-28 bg-slate-200/70 dark:bg-slate-700/60" />
                 </div>
             </div>
 
             <div className="mt-6 grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
-                <div className="rounded-[28px] border border-border/80 bg-white/60 p-5 dark:bg-slate-900/60">
-                    <div className="h-12 w-64 rounded-2xl bg-slate-200/70 dark:bg-slate-700/60" />
-                    <div className="mt-5 h-44 rounded-[24px] bg-gradient-to-b from-slate-200/70 to-slate-100/50 dark:from-slate-700/60 dark:to-slate-800/40" />
+                <div className="border border-border/80 bg-white/60 p-5 dark:bg-slate-900/60">
+                    <div className="h-12 w-64 bg-slate-200/70 dark:bg-slate-700/60" />
+                    <div className="mt-5 h-44 bg-gradient-to-b from-slate-200/70 to-slate-100/50 dark:from-slate-700/60 dark:to-slate-800/40" />
                     <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                        <div className="h-14 rounded-2xl bg-slate-200/70 dark:bg-slate-700/60" />
-                        <div className="h-14 rounded-2xl bg-slate-200/70 dark:bg-slate-700/60" />
-                        <div className="h-14 rounded-2xl bg-slate-200/70 dark:bg-slate-700/60" />
+                        <div className="h-14 bg-slate-200/70 dark:bg-slate-700/60" />
+                        <div className="h-14 bg-slate-200/70 dark:bg-slate-700/60" />
+                        <div className="h-14 bg-slate-200/70 dark:bg-slate-700/60" />
                     </div>
                 </div>
 
                 <div className="space-y-3">
-                    <div className="h-24 rounded-[24px] bg-slate-200/70 dark:bg-slate-700/60" />
-                    <div className="h-24 rounded-[24px] bg-slate-200/70 dark:bg-slate-700/60" />
-                    <div className="h-24 rounded-[24px] bg-slate-200/70 dark:bg-slate-700/60" />
+                    <div className="h-24 bg-slate-200/70 dark:bg-slate-700/60" />
+                    <div className="h-24 bg-slate-200/70 dark:bg-slate-700/60" />
+                    <div className="h-24 bg-slate-200/70 dark:bg-slate-700/60" />
                 </div>
             </div>
         </section>
@@ -227,7 +235,7 @@ function buildChartPath(points: BalancePoint[]) {
 
 function InfoChip({ icon, label }: { icon: ReactNode; label: string }) {
     return (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-600 shadow-sm dark:bg-slate-900 dark:text-gray-300">
+        <span className="inline-flex items-center gap-1.5 border border-border bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-600 dark:bg-slate-900 dark:text-gray-300">
             {icon}
             {label}
         </span>
@@ -236,7 +244,7 @@ function InfoChip({ icon, label }: { icon: ReactNode; label: string }) {
 
 function StatBadge({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-2xl border border-border bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
+        <div className="border border-border bg-white px-4 py-3 dark:bg-slate-900">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">{label}</div>
             <div className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">{value}</div>
         </div>
@@ -245,7 +253,7 @@ function StatBadge({ label, value }: { label: string; value: string }) {
 
 function MetricCard({ label, value, helper }: { label: string; value: string; helper: string }) {
     return (
-        <div className="rounded-[24px] border border-border bg-white/85 p-4 shadow-sm dark:bg-slate-900">
+        <div className="border border-border bg-white/85 p-4 dark:bg-slate-900">
             <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-gray-500 dark:text-gray-400">{label}</div>
             <div className="mt-2 text-sm font-semibold text-gray-900 dark:text-white">{value}</div>
             <p className="mt-2 text-xs leading-5 text-gray-500 dark:text-gray-400">{helper}</p>
