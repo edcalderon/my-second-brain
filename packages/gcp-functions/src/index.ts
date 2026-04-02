@@ -3,7 +3,7 @@
  * These functions mirror the Next.js API routes for production deployment
  */
 
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import { Request, Response } from 'express';
 import { Firestore } from '@google-cloud/firestore';
 import { Storage } from '@google-cloud/storage';
@@ -77,7 +77,7 @@ export const status = functions.https.onRequest(async (req, res) => {
 export const dailyGithubScreenshot = functions.runWith({
   memory: '2GB',
   timeoutSeconds: 120,
-}).https.onRequest(async (req, res) => {
+}).https.onRequest(async (req: Request, res: Response) => {
   if (handleCors(req, res)) return;
   await captureAndTweet(req, res);
 });

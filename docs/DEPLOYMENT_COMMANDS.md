@@ -130,6 +130,9 @@ pnpm test:api
 # 3. Deploy Cloud Functions
 pnpm deploy:cloud-functions:test
 
+# 3a. Deploy the scheduled GitHub screenshot/tweet job as well
+pnpm deploy:functions
+
 # 4. Test production
 pnpm test:api:prod
 
@@ -172,7 +175,7 @@ git push origin main
 # GitHub Actions will automatically:
 # 1. Build static site
 # 2. Deploy to Firebase Hosting
-# 3. Deploy Cloud Functions
+# 3. Deploy Cloud Functions, including dailyGithubScreenshot
 # 4. Run tests
 
 # Monitor deployment

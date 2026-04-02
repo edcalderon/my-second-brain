@@ -1,16 +1,23 @@
 "use client";
 
+import { useMemo } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { getHummingbotApiBase } from "@/lib/hummingbot-config";
 
 export default function SettingsPage() {
     const { user } = useAuth();
 
-    const hummingbotApiBase = getHummingbotApiBase();
-    const siteOrigin =
-        process.env.NEXT_PUBLIC_SITE_ORIGIN ||
-        (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://edcalderon.io");
+    const apiBase = useMemo(() => {
+        return process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "(not set)";
+    }, []);
+
+    const aQuantApiBase = useMemo(() => {
+        return (
+            process.env.NEXT_PUBLIC_A_QUANT_API_BASE ||
+            process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE ||
+            "https://api.a-quant.xyz"
+        );
+    }, []);
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-16">
@@ -33,14 +40,13 @@ export default function SettingsPage() {
 
                 <div className="grid gap-3 text-sm text-gray-700">
                     <DataRow label="Auth provider" value={user?.provider || "supabase"} />
-                    <DataRow label="Hummingbot API base" value={hummingbotApiBase} />
-                    <DataRow label="Site origin" value={siteOrigin} />
-                    <DataRow label="UI scope" value="Paper trading + knowledge base" />
+                    <DataRow label="Dashboard API base" value={apiBase} />
+                    <DataRow label="A-Quant API base" value={aQuantApiBase} />
+                    <DataRow label="UI scope" value="Knowledge hub + trading desk" />
                 </div>
 
                 <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
-                    Set `NEXT_PUBLIC_HUMMINGBOT_API_BASE` to `https://api.a-quant.xyz` for the paper-trading desk. The dashboard
-                    base should stay on the knowledge-site origin.
+                    Second Brain pages keep using the dashboard API base. Trading pages use the A-Quant API base.
                 </div>
             </section>
         </div>

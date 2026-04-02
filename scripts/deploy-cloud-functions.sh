@@ -18,7 +18,7 @@ NC='\033[0m' # No Color
 PROJECT_ID="second-brain-482901"
 REGION="us-central1"
 RUNTIME="nodejs20"
-FUNCTIONS=("knowledge" "sync" "status")
+FUNCTIONS=("knowledge" "sync" "status" "dailyGithubScreenshot")
 FUNCTIONS_DIR="packages/gcp-functions"
 
 # Flags
