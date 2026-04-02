@@ -18,7 +18,7 @@ import {
     ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { publicSiteUrl, stripDashboardBasePath } from "@/lib/public-site";
+import { dashboardPath, publicSiteUrl, stripDashboardBasePath } from "@/lib/public-site";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -53,7 +53,7 @@ const menuSections = [
         title: "Projects",
         items: [
             { name: "Project Directory", href: publicSiteUrl("/"), icon: LayoutDashboard },
-            { name: "A-Quant", href: publicSiteUrl("/a-quant/"), icon: CandlestickChart },
+            { name: "A-Quant", href: dashboardPath("/a-quant"), icon: CandlestickChart },
         ]
     },
     {

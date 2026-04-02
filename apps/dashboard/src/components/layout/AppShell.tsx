@@ -14,7 +14,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
     const [isMobile, setIsMobile] = useState(false);
 
     const isAuthPage = stripDashboardBasePath(pathname || "/") === "/login";
-    const isStandalonePortal = stripDashboardBasePath(pathname || "/") === "/a-quant";
 
     // Detect screen size and set initial collapsed state
     useEffect(() => {
@@ -30,7 +29,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
 
-    if (isAuthPage || isStandalonePortal) {
+    if (isAuthPage) {
         return <div className="min-h-screen">{children}</div>;
     }
 
