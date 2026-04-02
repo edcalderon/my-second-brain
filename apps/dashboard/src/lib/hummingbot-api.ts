@@ -1,12 +1,7 @@
 import { authClient } from "@/components/auth/AuthProvider";
+import { getHummingbotApiBase } from "@/lib/hummingbot-config";
 
-export const DEFAULT_HUMMINGBOT_API_BASE = "https://api.a-quant.xyz";
-
-const API_BASE =
-    process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE ||
-    process.env.NEXT_PUBLIC_DASHBOARD_API_BASE ||
-    (process.env.NODE_ENV === "development" ? "http://localhost:8000" : DEFAULT_HUMMINGBOT_API_BASE);
-const NORMALIZED_API_BASE = API_BASE.replace(/\/$/, "");
+const NORMALIZED_API_BASE = getHummingbotApiBase();
 
 async function getAuthToken(): Promise<string | null> {
     return await authClient.getSessionToken();
@@ -62,11 +57,47 @@ export type HummingbotStatus = {
     paper_mode: boolean;
     default_account: string;
     default_connector: string;
+    wallet_address?: string;
     connectors: string[];
     connector_count: number;
     portfolio_state: Record<string, unknown> | null;
+    portfolio_summary?: HummingbotPortfolioSummary | null;
     open_positions: HummingbotPosition[];
     open_positions_count: number;
+};
+
+export type HummingbotPortfolioSummary = {
+    snapshot_time?: string;
+    wallet_address: string;
+    account_name: string;
+    connector_name: string;
+    paper_mode: boolean;
+    total_value_eth: number;
+    total_value_usd: number;
+    s1: number;
+    s2: number;
+    s3: number;
+    reserve: number;
+    unrealized_pnl: number;
+    realized_pnl: number;
+    aave_hf: number;
+};
+
+export type HummingbotPortfolioTracker = {
+    service: string;
+    snapshot_time: string;
+    wallet_address: string;
+    account_name: string;
+    connector_name: string;
+    paper_mode: boolean;
+    portfolio_state: Record<string, unknown> | null;
+    open_positions: HummingbotPosition[];
+    open_positions_count: number;
+    aave_status: {
+        health_factor: number;
+        status: string;
+    };
+    summary: HummingbotPortfolioSummary;
 };
 
 export type HummingbotMarket = {
@@ -127,6 +158,10 @@ export type TradingStatusResponse = HummingbotStatus;
 
 export async function fetchTradingStatus() {
     return fetchJson<TradingStatusResponse>("/trading/status");
+}
+
+export async function fetchPortfolioTracker() {
+    return fetchJson<HummingbotPortfolioTracker>("/trading/portfolio");
 }
 
 export async function fetchTradingMarket(params?: {

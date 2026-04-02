@@ -31,7 +31,7 @@ const DEFAULT_LEVERAGE = 3;
 const DEFAULT_STOP_LOSS = 0.05;
 const DEFAULT_TP1 = 0.10;
 const DEFAULT_TP2 = 0.20;
-const DEFAULT_ACCOUNT = "master_account";
+const DEFAULT_ACCOUNT = "hyperliquid_main";
 const DEFAULT_CONNECTOR = "hyperliquid_perpetual_testnet";
 
 function buildBacktestConfig({

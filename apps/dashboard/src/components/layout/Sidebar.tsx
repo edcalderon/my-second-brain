@@ -8,13 +8,17 @@ import {
     Brain,
     Network,
     BookOpen,
-    Zap,
     BarChart3,
     Layers,
     CandlestickChart,
+    Wallet,
+    Gauge,
+    ShieldCheck,
+    Sparkles,
     ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { publicSiteUrl, stripDashboardBasePath } from "@/lib/public-site";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -36,10 +40,20 @@ const menuSections = [
         ]
     },
     {
+        title: "Trading Desk",
+        items: [
+            { name: "Portfolio Tracker", href: "/portfolio", icon: Wallet },
+            { name: "Market Feed", href: "/market", icon: CandlestickChart },
+            { name: "Strategy Desk", href: "/strategy", icon: Sparkles },
+            { name: "Risk View", href: "/risk", icon: ShieldCheck },
+            { name: "Execution", href: "/execution", icon: Gauge },
+        ]
+    },
+    {
         title: "Projects",
         items: [
-            { name: "Project Directory", href: "https://edcalderon.io/", icon: LayoutDashboard },
-            { name: "A-Quant", href: "https://edcalderon.io/a-quant/", icon: CandlestickChart },
+            { name: "Project Directory", href: publicSiteUrl("/"), icon: LayoutDashboard },
+            { name: "A-Quant", href: publicSiteUrl("/a-quant/"), icon: CandlestickChart },
         ]
     },
     {
@@ -62,11 +76,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
 
-    const normalizedPath = pathname
-        ? (pathname.startsWith("/my-second-brain")
-            ? pathname.replace("/my-second-brain", "") || "/"
-            : pathname)
-        : "/";
+    const normalizedPath = stripDashboardBasePath(pathname || "/");
 
     // Mobile: hidden by default unless expanded; Desktop: always visible
     if (isMobile && isCollapsed) {
