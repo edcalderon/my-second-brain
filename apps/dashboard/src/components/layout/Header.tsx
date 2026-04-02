@@ -81,7 +81,7 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
             {/* Right Section - Responsive spacing */}
             <div className="flex items-center space-x-2 sm:space-x-4 ml-4">
                 {/* Notifications */}
-                <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5 relative flex-shrink-0">
+                <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5 relative flex-shrink-0">
                     <Bell className="h-5 w-5" />
                     <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full"></span>
                 </button>
@@ -89,7 +89,7 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
                 {/* Theme Toggle */}
                 <button
                     onClick={toggleTheme}
-                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors rounded-full hover:bg-black/5 dark:hover:bg-white/5 flex-shrink-0"
+                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5 flex-shrink-0"
                     aria-label="Toggle theme"
                 >
                     {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -99,9 +99,9 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
                 <div className="relative flex-shrink-0">
                     <button
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        className="flex items-center space-x-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 hover:border-accent/40 dark:hover:border-accent/40 transition-colors"
+                        className="flex items-center space-x-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-2 py-1 hover:border-accent/40 dark:hover:border-accent/40 transition-colors"
                     >
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-amber-400 via-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
+                        <div className="h-8 w-8 rounded-lg bg-gradient-to-tr from-amber-400 via-emerald-500 to-teal-600 flex items-center justify-center flex-shrink-0">
                             <span className="text-xs font-bold text-white">
                                 {user?.email?.[0].toUpperCase() || "U"}
                             </span>

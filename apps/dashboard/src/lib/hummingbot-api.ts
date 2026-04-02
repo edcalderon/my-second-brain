@@ -69,11 +69,16 @@ export type HummingbotStatus = {
 
 export type HummingbotWalletSnapshot = {
     wallet_address: string;
-    token_symbol: string;
     token_address: string;
-    chain?: string;
+    token_symbol: string;
+    chain: string;
     balance: number;
-    balance_usd?: number | null;
+    balance_usd: number;
+    raw_balance?: number;
+    decimals?: number;
+    status?: string;
+    error?: string;
+    updated_at?: string;
 };
 
 export type HummingbotPortfolioSummary = {
@@ -84,13 +89,13 @@ export type HummingbotPortfolioSummary = {
     main_wallet_token_symbol?: string;
     main_wallet_token_address?: string;
     main_wallet_chain?: string;
-    current_balance_usd?: number;
-    current_balance_eth?: number | null;
     account_name: string;
     connector_name: string;
     paper_mode: boolean;
     total_value_eth: number;
     total_value_usd: number;
+    current_balance_usd?: number;
+    current_balance_eth?: number | null;
     s1: number;
     s2: number;
     s3: number;

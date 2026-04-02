@@ -58,7 +58,7 @@ export default function ExecutionPage() {
                     <button
                         type="button"
                         onClick={() => setRefreshCounter((value) => value + 1)}
-                        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-gray-600"
+                        className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-xs font-semibold text-gray-600"
                     >
                         <RefreshCw className="h-3.5 w-3.5" />
                         Refresh feed
@@ -67,13 +67,13 @@ export default function ExecutionPage() {
             </header>
 
             {error && (
-                <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
                     {error}
                 </div>
             )}
 
             <section className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-                <div className="glass-panel rounded-3xl p-6 space-y-4">
+                <div className="glass-panel rounded-2xl p-6 space-y-4">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900">Backend status</h2>
@@ -90,7 +90,7 @@ export default function ExecutionPage() {
                         <DataRow label="API base" value={status?.api_url || "--"} />
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
+                    <div className="rounded-xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
                         <div className="flex items-center gap-2 text-emerald-700">
                             <ShieldCheck className="h-4 w-4" />
                             <span className="font-semibold">{loading ? "Loading execution feed" : "Execution feed connected"}</span>
@@ -101,13 +101,13 @@ export default function ExecutionPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-3xl p-6 space-y-4">
+                <div className="glass-panel rounded-2xl p-6 space-y-4">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-gray-900">Portfolio snapshot</h2>
                         <span className="text-xs uppercase tracking-[0.2em] text-gray-500">{positions.length} open</span>
                     </div>
 
-                    <details className="rounded-2xl border border-border bg-white px-4 py-3">
+                    <details className="rounded-xl border border-border bg-white px-4 py-3">
                         <summary className="cursor-pointer text-sm font-semibold text-gray-800">Raw backend portfolio</summary>
                         <pre className="mt-3 overflow-x-auto text-xs text-gray-600">{formatJson(status?.portfolio_state)}</pre>
                     </details>
@@ -119,7 +119,7 @@ export default function ExecutionPage() {
                 </div>
             </section>
 
-            <section className="glass-panel rounded-3xl p-6 space-y-4">
+            <section className="glass-panel rounded-2xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900">Open positions</h2>
@@ -128,7 +128,7 @@ export default function ExecutionPage() {
                     <span className="text-xs uppercase tracking-[0.2em] text-gray-500">{positions.length} active</span>
                 </div>
 
-                <div className="overflow-x-auto rounded-2xl border border-border bg-white">
+                <div className="overflow-x-auto rounded-xl border border-border bg-white">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
                         <thead className="bg-gray-50">
                             <tr>
@@ -141,8 +141,8 @@ export default function ExecutionPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {positions.map((position, index) => (
-                                <tr key={`${position.tradingPair}-${index}`}>
+                            {positions.map((position) => (
+                                <tr key={`${position.tradingPair ?? "pair"}-${position.side ?? "side"}-${position.entryPrice ?? "entry"}-${position.amount ?? "amount"}`}>
                                     <td className="px-4 py-3 text-gray-900">{position.tradingPair}</td>
                                     <td className="px-4 py-3 text-gray-700">{position.side}</td>
                                     <td className="px-4 py-3 text-right tabular-nums text-gray-900">{formatNumber(position.amount)}</td>

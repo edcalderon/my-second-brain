@@ -27,9 +27,9 @@ export default function SettingsPage() {
                 <p className="text-sm text-gray-600">Environment settings for the knowledge hub and paper-trading desk.</p>
             </header>
 
-            <section className="glass-panel rounded-3xl p-8 space-y-6">
+            <section className="glass-panel rounded-2xl p-8 space-y-6">
                 <div className="flex items-center space-x-3">
-                    <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
+                    <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
                         <ShieldCheck className="h-6 w-6 text-emerald-700" />
                     </div>
                     <div>
@@ -45,7 +45,7 @@ export default function SettingsPage() {
                     <DataRow label="UI scope" value="Knowledge hub + trading desk" />
                 </div>
 
-                <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
+                <div className="rounded-xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
                     Second Brain pages keep using the dashboard API base. Trading pages use the A-Quant API base.
                 </div>
             </section>

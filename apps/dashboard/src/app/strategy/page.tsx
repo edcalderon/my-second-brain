@@ -32,7 +32,7 @@ const DEFAULT_STOP_LOSS = 0.05;
 const DEFAULT_TP1 = 0.10;
 const DEFAULT_TP2 = 0.20;
 const DEFAULT_ACCOUNT = "hyperliquid_main";
-const DEFAULT_CONNECTOR = "hyperliquid_perpetual_testnet";
+const DEFAULT_CONNECTOR = "hyperliquid_perpetual";
 
 function buildBacktestConfig({
     tradingPair,
@@ -103,9 +103,9 @@ export default function StrategyPage() {
     const [stopLossPct, setStopLossPct] = useState(DEFAULT_STOP_LOSS);
     const [takeProfit1Pct, setTakeProfit1Pct] = useState(DEFAULT_TP1);
     const [takeProfit2Pct, setTakeProfit2Pct] = useState(DEFAULT_TP2);
-    const [backtestStart, setBacktestStart] = useState(defaultDateOffset(-7));
-    const [backtestEnd, setBacktestEnd] = useState(defaultDateOffset(0));
-    const [backtestConfigText, setBacktestConfigText] = useState(
+    const [backtestStart, setBacktestStart] = useState(() => defaultDateOffset(-7));
+    const [backtestEnd, setBacktestEnd] = useState(() => defaultDateOffset(0));
+    const [backtestConfigText, setBacktestConfigText] = useState(() =>
         buildBacktestConfig({
             tradingPair: DEFAULT_PAIR,
             connectorName: DEFAULT_CONNECTOR,
@@ -218,8 +218,8 @@ export default function StrategyPage() {
         new Set([
             ...(status?.connectors || []),
             status?.default_connector || DEFAULT_CONNECTOR,
-            "hyperliquid_perpetual",
             "hyperliquid_perpetual_testnet",
+            "hyperliquid_perpetual",
         ].filter(Boolean)),
     );
 
@@ -318,13 +318,13 @@ export default function StrategyPage() {
             </header>
 
             {error && (
-                <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
                     {error}
                 </div>
             )}
 
             <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-                <div className="glass-panel rounded-3xl p-6 space-y-6">
+                <div className="glass-panel rounded-2xl p-6 space-y-6">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900">Strategy controls</h2>
@@ -472,7 +472,7 @@ export default function StrategyPage() {
                         <Metric label="RSI" value={formatNumber(preview?.rsi, 2)} />
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-white px-5 py-4 space-y-3">
+                    <div className="rounded-xl border border-border bg-white px-5 py-4 space-y-3">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-xs uppercase tracking-wide text-gray-500">Signal preview</p>
@@ -481,7 +481,7 @@ export default function StrategyPage() {
                             <button
                                 type="button"
                                 onClick={() => setSide(previewSide)}
-                                className="inline-flex items-center gap-2 rounded-full border border-border bg-emerald-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700"
+                            className="inline-flex items-center gap-2 rounded-lg border border-border bg-emerald-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700"
                             >
                                 <ArrowRightLeft className="h-3.5 w-3.5" />
                                 Use preview side
@@ -503,7 +503,7 @@ export default function StrategyPage() {
                         <button
                             type="button"
                             onClick={() => setRefreshCounter((value) => value + 1)}
-                            className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-gray-700"
+                            className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-sm font-semibold text-gray-700"
                         >
                             <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
                             Refresh preview
@@ -512,7 +512,7 @@ export default function StrategyPage() {
                             type="button"
                             disabled={busyAction === "open"}
                             onClick={submitOpenTrade}
-                            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                            className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
                         >
                             <Play className="h-4 w-4" />
                             {busyAction === "open" ? "Opening..." : "Open paper trade"}
@@ -521,7 +521,7 @@ export default function StrategyPage() {
                 </div>
 
                 <div className="space-y-6">
-                    <section className="glass-panel rounded-3xl p-6 space-y-4">
+                    <section className="glass-panel rounded-2xl p-6 space-y-4">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h2 className="text-lg font-semibold text-gray-900">Backtest desk</h2>
@@ -549,7 +549,7 @@ export default function StrategyPage() {
                             </Field>
                         </div>
 
-                        <div className="rounded-2xl border border-border bg-white px-4 py-4">
+                        <div className="rounded-xl border border-border bg-white px-4 py-4">
                             <div className="mb-2 flex items-center justify-between">
                                 <p className="text-xs uppercase tracking-wide text-gray-500">Strategy config JSON</p>
                                 <button
@@ -593,13 +593,13 @@ export default function StrategyPage() {
                             type="button"
                             disabled={busyAction === "backtest"}
                             onClick={submitBacktest}
-                            className="inline-flex items-center gap-2 rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                            className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
                         >
                             {busyAction === "backtest" ? "Running backtest..." : "Run backtest"}
                         </button>
                     </section>
 
-                    <section className="glass-panel rounded-3xl p-6 space-y-4">
+                    <section className="glass-panel rounded-2xl p-6 space-y-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-lg font-semibold text-gray-900">Workspace state</h2>
                             <span className="text-xs uppercase tracking-[0.2em] text-gray-500">
@@ -615,12 +615,12 @@ export default function StrategyPage() {
                             <DataRow label="Positions" value={`${positions.length}`} />
                         </div>
 
-                        <details className="rounded-2xl border border-border bg-white px-4 py-3">
+                        <details className="rounded-xl border border-border bg-white px-4 py-3">
                             <summary className="cursor-pointer text-sm font-semibold text-gray-800">Portfolio snapshot</summary>
                             <pre className="mt-3 overflow-x-auto text-xs text-gray-600">{formatJson(status?.portfolio_state)}</pre>
                         </details>
 
-                        <div className="rounded-2xl border border-border bg-white px-4 py-3">
+                        <div className="rounded-xl border border-border bg-white px-4 py-3">
                             <p className="text-xs uppercase tracking-wide text-gray-500">Last action</p>
                             <pre className="mt-3 overflow-x-auto text-xs text-gray-600">{formatJson(lastAction || { message: "No trades submitted yet." })}</pre>
                         </div>
@@ -628,7 +628,7 @@ export default function StrategyPage() {
                 </div>
             </section>
 
-            <section className="glass-panel rounded-3xl p-6 space-y-4">
+            <section className="glass-panel rounded-2xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900">Open positions</h2>
@@ -637,7 +637,7 @@ export default function StrategyPage() {
                     <span className="text-xs uppercase tracking-[0.2em] text-gray-500">{positions.length} open</span>
                 </div>
 
-                <div className="overflow-x-auto rounded-2xl border border-border bg-white">
+                <div className="overflow-x-auto rounded-xl border border-border bg-white">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
                         <thead className="bg-gray-50">
                             <tr>
@@ -651,8 +651,8 @@ export default function StrategyPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {normalizedPositions.map((position, index) => (
-                                <tr key={`${position.tradingPair}-${index}`}>
+                            {normalizedPositions.map((position) => (
+                                <tr key={`${position.tradingPair ?? "pair"}-${position.side ?? "side"}-${position.entryPrice ?? "entry"}-${position.amount ?? "amount"}`}>
                                     <td className="px-4 py-3 text-gray-900">{position.tradingPair}</td>
                                     <td className="px-4 py-3 text-gray-700">{position.side}</td>
                                     <td className="px-4 py-3 text-right tabular-nums text-gray-900">{formatNumber(position.amount)}</td>
@@ -664,7 +664,7 @@ export default function StrategyPage() {
                                             type="button"
                                             onClick={() => closePosition(position.raw)}
                                             disabled={busyAction === "close"}
-                                            className="rounded-full border border-border bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+                                            className="rounded-lg border border-border bg-gray-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
                                         >
                                             {busyAction === "close" ? "Closing..." : "Close"}
                                         </button>
@@ -693,7 +693,7 @@ function defaultDateOffset(days: number): string {
 }
 
 function Chip({ children }: { children: ReactNode }) {
-    return <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] text-emerald-700">{children}</span>;
+    return <span className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] text-emerald-700">{children}</span>;
 }
 
 function Field({ label, children }: { label: string; children: ReactNode }) {
@@ -716,7 +716,7 @@ function DataRow({ label, value }: { label: string; value: string }) {
 
 function Metric({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-2xl border border-border bg-white px-4 py-3">
+        <div className="rounded-xl border border-border bg-white px-4 py-3">
             <p className="text-xs uppercase tracking-wide text-gray-500">{label}</p>
             <p className="mt-2 text-lg font-semibold text-gray-900">{value}</p>
         </div>

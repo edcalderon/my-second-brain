@@ -82,7 +82,7 @@ export default function RiskPage() {
                     <button
                         type="button"
                         onClick={() => setRefreshCounter((value) => value + 1)}
-                        className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-gray-600"
+                        className="inline-flex items-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-xs font-semibold text-gray-600"
                     >
                         <Sparkles className="h-3.5 w-3.5" />
                         Refresh risk view
@@ -91,13 +91,13 @@ export default function RiskPage() {
             </header>
 
             {error && (
-                <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
                     {error}
                 </div>
             )}
 
             <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                <div className="glass-panel rounded-3xl p-6 space-y-4">
+                <div className="glass-panel rounded-2xl p-6 space-y-4">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900">Risk summary</h2>
@@ -113,7 +113,7 @@ export default function RiskPage() {
                         <DataRow label="Open positions" value={`${positions.length}`} />
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
+                    <div className="rounded-xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
                         <div className="flex items-center gap-2 text-emerald-700">
                             <ShieldCheck className="h-4 w-4" />
                             <span className="font-semibold">{loading ? "Loading risk data" : "Backend risk state loaded"}</span>
@@ -123,16 +123,16 @@ export default function RiskPage() {
                         </p>
                     </div>
 
-                    <details className="rounded-2xl border border-border bg-white px-4 py-3">
+                    <details className="rounded-xl border border-border bg-white px-4 py-3">
                         <summary className="cursor-pointer text-sm font-semibold text-gray-800">Portfolio snapshot</summary>
                         <pre className="mt-3 overflow-x-auto text-xs text-gray-600">{formatJson(status?.portfolio_state)}</pre>
                     </details>
                 </div>
 
-                <div className="glass-panel rounded-3xl p-6 space-y-4">
+                <div className="glass-panel rounded-2xl p-6 space-y-4">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-gray-900">Signal pressure</h2>
-                        <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-700">
+                        <span className="rounded-lg bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-700">
                             {preview?.signal || "Pending"}
                         </span>
                     </div>
@@ -144,7 +144,7 @@ export default function RiskPage() {
                         <DataRow label="RSI" value={preview ? formatNumber(preview.rsi, 2) : "--"} />
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
+                    <div className="rounded-xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
                         <p className="font-semibold text-gray-800">Guardrail note</p>
                         <p className="mt-2">
                             This page does not override anything. It simply shows the current preview so you can confirm the desk still matches the live risk posture.
@@ -153,7 +153,7 @@ export default function RiskPage() {
                 </div>
             </section>
 
-            <section className="glass-panel rounded-3xl p-6 space-y-4">
+            <section className="glass-panel rounded-2xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900">Open positions</h2>
@@ -162,7 +162,7 @@ export default function RiskPage() {
                     <span className="text-xs uppercase tracking-[0.2em] text-gray-500">{normalizedPositions.length} open</span>
                 </div>
 
-                <div className="overflow-x-auto rounded-2xl border border-border bg-white">
+                <div className="overflow-x-auto rounded-xl border border-border bg-white">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
                         <thead className="bg-gray-50">
                             <tr>
@@ -175,8 +175,8 @@ export default function RiskPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {normalizedPositions.map((position, index) => (
-                                <tr key={`${position.tradingPair}-${index}`}>
+                            {normalizedPositions.map((position) => (
+                                <tr key={`${position.tradingPair ?? "pair"}-${position.side ?? "side"}-${position.entryPrice ?? "entry"}-${position.amount ?? "amount"}`}>
                                     <td className="px-4 py-3 text-gray-900">{position.tradingPair}</td>
                                     <td className="px-4 py-3 text-gray-700">{position.side}</td>
                                     <td className="px-4 py-3 text-right tabular-nums text-gray-900">{formatNumber(position.amount)}</td>

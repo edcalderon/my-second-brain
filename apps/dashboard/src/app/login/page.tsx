@@ -49,9 +49,9 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center px-6 bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-300">
-            <div className="w-full max-w-md glass-panel rounded-3xl p-8 shadow-xl">
+            <div className="w-full max-w-md glass-panel rounded-2xl p-8 shadow-xl">
                 <div className="flex items-center space-x-3 mb-6">
-                    <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-amber-500 flex items-center justify-center">
                         <ShieldCheck className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -61,10 +61,13 @@ export default function LoginPage() {
                 </div>
 
                 <form onSubmit={handleEmailSignIn} className="space-y-4">
-                    <label className="block text-xs font-semibold text-gray-900 dark:text-gray-300">Email</label>
+                    <label htmlFor="login-email" className="block text-xs font-semibold text-gray-900 dark:text-gray-300">
+                        Email
+                    </label>
                     <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
                         <input
+                            id="login-email"
                             type="email"
                             required
                             value={email}
@@ -74,9 +77,12 @@ export default function LoginPage() {
                         />
                     </div>
 
-                    <label className="block text-xs font-semibold text-gray-900 dark:text-gray-300">Password</label>
+                    <label htmlFor="login-password" className="block text-xs font-semibold text-gray-900 dark:text-gray-300">
+                        Password
+                    </label>
                     <div className="relative">
                         <input
+                            id="login-password"
                             type={showPassword ? "text" : "password"}
                             required
                             value={password}

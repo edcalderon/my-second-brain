@@ -26,10 +26,10 @@ export default function OverviewPage() {
         <div className="max-w-7xl mx-auto space-y-10 pb-16">
             <header className="space-y-5">
                 <div className="flex flex-wrap items-center gap-3">
-                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+                    <span className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
                         {dashboardPath("/")}
                     </span>
-                    <span className="rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-700 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
+                    <span className="rounded-lg border border-slate-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-700 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-300">
                         A-Quant now lives at /a-quant
                     </span>
                 </div>
@@ -138,7 +138,7 @@ export default function OverviewPage() {
 
 function Card({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
     return (
-        <div className="glass-panel rounded-3xl p-6 transition-colors">
+        <div className="glass-panel rounded-2xl p-6 transition-colors">
             <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors">{title}</h2>
                 <div className="text-emerald-700 dark:text-emerald-400 transition-colors">{icon}</div>
@@ -150,7 +150,7 @@ function Card({ title, icon, children }: { title: string; icon: ReactNode; child
 
 function StatCard({ title, value, detail }: { title: string; value: string; detail: string }) {
     return (
-        <div className="rounded-3xl border border-border dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-4 shadow-sm transition-colors">
+        <div className="rounded-2xl border border-border dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-4 shadow-sm transition-colors">
             <div className="text-sm text-gray-600 dark:text-gray-400 transition-colors">{title}</div>
             <div className="mt-3 text-2xl font-semibold text-gray-900 dark:text-white transition-colors">{value}</div>
             <div className="mt-1 text-xs text-gray-500 dark:text-gray-400 transition-colors">{detail}</div>
@@ -198,7 +198,7 @@ function InlineLink({ href, icon, label }: { href: string; icon: ReactNode; labe
         <Link
             href={href}
             prefetch={false}
-            className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700 shadow-sm transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-slate-900 dark:text-emerald-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30"
+            className="inline-flex items-center gap-2 rounded-lg border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700 shadow-sm transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-slate-900 dark:text-emerald-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30"
         >
             {icon}
             <span>{label}</span>

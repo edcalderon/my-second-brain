@@ -79,7 +79,7 @@ export default function MarketPage() {
                 <button
                     type="button"
                     onClick={() => setRefreshCounter((value) => value + 1)}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-xs font-semibold text-gray-600"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2 text-xs font-semibold text-gray-600"
                 >
                     <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
                     <span>Refresh feed</span>
@@ -87,13 +87,13 @@ export default function MarketPage() {
             </header>
 
             {error && (
-                <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
                     {error}
                 </div>
             )}
 
             <section className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
-                <div className="glass-panel rounded-3xl p-6 space-y-5">
+                <div className="glass-panel rounded-2xl p-6 space-y-5">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900">Feed controls</h2>
@@ -107,7 +107,7 @@ export default function MarketPage() {
                             <input
                                 value={tradingPair}
                                 onChange={(e) => setTradingPair(e.target.value.toUpperCase())}
-                                className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm text-gray-900"
+                            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-gray-900"
                                 placeholder="ETH-USD"
                             />
                         </Field>
@@ -115,7 +115,7 @@ export default function MarketPage() {
                             <select
                                 value={candleInterval}
                                 onChange={(e) => setCandleInterval(e.target.value)}
-                                className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm text-gray-900"
+                                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-gray-900"
                             >
                                 <option value="5m">5m</option>
                                 <option value="15m">15m</option>
@@ -130,11 +130,11 @@ export default function MarketPage() {
                                 max={500}
                                 value={limit}
                                 onChange={(e) => setLimit(Number(e.target.value) || 120)}
-                                className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm text-gray-900"
+                                className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm text-gray-900"
                             />
                         </Field>
                         <Field label="Connector">
-                            <div className="rounded-xl border border-border bg-white px-3 py-2 text-sm text-gray-700">
+                            <div className="rounded-lg border border-border bg-white px-3 py-2 text-sm text-gray-700">
                                 {market?.connector_name || status?.default_connector || "--"}
                             </div>
                         </Field>
@@ -147,7 +147,7 @@ export default function MarketPage() {
                         <DataRow label="Open positions" value={status ? `${status.open_positions_count}` : "--"} />
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
+                    <div className="rounded-xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
                         <div className="flex items-center gap-2 text-emerald-700">
                             <span className="h-2 w-2 rounded-full bg-emerald-500" />
                             <span className="font-semibold">
@@ -160,10 +160,10 @@ export default function MarketPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-3xl p-6 space-y-4">
+                <div className="glass-panel rounded-2xl p-6 space-y-4">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-gray-900">Signal preview</h2>
-                        <span className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                        <span className="rounded-lg bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
                             {market?.price_preview?.signal || "Pending"}
                         </span>
                     </div>
@@ -175,7 +175,7 @@ export default function MarketPage() {
                         <DataRow label="Symbol" value={market?.trading_pair || "--"} />
                     </div>
 
-                    <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
+                    <div className="rounded-xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
                         <p className="font-semibold text-gray-800">Why this matters</p>
                         <p className="mt-2">
                             This is the raw feed the strategy page uses to calculate the EMA/RSI preview before a paper order is submitted.
@@ -184,7 +184,7 @@ export default function MarketPage() {
                 </div>
             </section>
 
-            <section className="glass-panel rounded-3xl p-6 space-y-4">
+            <section className="glass-panel rounded-2xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-gray-900">Recent candles</h2>
                     <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
@@ -192,7 +192,7 @@ export default function MarketPage() {
                     </p>
                 </div>
 
-                <div className="overflow-x-auto rounded-2xl border border-border bg-white">
+                <div className="overflow-x-auto rounded-xl border border-border bg-white">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
                         <thead className="bg-gray-50">
                             <tr>
