@@ -23,6 +23,7 @@ graph TD
 - **`rocketbook-webhook`**: The main entry point. Receives webhook notifications from Apps Script or processed data to store in Firestore.
 - **`rocketbook-fetch`**: Programmatically fetches unprocessed emails from Gmail using the Gmail API.
 - **`rocketbook-insights`**: Aggregates Firestore data to generate habit streaks and completion reports.
+- **`dailyGithubScreenshot`**: Scheduled GitHub screenshot/tweet job that posts a daily update and falls back to a standalone tweet if the reply target is unavailable or rate-limited.
 
 ### 2. Storage & Database
 - **Google Cloud Firestore**: NoSQL database storing structured habit data synced from Rocketbook scans.

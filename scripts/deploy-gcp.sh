@@ -82,16 +82,30 @@ gcloud functions deploy rocketbook-fetch -q \
     --memory=512Mi \
     --set-env-vars "IMAP_HOST=$IMAP_HOST,IMAP_USER=$IMAP_USER,IMAP_PASSWORD=$IMAP_PASSWORD,GCP_PROJECT_ID=$PROJECT_ID"
 
+echo "Deploying daily GitHub screenshot tweet function..."
+gcloud functions deploy dailyGithubScreenshot -q \
+    --runtime=nodejs20 \
+    --trigger-http \
+    --allow-unauthenticated \
+    --entry-point=dailyGithubScreenshot \
+    --region=$REGION \
+    --service-account=$SERVICE_ACCOUNT \
+    --timeout=120s \
+    --memory=2Gi \
+    --set-env-vars "TWITTER_APP_KEY=$TWITTER_APP_KEY,TWITTER_APP_SECRET=$TWITTER_APP_SECRET,TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN,TWITTER_ACCESS_SECRET=$TWITTER_ACCESS_SECRET,TWITTER_REPLY_TO_ID=$TWITTER_REPLY_TO_ID,GITHUB_PAGE_URL=$GITHUB_PAGE_URL,GCP_BUCKET_NAME=$GCP_BUCKET_NAME,GCP_PROJECT_ID=$PROJECT_ID"
+
 cd ..
 
 echo "🔗 Getting Cloud Function URL..."
 FETCH_URL=$(gcloud functions describe rocketbook-fetch --region=$REGION --format='value(url)')
+TWEET_URL=$(gcloud functions describe dailyGithubScreenshot --region=$REGION --format='value(url)')
 
 echo ""
 echo "✅ Deployment Complete!"
 echo ""
 echo "🎯 Function URL:"
 echo "Email Fetch: $FETCH_URL"
+echo "Tweet Job: $TWEET_URL"
 echo ""
 echo "📋 Next Steps:"
 echo "1. Go to GCP Console -> Cloud Scheduler"

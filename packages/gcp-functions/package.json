@@ -11,6 +11,7 @@
     "postinstall": "puppeteer browsers install chrome",
     "serve": "firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions",
+    "resume-tweet": "node scripts/run-resume-screenshot.js",
     "update-readme": "versioning update-readme"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "twitter-api-v2": "^1.28.0"
   },
   "devDependencies": {
+    "@types/express": "^4.17.25",
     "@types/mailparser": "^3.4.6",
     "@types/node": "^20.0.0",
     "@types/nodemailer": "^7.0.4",

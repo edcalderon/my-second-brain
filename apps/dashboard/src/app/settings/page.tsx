@@ -11,6 +11,14 @@ export default function SettingsPage() {
         return process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "(not set)";
     }, []);
 
+    const aQuantApiBase = useMemo(() => {
+        return (
+            process.env.NEXT_PUBLIC_A_QUANT_API_BASE ||
+            process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE ||
+            "https://api.a-quant.xyz"
+        );
+    }, []);
+
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-16">
             <header>
@@ -32,12 +40,13 @@ export default function SettingsPage() {
 
                 <div className="grid gap-3 text-sm text-gray-700">
                     <DataRow label="Auth provider" value={user?.provider || "supabase"} />
-                    <DataRow label="API base" value={apiBase} />
-                    <DataRow label="UI scope" value="Read-only" />
+                    <DataRow label="Dashboard API base" value={apiBase} />
+                    <DataRow label="A-Quant API base" value={aQuantApiBase} />
+                    <DataRow label="UI scope" value="Knowledge hub + trading desk" />
                 </div>
 
                 <div className="rounded-2xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
-                    To switch projects, use `scripts/set-gcloud-project.sh` in the Edward repo.
+                    Second Brain pages keep using the dashboard API base. Trading pages use the A-Quant API base.
                 </div>
             </section>
         </div>

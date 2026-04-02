@@ -11,16 +11,82 @@ const GITHUB_URL = process.env.GITHUB_PAGE_URL || 'https://github.com/edcalderon
 // The specific tweet ID to reply to. Can be overridden by env var.
 const DEFAULT_REPLY_TO_ID = '2007025581188436301';
 
+const getRequestValue = (req: any, key: string) => {
+    const value = req?.body?.[key] ?? req?.query?.[key];
+    return Array.isArray(value) ? value[0] : value;
+};
+
+const asString = (value: unknown) => typeof value === 'string' ? value.trim() : '';
+
+const isValidDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(value).getTime());
+
+const getTodayIso = () => new Date().toISOString().split('T')[0];
+
+const getYesterdayIso = () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return yesterday.toISOString().split('T')[0];
+};
+
+const shouldFallbackToStandaloneTweet = (error: unknown) => {
+    const typedError = error as {
+        code?: number;
+        statusCode?: number;
+        data?: { title?: string; detail?: string; type?: string };
+        message?: string;
+    };
+
+    const statusCode = typedError.code ?? typedError.statusCode;
+    const text = [
+        typedError.data?.title,
+        typedError.data?.detail,
+        typedError.data?.type,
+        typedError.message,
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    return statusCode === 403 || statusCode === 404 || statusCode === 429 || /reply|limit|forbidden|rate limit|too many/.test(text);
+};
+
 /**
  * Captures a screenshot of the specified GitHub page contribution graph and posts it as a reply to a tweet.
  */
 export const captureAndTweet = async (req: any, res: any) => {
-    console.log('📸 Starting GitHub Custom Screenshot & Reply process...');
+    console.log('📸 Starting GitHub Custom Screenshot & Tweet process...');
 
     // 1. Validate Twitter Config
     if (!process.env.TWITTER_APP_KEY || !process.env.TWITTER_ACCESS_TOKEN) {
         console.error('❌ Missing Twitter API credentials.');
         return res.status(500).json({ error: 'Missing Twitter configuration.' });
+    }
+
+    const mode = asString(getRequestValue(req, 'mode')).toLowerCase();
+    const isResumeMode = mode === 'resume' || asString(getRequestValue(req, 'resume')).toLowerCase() === 'true';
+
+    const currentYear = new Date().getFullYear();
+    const defaultFromDate = `${currentYear}-01-01`;
+    const defaultToDate = getTodayIso();
+
+    const requestedFromDate = asString(getRequestValue(req, 'fromDate') ?? getRequestValue(req, 'from'));
+    const requestedToDate = asString(getRequestValue(req, 'toDate') ?? getRequestValue(req, 'to'));
+
+    const fromDate = requestedFromDate || (isResumeMode ? '' : defaultFromDate);
+    const toDate = requestedToDate || (isResumeMode ? getYesterdayIso() : defaultToDate);
+
+    if (!isValidDate(fromDate) || !isValidDate(toDate)) {
+        return res.status(400).json({
+            error: 'Invalid date range.',
+            expectedFormat: 'YYYY-MM-DD',
+            fromDate,
+            toDate,
+        });
+    }
+
+    if (new Date(fromDate) > new Date(toDate)) {
+        return res.status(400).json({
+            error: 'fromDate must be on or before toDate.',
+            fromDate,
+            toDate,
+        });
     }
 
     const browser = await puppeteer.launch({
@@ -35,14 +101,7 @@ export const captureAndTweet = async (req: any, res: any) => {
         // Set viewports
         await page.setViewport({ width: 1920, height: 1080 });
 
-        // Dynamic date range for the current year (YYYY-01-01 to YYYY-MM-DD)
-        // The user's request was specific: "2026-01-01 to 2026-01-05" but implies "current contributions of 2026".
-        // We will target the current year view to make it robust for daily runs.
-        const currentYear = new Date().getFullYear();
-        const fromDate = `${currentYear}-01-01`;
-        const toDate = new Date().toISOString().split('T')[0]; // Current date
-
-        // Construct URL to force the contribution view for the current year
+        // Construct URL to force the contribution view for the requested range
         const targetUrl = `${GITHUB_URL}?tab=overview&from=${fromDate}&to=${toDate}`;
         console.log(`🌐 Navigating to ${targetUrl}...`);
 
@@ -82,8 +141,10 @@ export const captureAndTweet = async (req: any, res: any) => {
 
         // 2a. Save to Firebase Storage
         try {
-            const dateStr = new Date().toISOString().split('T')[0];
-            const fileName = `github-screenshots/${dateStr}.png`;
+            const dateStr = getTodayIso();
+            const fileName = isResumeMode || requestedFromDate || requestedToDate
+                ? `github-screenshots/resume-${fromDate}-to-${toDate}.png`
+                : `github-screenshots/${dateStr}.png`;
             const bucket = storage.bucket(BUCKET_NAME);
             const file = bucket.file(fileName);
 
@@ -113,23 +174,47 @@ export const captureAndTweet = async (req: any, res: any) => {
         const mediaId = await client.v1.uploadMedia(Buffer.from(screenshotBuffer), { mimeType: 'image/png' });
         console.log(`✅ Media uploaded (Media ID: ${mediaId})`);
 
-        // 4. Post Reply
+        // 4. Post Tweet
         const replyToId = process.env.TWITTER_REPLY_TO_ID || DEFAULT_REPLY_TO_ID;
-        const dateStr = new Date().toLocaleDateString();
+        const tweetLabel = `${fromDate} to ${toDate}`;
+        const tweetText = asString(getRequestValue(req, 'tweetText')) || (isResumeMode ? `Resume Update: ${tweetLabel}` : `Daily Update: ${new Date().toLocaleDateString()}`);
+        const shouldReply = !isResumeMode && asString(getRequestValue(req, 'reply')).toLowerCase() !== 'false' && asString(getRequestValue(req, 'replyToId') ?? replyToId) !== '';
+        const effectiveReplyToId = asString(getRequestValue(req, 'replyToId')) || replyToId;
 
-        console.log(`💬 Replying to Tweet ID: ${replyToId}`);
+        console.log(shouldReply ? `💬 Replying to Tweet ID: ${effectiveReplyToId}` : '💬 Posting standalone tweet...');
 
-        await client.v2.tweet({
-            text: `Daily Update: ${dateStr}`,
-            media: { media_ids: [mediaId] },
-            reply: { in_reply_to_tweet_id: replyToId }
-        });
+        const mediaIds = [mediaId] as [string];
+        const tweetPayload = {
+            text: tweetText,
+            media: { media_ids: mediaIds },
+        };
 
-        console.log('✅ Reply posted successfully!');
+        if (shouldReply) {
+            try {
+                await client.v2.tweet({
+                    ...tweetPayload,
+                    reply: { in_reply_to_tweet_id: effectiveReplyToId }
+                });
+            } catch (tweetError) {
+                if (!shouldFallbackToStandaloneTweet(tweetError)) {
+                    throw tweetError;
+                }
+
+                console.warn('⚠ Reply failed, posting standalone tweet instead:', tweetError);
+                await client.v1.tweet(tweetText, { media_ids: mediaIds });
+            }
+        } else {
+            await client.v1.tweet(tweetText, { media_ids: mediaIds });
+        }
+
+        console.log('✅ Tweet posted successfully!');
 
         res.status(200).json({
             success: true,
-            message: 'Screenshot taken and reply posted successfully.',
+            message: 'Screenshot taken and tweet posted successfully.',
+            mode: isResumeMode ? 'resume' : 'daily',
+            fromDate,
+            toDate,
             timestamp: new Date().toISOString()
         });
 

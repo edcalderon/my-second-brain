@@ -101,7 +101,8 @@ All routes are defined in `apps/dashboard/src/app/api/`:
 2. **GitHub Actions triggers**:
    - Builds Next.js dashboard (static export)
    - Deploys static site to Firebase Hosting
-   - Deploys Cloud Functions (knowledge, sync, status)
+   - Deploys Cloud Functions (knowledge, sync, status, dailyGithubScreenshot)
+   - Deploys the daily GitHub screenshot/tweet job, which falls back to a standalone tweet if the reply path is blocked by reply or rate-limit errors
 
 3. **Verification**:
    ```bash
@@ -121,6 +122,12 @@ All routes are defined in `apps/dashboard/src/app/api/`:
 | `/api/knowledge` | `knowledge` | `https://us-central1-second-brain-482901.cloudfunctions.net/knowledge` |
 | `/api/sync` | `sync` | `https://us-central1-second-brain-482901.cloudfunctions.net/sync` |
 | `/api/status` | `status` | `https://us-central1-second-brain-482901.cloudfunctions.net/status` |
+
+### Scheduled Cloud Functions
+
+| Job | Cloud Function | URL |
+|---|---|---|
+| Daily GitHub screenshot/tweet | `dailyGithubScreenshot` | `https://us-central1-second-brain-482901.cloudfunctions.net/dailyGithubScreenshot` |
 
 ## Cloning API Routes
 
