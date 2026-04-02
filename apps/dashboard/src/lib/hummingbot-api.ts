@@ -156,12 +156,12 @@ export type BacktestRequest = {
 
 export type TradingStatusResponse = HummingbotStatus;
 
-export async function fetchTradingStatus() {
-    return fetchJson<TradingStatusResponse>("/trading/status");
+export async function fetchTradingStatus(init?: RequestInit) {
+    return fetchJson<TradingStatusResponse>("/trading/status", init);
 }
 
-export async function fetchPortfolioTracker() {
-    return fetchJson<HummingbotPortfolioTracker>("/trading/portfolio");
+export async function fetchPortfolioTracker(init?: RequestInit) {
+    return fetchJson<HummingbotPortfolioTracker>("/trading/portfolio", init);
 }
 
 export async function fetchTradingMarket(params?: {
@@ -169,7 +169,7 @@ export async function fetchTradingMarket(params?: {
     connector_name?: string;
     interval?: string;
     limit?: number;
-}) {
+}, init?: RequestInit) {
     const search = new URLSearchParams();
     if (params?.trading_pair) search.set("trading_pair", params.trading_pair);
     if (params?.connector_name) search.set("connector_name", params.connector_name);
@@ -177,12 +177,12 @@ export async function fetchTradingMarket(params?: {
     if (params?.limit) search.set("limit", String(params.limit));
 
     const suffix = search.toString() ? `?${search.toString()}` : "";
-    return fetchJson<HummingbotMarket>(`/trading/market${suffix}`);
+    return fetchJson<HummingbotMarket>(`/trading/market${suffix}`, init);
 }
 
-export async function fetchTradingPositions(accountName?: string) {
+export async function fetchTradingPositions(accountName?: string, init?: RequestInit) {
     const suffix = accountName ? `?account_name=${encodeURIComponent(accountName)}` : "";
-    return fetchJson<HummingbotPositionsResponse>(`/trading/positions${suffix}`);
+    return fetchJson<HummingbotPositionsResponse>(`/trading/positions${suffix}`, init);
 }
 
 export async function previewTrade(request: {

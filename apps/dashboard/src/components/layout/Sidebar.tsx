@@ -87,9 +87,11 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
         <>
             {/* Mobile overlay when sidebar is open */}
             {isMobile && !isCollapsed && (
-                <div
+                <button
+                    type="button"
                     className="fixed inset-0 bg-black/50 z-30 md:hidden"
                     onClick={onToggle}
+                    aria-label="Close sidebar"
                 />
             )}
 
@@ -160,6 +162,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                                             <Link
                                                 key={item.href}
                                                 href={item.href}
+                                                prefetch={false}
                                                 onClick={() => isMobile && onToggle?.()}
                                                 className={cn(
                                                     "flex items-center justify-start px-3 py-2.5 text-sm font-medium rounded-md transition-all duration-200 group relative",
