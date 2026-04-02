@@ -88,6 +88,7 @@ export default function AQuantPortalPage() {
                         </span>
                         <Link
                             href={dashboardHref("/")}
+                            prefetch={false}
                             className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
                         >
                             Dashboard home
@@ -95,6 +96,7 @@ export default function AQuantPortalPage() {
                         </Link>
                         <Link
                             href={publicSiteUrl("/")}
+                            prefetch={false}
                             className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-slate-200 transition hover:border-cyan-300/40 hover:bg-cyan-300/10"
                         >
                             Project directory
@@ -117,6 +119,7 @@ export default function AQuantPortalPage() {
                             <div className="flex flex-wrap gap-3">
                                 <Link
                                     href="/portfolio"
+                                    prefetch={false}
                                     className="inline-flex items-center gap-2 rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300"
                                 >
                                     Open portfolio tracker
@@ -124,6 +127,7 @@ export default function AQuantPortalPage() {
                                 </Link>
                                 <Link
                                     href="/market?trading_pair=ETH-USD&interval=1h&limit=120"
+                                    prefetch={false}
                                     className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 transition hover:border-white/20 hover:bg-white/10"
                                 >
                                     Check market feed
@@ -155,6 +159,7 @@ export default function AQuantPortalPage() {
                         <Link
                             key={item.title}
                             href={item.href}
+                            prefetch={false}
                             className="group rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.3)] backdrop-blur-xl transition duration-200 hover:-translate-y-1 hover:border-cyan-300/30 hover:bg-cyan-300/[0.06]"
                         >
                             <div className="flex h-full flex-col gap-4">

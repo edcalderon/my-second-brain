@@ -170,6 +170,7 @@ function ActionLink({ href, icon, title, description, external = false }: Action
     return (
         <Link
             href={href}
+            prefetch={false}
             target={external ? "_blank" : undefined}
             rel={external ? "noreferrer noopener" : undefined}
             className="block min-w-0 overflow-hidden"
@@ -196,6 +197,7 @@ function InlineLink({ href, icon, label }: { href: string; icon: ReactNode; labe
     return (
         <Link
             href={href}
+            prefetch={false}
             className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700 shadow-sm transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:border-emerald-900/40 dark:bg-slate-900 dark:text-emerald-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/30"
         >
             {icon}

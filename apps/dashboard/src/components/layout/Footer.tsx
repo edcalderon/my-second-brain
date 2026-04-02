@@ -10,15 +10,15 @@ export default function Footer() {
             <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4 max-w-7xl mx-auto">
                 <span className="font-medium">Edward v{secondBrainVersion}</span>
                 <span className="hidden sm:inline-block text-gray-300 dark:text-gray-700">|</span>
-                <Link href={publicSiteUrl("/")} className="hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline transition-colors">
+                <Link href={publicSiteUrl("/")} prefetch={false} className="hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline transition-colors">
                     Project Directory
                 </Link>
                 <span className="hidden sm:inline-block text-gray-300 dark:text-gray-700">|</span>
-                <Link href={dashboardHref("/a-quant")} className="hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline transition-colors">
+                <Link href={dashboardHref("/a-quant")} prefetch={false} className="hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline transition-colors">
                     A-Quant
                 </Link>
                 <span className="hidden sm:inline-block text-gray-300 dark:text-gray-700">|</span>
-                <Link href="/documentation" className="hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline transition-colors">
+                <Link href="/documentation" prefetch={false} className="hover:text-emerald-900 dark:hover:text-emerald-300 hover:underline transition-colors">
                     Runbook
                 </Link>
             </div>

@@ -50,6 +50,44 @@ export function formatNumber(value: unknown, fractionDigits = 6): string {
     });
 }
 
+export function formatCurrency(value: unknown, fractionDigits = 2): string {
+    if (value === null || value === undefined || value === "") {
+        return "--";
+    }
+
+    const num = Number(value);
+    if (Number.isNaN(num)) {
+        return String(value);
+    }
+
+    return num.toLocaleString(undefined, {
+        style: "currency",
+        currency: "USD",
+        minimumFractionDigits: Math.min(2, fractionDigits),
+        maximumFractionDigits: fractionDigits,
+    });
+}
+
+export function formatCompactCurrency(value: unknown, fractionDigits = 2): string {
+    if (value === null || value === undefined || value === "") {
+        return "--";
+    }
+
+    const num = Number(value);
+    if (Number.isNaN(num)) {
+        return String(value);
+    }
+
+    return num.toLocaleString(undefined, {
+        style: "currency",
+        currency: "USD",
+        notation: "compact",
+        compactDisplay: "short",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: fractionDigits,
+    });
+}
+
 export function formatPercent(value: unknown, fractionDigits = 2): string {
     if (value === null || value === undefined || value === "") {
         return "--";
@@ -69,6 +107,38 @@ export function formatTime(value: string): string {
         return value;
     }
     return date.toLocaleString();
+}
+
+export function formatRelativeTime(value: string): string {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+        return value;
+    }
+
+    const diffMs = Date.now() - date.getTime();
+    const absoluteSeconds = Math.round(Math.abs(diffMs) / 1000);
+    const direction = diffMs >= 0 ? "ago" : "from now";
+
+    if (absoluteSeconds < 5) {
+        return "just now";
+    }
+
+    if (absoluteSeconds < 60) {
+        return `${absoluteSeconds}s ${direction}`;
+    }
+
+    const absoluteMinutes = Math.round(absoluteSeconds / 60);
+    if (absoluteMinutes < 60) {
+        return `${absoluteMinutes}m ${direction}`;
+    }
+
+    const absoluteHours = Math.round(absoluteMinutes / 60);
+    if (absoluteHours < 24) {
+        return `${absoluteHours}h ${direction}`;
+    }
+
+    const absoluteDays = Math.round(absoluteHours / 24);
+    return `${absoluteDays}d ${direction}`;
 }
 
 export function formatJson(value: unknown): string {
