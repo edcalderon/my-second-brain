@@ -1,6 +1,6 @@
 {
   "name": "@ed/monorepo",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "private": true,
   "description": "Monorepo for Edward's Second Brain and Knowledge Base",
   "packageManager": "pnpm@10.28.2",
@@ -12,6 +12,8 @@
     "dev": "pnpm --filter @ed/dashboard dev -p 3000",
     "dev:docs": "pnpm --filter @ed/docs start --port 3001",
     "dev:all": "concurrently \"pnpm --filter @ed/dashboard dev -p 3000\" \"pnpm --filter @ed/docs start --port 3001\"",
+    "dev:trading": "bash ./scripts/dev-trading-stack.sh",
+    "dev:all:trading": "concurrently -k -n docs,trading -c blue,magenta \"pnpm dev:docs\" \"pnpm dev:trading\"",
     "build": "pnpm --recursive build",
     "build:docs": "pnpm --filter @ed/docs build",
     "deploy:functions": "cd scripts && ./deploy-gcp.sh",

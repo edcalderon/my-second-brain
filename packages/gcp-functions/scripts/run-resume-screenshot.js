@@ -12,7 +12,6 @@ const req = {
         fromDate,
         toDate,
         reply: 'false',
-        tweetText: process.env.TWEET_TEXT || `Resume Update: ${fromDate} to ${toDate}`,
     },
     query: {},
 };

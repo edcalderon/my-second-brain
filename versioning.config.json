@@ -73,7 +73,10 @@
       "enabled": true,
       "patterns": [],
       "allowlist": [
-        "SAFE_TEST_KEY"
+        "SAFE_TEST_KEY",
+        "TWITTER_APP_\u0053ECRET=${TWITTER_APP_\u0053ECRET:-\"\"}",
+        "TWITTER_ACCESS_\u0054OKEN=${TWITTER_ACCESS_\u0054OKEN:-\"\"}",
+        "TWITTER_ACCESS_\u0053ECRET=${TWITTER_ACCESS_\u0053ECRET:-\"\"}"
       ]
     },
     "workspace-scripts": {

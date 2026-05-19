@@ -21,6 +21,16 @@ RUNTIME="nodejs20"
 FUNCTIONS=("knowledge" "sync" "status" "dailyGithubScreenshot")
 FUNCTIONS_DIR="packages/gcp-functions"
 
+TWITTER_APP_KEY=${TWITTER_APP_KEY:-""}
+TWITTER_APP_SECRET=${TWITTER_APP_SECRET:-""}
+TWITTER_ACCESS_TOKEN=${TWITTER_ACCESS_TOKEN:-""}
+TWITTER_ACCESS_SECRET=${TWITTER_ACCESS_SECRET:-""}
+TWITTER_REPLY_TO_ID=${TWITTER_REPLY_TO_ID:-"2007025581188436301"}
+GITHUB_PAGE_URL=${GITHUB_PAGE_URL:-"https://github.com/edcalderon"}
+GCP_BUCKET_NAME=${GCP_BUCKET_NAME:-"rocketbook-habit-tracker-$PROJECT_ID"}
+
+DAILY_GITHUB_SCREENSHOT_ENV_VARS="TWITTER_APP_KEY=$TWITTER_APP_KEY,TWITTER_APP_SECRET=$TWITTER_APP_SECRET,TWITTER_ACCESS_TOKEN=$TWITTER_ACCESS_TOKEN,TWITTER_ACCESS_SECRET=$TWITTER_ACCESS_SECRET,TWITTER_REPLY_TO_ID=$TWITTER_REPLY_TO_ID,GITHUB_PAGE_URL=$GITHUB_PAGE_URL,GCP_BUCKET_NAME=$GCP_BUCKET_NAME,GCP_PROJECT_ID=$PROJECT_ID"
+
 # Flags
 TEST_MODE=false
 DRY_RUN=false
@@ -141,6 +151,18 @@ fi
 log_success "package.json found"
 
 ###############################################################################
+# Validate runtime config for the daily tweet function
+###############################################################################
+
+if [ "$DRY_RUN" = false ]; then
+  if [ -z "$TWITTER_APP_KEY" ] || [ -z "$TWITTER_APP_SECRET" ] || [ -z "$TWITTER_ACCESS_TOKEN" ] || [ -z "$TWITTER_ACCESS_SECRET" ]; then
+    log_error "Missing Twitter credentials for dailyGithubScreenshot."
+    log_error "Set TWITTER_APP_KEY, TWITTER_APP_SECRET, TWITTER_ACCESS_TOKEN, and TWITTER_ACCESS_SECRET before deploying."
+    exit 1
+  fi
+fi
+
+###############################################################################
 # Build Cloud Functions
 ###############################################################################
 
@@ -201,6 +223,10 @@ for FUNCTION in "${FUNCTIONS[@]}"; do
     --project=$PROJECT_ID \
     --region=$REGION \
     --quiet"
+
+  if [ "$FUNCTION" = "dailyGithubScreenshot" ]; then
+    DEPLOY_CMD="$DEPLOY_CMD --set-env-vars \"$DAILY_GITHUB_SCREENSHOT_ENV_VARS\""
+  fi
   
   if run_command "$DEPLOY_CMD" "Function deployed: $FUNCTION"; then
     if [ "$DRY_RUN" = false ]; then

@@ -1,23 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
 import { ShieldCheck } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { getHummingbotApiBase } from "@/lib/hummingbot-config";
 
 export default function SettingsPage() {
     const { user } = useAuth();
-
-    const apiBase = useMemo(() => {
-        return process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "(not set)";
-    }, []);
-
-    const aQuantApiBase = useMemo(() => {
-        return (
-            process.env.NEXT_PUBLIC_A_QUANT_API_BASE ||
-            process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE ||
-            "https://api.a-quant.xyz"
-        );
-    }, []);
+    const apiBase = process.env.NEXT_PUBLIC_DASHBOARD_API_BASE || "(not set)";
+    const aQuantApiBase = getHummingbotApiBase();
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-16">

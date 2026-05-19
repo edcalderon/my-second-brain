@@ -1,17 +1,7 @@
 import { authClient } from "@/components/auth/AuthProvider";
+import { getHummingbotApiBase } from "@/lib/hummingbot-config";
 
-export const DEFAULT_A_QUANT_API_BASE = "https://api.a-quant.xyz";
-
-function normalizeApiBase(base: string) {
-    const trimmed = base.trim().replace(/\/+$/, "");
-    return trimmed.endsWith("/api") ? trimmed.slice(0, -4) : trimmed;
-}
-
-const API_BASE = normalizeApiBase(
-    process.env.NEXT_PUBLIC_A_QUANT_API_BASE ||
-        process.env.NEXT_PUBLIC_HUMMINGBOT_API_BASE ||
-        DEFAULT_A_QUANT_API_BASE,
-);
+const API_BASE = getHummingbotApiBase();
 
 async function getAuthToken(): Promise<string | null> {
     return await authClient.getSessionToken();

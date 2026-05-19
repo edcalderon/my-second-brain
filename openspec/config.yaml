@@ -1,0 +1,8 @@
+schema: spec-driven
+context: |
+  Repo: Edward
+  Purpose: public Next.js dashboard and docs for the second-brain platform.
+  Stack: TypeScript, React, Next.js, pnpm.
+  Spec workflow: use OpenSpec change folders for non-trivial work; specs are behavior contracts, not implementation plans.
+  Public boundary: keep specs and docs free of private backend implementation details.
+  Development focus: authenticated dashboard behavior, documentation, and environment-aware trading API resolution.

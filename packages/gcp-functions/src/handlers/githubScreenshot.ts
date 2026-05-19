@@ -5,6 +5,8 @@ import { Storage } from '@google-cloud/storage';
 
 const storage = new Storage();
 const BUCKET_NAME = process.env.GCP_BUCKET_NAME || 'second-brain-screenshots';
+// Keep this aligned with config/scheduler/daily-github-screenshot-updater.yaml.
+const DAILY_TWEET_TIME_ZONE = 'America/New_York';
 
 // Environment variables
 const GITHUB_URL = process.env.GITHUB_PAGE_URL || 'https://github.com/edcalderon';
@@ -20,12 +22,60 @@ const asString = (value: unknown) => typeof value === 'string' ? value.trim() : 
 
 const isValidDate = (value: string) => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(value).getTime());
 
-const getTodayIso = () => new Date().toISOString().split('T')[0];
+const getDateIsoInTimeZone = (date: Date, timeZone: string) => {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).formatToParts(date);
 
-const getYesterdayIso = () => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return yesterday.toISOString().split('T')[0];
+    const values: Record<string, string> = {};
+
+    for (const part of parts) {
+        if (part.type !== 'literal') {
+            values[part.type] = part.value;
+        }
+    }
+
+    if (!values.year || !values.month || !values.day) {
+        throw new Error(`Unable to resolve date for time zone ${timeZone}`);
+    }
+
+    return `${values.year}-${values.month}-${values.day}`;
+};
+
+const shiftIsoDate = (isoDate: string, offsetDays: number) => {
+    const [year, month, day] = isoDate.split('-').map(Number);
+    const shifted = new Date(Date.UTC(year, month - 1, day));
+    shifted.setUTCDate(shifted.getUTCDate() + offsetDays);
+    return shifted.toISOString().split('T')[0];
+};
+
+const getTodayIso = (date = new Date()) => getDateIsoInTimeZone(date, DAILY_TWEET_TIME_ZONE);
+
+const getYesterdayIso = (date = new Date()) => shiftIsoDate(getTodayIso(date), -1);
+
+const getDisplayDate = (date = new Date()) => new Intl.DateTimeFormat('en-US', {
+    timeZone: DAILY_TWEET_TIME_ZONE,
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+}).format(date);
+
+const getMissingTwitterConfig = () => [
+    'TWITTER_APP_KEY',
+    'TWITTER_APP_SECRET',
+    'TWITTER_ACCESS_TOKEN',
+    'TWITTER_ACCESS_SECRET',
+].filter((key) => !process.env[key]);
+
+const getRequiredEnvValue = (key: string) => {
+    const value = process.env[key];
+    if (!value) {
+        throw new Error(`Missing required environment variable: ${key}`);
+    }
+    return value;
 };
 
 const shouldFallbackToStandaloneTweet = (error: unknown) => {
@@ -54,23 +104,29 @@ export const captureAndTweet = async (req: any, res: any) => {
     console.log('📸 Starting GitHub Custom Screenshot & Tweet process...');
 
     // 1. Validate Twitter Config
-    if (!process.env.TWITTER_APP_KEY || !process.env.TWITTER_ACCESS_TOKEN) {
-        console.error('❌ Missing Twitter API credentials.');
-        return res.status(500).json({ error: 'Missing Twitter configuration.' });
+    const missingTwitterConfig = getMissingTwitterConfig();
+    if (missingTwitterConfig.length > 0) {
+        console.error('❌ Missing Twitter API credentials:', missingTwitterConfig.join(', '));
+        return res.status(500).json({
+            error: 'Missing Twitter configuration.',
+            missing: missingTwitterConfig,
+        });
     }
 
     const mode = asString(getRequestValue(req, 'mode')).toLowerCase();
     const isResumeMode = mode === 'resume' || asString(getRequestValue(req, 'resume')).toLowerCase() === 'true';
 
-    const currentYear = new Date().getFullYear();
+    const now = new Date();
+    const currentDateIso = getTodayIso(now);
+    const currentYear = currentDateIso.slice(0, 4);
     const defaultFromDate = `${currentYear}-01-01`;
-    const defaultToDate = getTodayIso();
+    const defaultToDate = currentDateIso;
 
     const requestedFromDate = asString(getRequestValue(req, 'fromDate') ?? getRequestValue(req, 'from'));
     const requestedToDate = asString(getRequestValue(req, 'toDate') ?? getRequestValue(req, 'to'));
 
     const fromDate = requestedFromDate || (isResumeMode ? '' : defaultFromDate);
-    const toDate = requestedToDate || (isResumeMode ? getYesterdayIso() : defaultToDate);
+    const toDate = requestedToDate || (isResumeMode ? getYesterdayIso(now) : defaultToDate);
 
     if (!isValidDate(fromDate) || !isValidDate(toDate)) {
         return res.status(400).json({
@@ -141,7 +197,7 @@ export const captureAndTweet = async (req: any, res: any) => {
 
         // 2a. Save to Firebase Storage
         try {
-            const dateStr = getTodayIso();
+            const dateStr = currentDateIso;
             const fileName = isResumeMode || requestedFromDate || requestedToDate
                 ? `github-screenshots/resume-${fromDate}-to-${toDate}.png`
                 : `github-screenshots/${dateStr}.png`;
@@ -164,10 +220,10 @@ export const captureAndTweet = async (req: any, res: any) => {
 
         // 3. Upload to Twitter
         const client = new TwitterApi({
-            appKey: process.env.TWITTER_APP_KEY!,
-            appSecret: process.env.TWITTER_APP_SECRET!,
-            accessToken: process.env.TWITTER_ACCESS_TOKEN!,
-            accessSecret: process.env.TWITTER_ACCESS_SECRET!,
+            appKey: getRequiredEnvValue('TWITTER_APP_KEY'),
+            appSecret: getRequiredEnvValue('TWITTER_APP_SECRET'),
+            accessToken: getRequiredEnvValue('TWITTER_ACCESS_TOKEN'),
+            accessSecret: getRequiredEnvValue('TWITTER_ACCESS_SECRET'),
         });
 
         console.log('🐦 Uploading media to Twitter...');
@@ -177,7 +233,9 @@ export const captureAndTweet = async (req: any, res: any) => {
         // 4. Post Tweet
         const replyToId = process.env.TWITTER_REPLY_TO_ID || DEFAULT_REPLY_TO_ID;
         const tweetLabel = `${fromDate} to ${toDate}`;
-        const tweetText = asString(getRequestValue(req, 'tweetText')) || (isResumeMode ? `Resume Update: ${tweetLabel}` : `Daily Update: ${new Date().toLocaleDateString()}`);
+        const tweetText = isResumeMode
+            ? `Resume Update: ${tweetLabel}`
+            : `Daily Update: ${getDisplayDate(now)}`;
         const shouldReply = !isResumeMode && asString(getRequestValue(req, 'reply')).toLowerCase() !== 'false' && asString(getRequestValue(req, 'replyToId') ?? replyToId) !== '';
         const effectiveReplyToId = asString(getRequestValue(req, 'replyToId')) || replyToId;
 

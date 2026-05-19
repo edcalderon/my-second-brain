@@ -1,3 +1,26 @@
+## [1.5.4](https://github.com/edcalderon/my-second-brain/compare/v1.5.3...v1.5.4) (2026-05-19)
+
+
+### Bug Fixes
+
+* flatten a-quant and portfolio ui ([37b608d](https://github.com/edcalderon/my-second-brain/commit/37b608d439988aba33de4044814e63fb3f94b866))
+* refine portfolio tracker ui ([14a00d7](https://github.com/edcalderon/my-second-brain/commit/14a00d72bc410374fd5e1e08155dc20ef3c9e214))
+* warm portfolio tracker cache ([4a3a041](https://github.com/edcalderon/my-second-brain/commit/4a3a04150fd6f512a4b378348baee4876a8b40e0))
+
+
+### Features
+
+* add my-second-brain ECC bundle (.agents/skills/my-second-brain/SKILL.md) ([d078732](https://github.com/edcalderon/my-second-brain/commit/d0787320e863d07efba4e01b0ae30f8ab78f93db))
+* add my-second-brain ECC bundle (.claude/commands/database-migration.md) ([89589d1](https://github.com/edcalderon/my-second-brain/commit/89589d1e3ec450b5ccec55585c7d0401ff145c17))
+* add my-second-brain ECC bundle (.claude/commands/feature-development.md) ([4557d0e](https://github.com/edcalderon/my-second-brain/commit/4557d0ea6c37a99e8633c7d0a859ca9d0743bfd8))
+* add my-second-brain ECC bundle (.claude/ecc-tools.json) ([8a5a658](https://github.com/edcalderon/my-second-brain/commit/8a5a658c67250bab0a79968f34695ce38b35f55f))
+* add my-second-brain ECC bundle (.claude/identity.json) ([cc5d1a6](https://github.com/edcalderon/my-second-brain/commit/cc5d1a697f0bef9ca6e9152c7bc9035aaf72a7c6))
+* add my-second-brain ECC bundle (.claude/skills/my-second-brain/SKILL.md) ([a84d8c1](https://github.com/edcalderon/my-second-brain/commit/a84d8c11072567d4e84152342507a74faf724dc6))
+
+
+
+
+
 ## [1.5.3](https://github.com/edcalderon/my-second-brain/compare/v1.5.2...v1.5.3) (2026-04-02)
 
 

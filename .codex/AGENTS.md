@@ -26,3 +26,12 @@ The generated baseline enables GitHub, Context7, Exa, Memory, Playwright, and Se
 - `.claude/commands/test-driven-development.md`
 
 Use these workflow files as reusable task scaffolds when the detected repository workflows recur.
+
+## OpenSpec
+
+- OpenSpec is the default spec-driven planning layer for this repository.
+- Keep behavior contracts in `openspec/specs/` and proposed work in `openspec/changes/`.
+- For non-trivial work, create or update an OpenSpec change before editing code.
+- Use the OpenSpec loop: `/opsx:propose`, `/opsx:apply`, `/opsx:archive`.
+- Prefer behavior-first specs and keep implementation detail out of `spec.md`.
+- Do not add private backend implementation details to public-facing specs or docs.

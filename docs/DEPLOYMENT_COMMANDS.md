@@ -19,6 +19,59 @@ pnpm test:api:verbose
 - Verifies api-config.ts and environment files
 - Validates Cloud Functions build structure
 
+## Local Trading Stack
+
+The trading UI no longer points at `https://api.a-quant.xyz` in development. It now expects a local A-Quant API-svc on `http://localhost:8001`.
+
+### Start the dashboard + local trading API
+
+```bash
+# From the edward repo root
+pnpm dev:trading
+```
+
+This starts:
+- Dashboard on `http://localhost:3000`
+- A-Quant API-svc on `http://localhost:8001`
+
+On first run the launcher creates `a-quant/apps/api-svc/.venv` from `apps/api-svc/requirements.txt` and reuses it afterwards.
+
+### Start docs + dashboard + local trading API
+
+```bash
+# From the edward repo root
+pnpm dev:all:trading
+```
+
+This starts:
+- Dashboard on `http://localhost:3000`
+- Docs on `http://localhost:3001`
+- A-Quant API-svc on `http://localhost:8001`
+
+If the local trading API dependencies are missing, the launcher bootstraps `a-quant/apps/api-svc/.venv` automatically before starting the service.
+
+### Upstream dependency
+
+The local A-Quant API-svc still depends on a Hummingbot API upstream. By default it looks for:
+
+```bash
+HUMMINGBOT_API_URL=http://localhost:8000
+```
+
+Override that env var if your Hummingbot API is running somewhere else.
+
+### Manual startup
+
+```bash
+# Terminal 1: start A-Quant API-svc
+cd ../a-quant/apps/api-svc
+.venv/bin/python -m uvicorn src.main:app --host 0.0.0.0 --port 8001 --reload
+
+# Terminal 2: start the dashboard
+cd ../edward
+pnpm --filter @ed/dashboard dev -p 3000
+```
+
 ## Cloud Functions Deployment
 
 ### Deploy to GCP

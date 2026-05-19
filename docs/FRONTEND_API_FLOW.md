@@ -19,16 +19,15 @@ We built a decoupled, environment-first API router (`src/lib/api-config.ts`) tha
 
 ---
 
-## **3. Double-Binding Federated Auth Flow**
-Because APIs are cleanly severed from the UI in production, user identities must be securely verifiable completely on the client side, then passed out to the production endpoints.
+## **3. Firebase-First Auth Flow**
+The dashboard now uses Firebase as the browser auth source of truth and keeps Supabase as a separate data client.
 
-1.  **Orchestrator Level (`@ed/auth`)**: The Dashboard loads `HybridClient` using dependency-injected configurations. 
-2.  **Firebase Popup UI Intercept**: Users sign in via Google OAuth utilizing Firebase's secure popup interface.
-3.  **Parallel Synchronisation**: The pure `idToken` extracted from Firebase is secretly mapped back to Supabase via `signInWithIdToken()`. Supabase permanently provisions this Google Identity user into the `auth.users` PostgreSQL table.
-4.  **JWT Distribution**: When the `dashboard-api.ts` module constructs a `fetchWithAuth()` generic API call meant for the Google Cloud Functions or the Python API:
-    - It extracts the `access_token` purely from Supabase's `getSession()`.
-    - Automatically injects it into standard `Authorization: Bearer <TOKEN>` CORS headers.
-    - Cloud Functions and API Handlers effortlessly decode and verify session permissions against the Supabase source-of-truth.
+1.  **Orchestrator Level (`@ed/auth`)**: The Dashboard loads `FirebaseWebClient` when Firebase env vars are present.
+2.  **Firebase Popup UI**: Users sign in via Google OAuth utilizing Firebase's secure popup interface.
+3.  **Session Token**: The browser session is managed by Firebase Auth, and `getSessionToken()` returns a Firebase ID token when the app needs to call external APIs.
+4.  **API Distribution**: When the `dashboard-api.ts` or `hummingbot-api.ts` modules construct a `fetchWithAuth()` call, they inject the available bearer token into `Authorization` headers.
+    - If no token is available, the request is still sent without auth headers.
+    - Supabase is used only for dashboard data access and realtime subscriptions, not for the browser login exchange.
 
 ### Flow Diagram
 
@@ -42,12 +41,11 @@ sequenceDiagram
 
     User->>Browser: Clicks "Sign in with Google"
     Browser->>Firebase: Trigger signInWithPopup()
-    Firebase-->>Browser: Returns credential (user ID + idToken)
-    Browser->>Supabase: signInWithIdToken(idToken)
-    Supabase-->>Browser: Issues true RLS Session (access_token)
-    
+    Firebase-->>Browser: Returns credential and Firebase ID token
+    Browser-->>Browser: Stores Firebase session locally
+
     User->>Browser: Requests Trading Data
-    Browser->>Supabase: Extract access_token locally
+    Browser->>Browser: Extract Firebase ID token locally
     Browser->>CloudFunction: `fetch(API_URL, Bearer {access_token})`
     CloudFunction->>Supabase: Validate JWT token
     CloudFunction-->>Browser: Deliver Protected Payload
