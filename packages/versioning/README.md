@@ -8,12 +8,11 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.9)
+## 📋 Latest Changes (v1.5.10)
 
 ### Bug Fixes
 
-* **versioning:** run the release guard through the `preRelease` hook and accept `extensionConfig["release-guard"]`
-* **versioning:** keep the standalone `guard-tag` command compatible with the hook-driven guard flow
+* **readme-maintainer:** resolve release links from the target project metadata instead of hardcoding `my-second-brain`
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
@@ -351,6 +350,17 @@ Configuration (`versioning.config.json`):
   }
 }
 ```
+
+#### README Maintainer Extension
+
+Keeps `README.md` files aligned with the latest changelog entry and resolves the release-history link from the target project when possible.
+
+Behavior:
+- Uses `package.json.repository` first
+- Falls back to the git `origin` remote, then `GITHUB_REPOSITORY`
+- Omits the releases link when no project repository can be resolved
+
+Override the release link with `extensionConfig["readme-maintainer"].releasesUrl` or `repositoryUrl` in `versioning.config.json`.
 
 ### External Extensions
 

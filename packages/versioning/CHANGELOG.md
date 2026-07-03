@@ -1,3 +1,10 @@
+## [1.5.10](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.9...versioning-v1.5.10) (2026-07-03)
+
+### Bug Fixes
+
+* **readme-maintainer:** resolve release links from the target project metadata instead of hardcoding `my-second-brain`
+
+
 ## [1.5.9](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.8...versioning-v1.5.9) (2026-03-30)
 
 ### Bug Fixes
