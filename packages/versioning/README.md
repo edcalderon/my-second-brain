@@ -12,9 +12,9 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ### Added
 
-* **changelog-guard:** validate release notes before publish with `versioning check-changelog`
-* **tasks:** add the `.agents/` task-tracking extension with `list`, `add`, `archive`, `sync`, and `validate`
-* **reentry-status:** add `versioning reentry validate` to verify the generated JSON and markdown files stay in sync
+* **versioning:** add `check-changelog` guard to block empty release notes before publish
+* **versioning:** add `.agents/` task tracking extension with `tasks list|add|archive|sync|validate`
+* **reentry-status:** add `reentry validate` for generated JSON/markdown drift detection
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
