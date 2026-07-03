@@ -8,11 +8,13 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.10)
+## 📋 Latest Changes (v1.5.11)
 
-### Bug Fixes
+### Added
 
-* **readme-maintainer:** resolve release links from the target project metadata instead of hardcoding `my-second-brain`
+* **changelog-guard:** validate release notes before publish with `versioning check-changelog`
+* **tasks:** add the `.agents/` task-tracking extension with `list`, `add`, `archive`, `sync`, and `validate`
+* **reentry-status:** add `versioning reentry validate` to verify the generated JSON and markdown files stay in sync
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
@@ -28,9 +30,11 @@ For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub release
 - 📦 NPM publishable
 - 🏷️ Git tagging and committing
 - ✅ Validation of version sync
+- 🧭 Changelog validation before release
 - 🔌 **Extensible plugin system** for subdirectory-based extensions
 - 🔒 **Security Checks** with automatic Husky integration
 - 🧹 **Repository Cleanup** to keep root directory organized
+- 🗂️ `.agents/` task tracking with reentry snapshot sync
 
 ## Installation
 
@@ -52,7 +56,7 @@ The versioning tool supports a **composable extension system** that allows you t
 - Implement custom versioning strategies
 
 Extensions are loaded automatically from:
-- Built-in extensions in subdirectories of `src/extensions/` (e.g. `src/extensions/reentry-status/index.ts`)
+- Built-in extensions in subdirectories of `src/extensions/` (e.g. `src/extensions/changelog-guard/index.ts`, `src/extensions/reentry-status/index.ts`, `src/extensions/tasks/index.ts`)
 - External packages listed in `versioning.config.json`
 
 ### Creating Extensions

@@ -64,6 +64,10 @@ export class ChangelogManager {
     });
   }
 
+  getChangelogPath(): string {
+    return this.config.infile || this.config.outfile || 'CHANGELOG.md';
+  }
+
   private async updateExistingChangelog(newContent: string): Promise<void> {
     const existingContent = await fs.readFile(this.config.infile!, 'utf-8');
     const updatedContent = newContent + '\n\n' + existingContent;
