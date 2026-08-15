@@ -3,6 +3,7 @@ import * as path from 'path';
 import {
   ReentryMilestoneLink,
   ReentrySchemaVersion,
+  WorkspaceTaskSync,
   ReentryStatus
 } from './models';
 import {
@@ -79,6 +80,18 @@ export class StatusRenderer {
         versionType: 'patch'
       },
 
+      workspaceTasks: raw.workspaceTasks && typeof raw.workspaceTasks === 'object'
+        ? {
+            snapshotHash: nonEmptyStringOr(raw.workspaceTasks.snapshotHash, ''),
+            generatedAt: nonEmptyStringOr(raw.workspaceTasks.generatedAt, new Date(0).toISOString()),
+            activeCount: Number(raw.workspaceTasks.activeCount ?? 0),
+            pendingCount: Number(raw.workspaceTasks.pendingCount ?? 0),
+            doneCount: Number(raw.workspaceTasks.doneCount ?? 0),
+            specCount: Number(raw.workspaceTasks.specCount ?? 0),
+            featureCount: Number(raw.workspaceTasks.featureCount ?? 0)
+          } satisfies WorkspaceTaskSync
+        : undefined,
+
       syncMetadata: raw.syncMetadata ?? {
         lastSyncAttempt: new Date(0).toISOString(),
         lastSuccessfulSync: new Date(0).toISOString()
@@ -100,6 +113,9 @@ export class StatusRenderer {
       : '—';
 
     const nextMicroStep = status.nextSteps?.[0]?.description ?? '—';
+    const taskSummary = status.workspaceTasks
+      ? `Tasks snapshot: active=${status.workspaceTasks.activeCount}, pending=${status.workspaceTasks.pendingCount}, done=${status.workspaceTasks.doneCount}, specs=${status.workspaceTasks.specCount}, features=${status.workspaceTasks.featureCount}, hash=${status.workspaceTasks.snapshotHash}`
+      : null;
 
     return [
       '# Re-entry Status',
@@ -112,6 +128,7 @@ export class StatusRenderer {
       '',
       `Milestone: ${milestoneText}`,
       `Roadmap: ${status.roadmapFile || StatusRenderer.defaultRoadmapPath()}`,
+      ...(taskSummary ? ['', taskSummary] : []),
       '',
       '## Notes',
       '',
@@ -142,6 +159,19 @@ export class StatusRenderer {
 
     const roadmap = /^Roadmap:[ \t]*([^\n\r]*)$/m.exec(markdown);
     if (roadmap) out.roadmapFile = roadmap[1].trim();
+
+    const tasks = /^Tasks snapshot:[ \t]*active=(\d+), pending=(\d+), done=(\d+), specs=(\d+), features=(\d+), hash=([^\s]+)$/m.exec(markdown);
+    if (tasks) {
+      out.workspaceTasks = {
+        snapshotHash: tasks[6],
+        generatedAt: new Date(0).toISOString(),
+        activeCount: Number(tasks[1]),
+        pendingCount: Number(tasks[2]),
+        doneCount: Number(tasks[3]),
+        specCount: Number(tasks[4]),
+        featureCount: Number(tasks[5])
+      };
+    }
 
     const milestone = /^Milestone:[ \t]*([^\n\r]*)$/m.exec(markdown);
     if (milestone) {

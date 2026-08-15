@@ -8,6 +8,7 @@ This guide provides comprehensive examples of using the versioning system for bo
 - [Single Repository Usage](#single-repository-usage)
 - [Monorepo Usage](#monorepo-usage)
 - [Re-entry + Roadmap](#re-entry--roadmap)
+- [Task Tracking](#task-tracking)
 - [Advanced Examples](#advanced-examples)
 - [CI/CD Integration](#cicd-integration)
 - [Troubleshooting](#troubleshooting)
@@ -338,59 +339,85 @@ versioning roadmap set-milestone --id "now-01" --title "Ship stable integration"
  versioning reentry update --project trader
  versioning reentry show --project trader
  ```
- 
- ## Repository Cleanup
- 
- The `cleanup-repo` extension helps maintain a clean repository root by moving stray files (`.md`, `.sh`, `.json`, etc.) to designated folders.
- 
- ### Scanning & Moving
- 
- ```bash
- # 1. See what would be moved (Dry Run)
- versioning cleanup scan
- 
- # 2. Move files to suggested destinations
- versioning cleanup move
- 
- # 3. Restore a file back to root
- versioning cleanup restore --file "MY_DOC.md"
- ```
- 
- ### Configuration
- 
- Configure behavior in `versioning.config.json`:
-  ```json
-  {
-    "extensionConfig": {
-      "cleanup-repo": {
+
+## Task Tracking
+
+Use the built-in tasks extension to keep `.agents/` task folders and reentry snapshots synchronized.
+
+```bash
+# Inspect the task inventory
+versioning tasks list
+versioning tasks list --feature wallet --status active
+
+# Create or archive tasks
+versioning tasks add active-tasks/wallet/01-build-ui.md
+versioning tasks add active-tasks/wallet/00-SPEC.md
+versioning tasks archive active-tasks/wallet/01-build-ui.md
+
+# Regenerate indexes and validate drift
+versioning tasks sync
+versioning tasks validate
+versioning reentry validate
+```
+
+For a pre-push guard, run:
+
+```bash
+versioning tasks validate && versioning reentry validate
+```
+
+## Repository Cleanup
+
+The `cleanup-repo` extension helps maintain a clean repository root by moving stray files (`.md`, `.sh`, `.json`, etc.) to designated folders.
+
+### Scanning & Moving
+
+```bash
+# 1. See what would be moved (Dry Run)
+versioning cleanup scan
+
+# 2. Move files to suggested destinations
+versioning cleanup move
+
+# 3. Restore a file back to root
+versioning cleanup restore --file "MY_DOC.md"
+```
+
+### Configuration
+
+Configure behavior in `versioning.config.json`:
+```json
+{
+  "extensionConfig": {
+    "cleanup-repo": {
+      "enabled": true,
+      "defaultDestination": "docs",
+      "allowlist": ["CHANGELOG.md", "README.md"],
+      "routes": {
+        ".sh": "scripts",
+        ".json": "config",
+        ".log": "archive"
+      },
+      "husky": {
         "enabled": true,
-        "defaultDestination": "docs",
-        "allowlist": ["CHANGELOG.md", "README.md"],
-        "routes": {
-          ".sh": "scripts",
-          ".json": "config",
-          ".log": "archive"
-        },
-        "husky": {
-          "enabled": true,
-          "mode": "scan"
-        }
+        "mode": "scan"
       }
     }
   }
-  ```
- 
- ### Git Hook Integration
- 
- Automatically scan or clean up on every commit:
- 
- ```bash
- # Add scan-only warning to pre-commit hook
- versioning cleanup husky
- 
- # Enforce auto-cleanup on pre-commit
- # Enforce auto-cleanup on pre-commit
+}
+```
+
+### Git Hook Integration
+
+Automatically scan or clean up on every commit:
+
+```bash
+# Add scan-only warning to pre-commit hook
+versioning cleanup husky
+
+# Enforce auto-cleanup on pre-commit
 versioning cleanup husky --no-scan-only
+```
 
 ## Security Checks
 
@@ -605,6 +632,11 @@ versioning changelog
 
 # Generate changelog for specific commits
 versioning changelog --from abc123 --to def456
+
+# Validate release notes before publishing
+versioning check-changelog
+versioning check-changelog --version 1.5.11
+versioning check-changelog --allow-empty
 ```
 
 ### Git Issues
