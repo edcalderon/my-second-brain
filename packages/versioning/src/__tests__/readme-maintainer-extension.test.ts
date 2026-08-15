@@ -8,6 +8,7 @@ import { Command } from 'commander';
 import extension from '../extensions/readme-maintainer/index';
 
 let tmpDir: string;
+let previousCwd: string;
 
 const CHANGELOG_CONTENT = `# Changelog
 
@@ -30,10 +31,13 @@ Old content here.
 `;
 
 beforeEach(async () => {
+  previousCwd = process.cwd();
   tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'readme-maintainer-test-'));
+  process.chdir(tmpDir);
 });
 
 afterEach(async () => {
+  process.chdir(previousCwd);
   if (tmpDir && await fs.pathExists(tmpDir)) {
     await fs.remove(tmpDir);
   }
@@ -128,5 +132,66 @@ describe('readme-maintainer extension', () => {
     expect(result).not.toMatch(/\(\/[^)]+\)/);
     // It must use a proper relative markdown link
     expect(result).toContain('[CHANGELOG.md](./CHANGELOG.md)');
+  });
+
+  it('uses the installed project repository when generating the releases link', async () => {
+    const readmePath = path.join(tmpDir, 'README.md');
+    const changelogPath = path.join(tmpDir, 'CHANGELOG.md');
+    const pkgPath = path.join(tmpDir, 'package.json');
+
+    await fs.writeFile(readmePath, README_CONTENT);
+    await fs.writeFile(changelogPath, CHANGELOG_CONTENT);
+    await fs.writeJson(pkgPath, {
+      name: 'consumer-project',
+      version: '1.2.3',
+      repository: {
+        type: 'git',
+        url: 'git+https://github.com/acme/widget-kit.git',
+      },
+    });
+
+    await runUpdateReadme([
+      '--readme', readmePath,
+      '--changelog', changelogPath,
+      '--pkg', pkgPath,
+    ]);
+
+    const result = await fs.readFile(readmePath, 'utf8');
+    expect(result).toContain('https://github.com/acme/widget-kit/releases');
+    expect(result).not.toContain('my-second-brain');
+  });
+
+  it('falls back to a generic changelog-only line when no repository can be resolved', async () => {
+    const readmePath = path.join(tmpDir, 'README.md');
+    const changelogPath = path.join(tmpDir, 'CHANGELOG.md');
+    const pkgPath = path.join(tmpDir, 'package.json');
+
+    const previousRepositoryEnv = process.env.GITHUB_REPOSITORY;
+    delete process.env.GITHUB_REPOSITORY;
+
+    try {
+      await fs.writeFile(readmePath, README_CONTENT);
+      await fs.writeFile(changelogPath, CHANGELOG_CONTENT);
+      await fs.writeJson(pkgPath, {
+        name: 'consumer-project',
+        version: '1.2.3',
+      });
+
+      await runUpdateReadme([
+        '--readme', readmePath,
+        '--changelog', changelogPath,
+        '--pkg', pkgPath,
+      ]);
+
+      const result = await fs.readFile(readmePath, 'utf8');
+      expect(result).toContain('[CHANGELOG.md](./CHANGELOG.md)');
+      expect(result).not.toContain('releases');
+    } finally {
+      if (previousRepositoryEnv === undefined) {
+        delete process.env.GITHUB_REPOSITORY;
+      } else {
+        process.env.GITHUB_REPOSITORY = previousRepositoryEnv;
+      }
+    }
   });
 });

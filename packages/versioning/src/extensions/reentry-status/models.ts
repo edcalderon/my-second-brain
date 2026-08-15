@@ -15,6 +15,16 @@ export interface ReentryMilestoneLink {
   title: string;
 }
 
+export interface WorkspaceTaskSync {
+  snapshotHash: string;
+  generatedAt: string;
+  activeCount: number;
+  pendingCount: number;
+  doneCount: number;
+  specCount: number;
+  featureCount: number;
+}
+
 export interface UpdateContext {
   trigger: 'manual' | 'postVersion' | 'postRelease' | 'auto';
   command?: string;
@@ -93,6 +103,7 @@ export interface ReentryStatus {
   nextSteps: NextStep[];
   risks: Risk[];
   dependencies: Dependency[];
+  workspaceTasks?: WorkspaceTaskSync;
 
   versioning: {
     currentVersion: string;

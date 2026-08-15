@@ -4,3 +4,4 @@ export * from './sync';
 export * from './release';
 export * from './status';
 export * from './release-guard';
+export * from './changelog-guard';

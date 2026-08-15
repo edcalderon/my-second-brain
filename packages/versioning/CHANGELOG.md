@@ -1,3 +1,19 @@
+## [1.5.11](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.10...versioning-v1.5.11) (2026-07-03)
+
+### Added
+
+* **versioning:** add `check-changelog` guard to block empty release notes before publish
+* **versioning:** add `.agents/` task tracking extension with `tasks list|add|archive|sync|validate`
+* **reentry-status:** add `reentry validate` for generated JSON/markdown drift detection
+
+
+## [1.5.10](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.9...versioning-v1.5.10) (2026-07-03)
+
+### Bug Fixes
+
+* **readme-maintainer:** resolve release links from the target project metadata instead of hardcoding `my-second-brain`
+
+
 ## [1.5.9](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.8...versioning-v1.5.9) (2026-03-30)
 
 ### Bug Fixes

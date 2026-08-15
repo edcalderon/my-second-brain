@@ -5,6 +5,7 @@ import { ChangelogManager } from './changelog';
 import * as semver from 'semver';
 import { getExtensionContext, runExtensionHooks } from './extensions';
 import { deriveTagPrefixFromFormat, renderTagFormat, runReleaseGuard } from './release-guard';
+import { checkChangelogFile } from './changelog-guard';
 
 export interface ReleaseConfig {
   versionManager: VersionManager;
@@ -78,6 +79,13 @@ export class ReleaseManager {
 
     // Generate changelog
     await this.config.changelogManager.generate();
+    const changelogValidation = await checkChangelogFile({
+      changelogPath: this.config.changelogManager.getChangelogPath(),
+      version
+    });
+    if (!changelogValidation.ok) {
+      throw new Error(changelogValidation.reason ?? `Changelog validation failed for ${version}`);
+    }
     await runExtensionHooks('postChangelog', {});
 
     // Commit changes
@@ -177,6 +185,13 @@ export class ReleaseManager {
     }
 
     await this.config.changelogManager.generate();
+    const changelogValidation = await checkChangelogFile({
+      changelogPath: this.config.changelogManager.getChangelogPath(),
+      version: result.version
+    });
+    if (!changelogValidation.ok) {
+      throw new Error(changelogValidation.reason ?? `Changelog validation failed for ${result.version}`);
+    }
     await runExtensionHooks('postChangelog', {});
 
     if (this.config.createCommit) {

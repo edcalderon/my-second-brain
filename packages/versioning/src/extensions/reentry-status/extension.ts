@@ -21,6 +21,7 @@ import { RoadmapRenderer } from './roadmap-renderer';
 import { StatusRenderer } from './status-renderer';
 import { ReentryStatusManager } from './reentry-status-manager';
 import { collectGitContext, inferPhase, suggestNextStep } from './git-context';
+import { validateReentryFiles } from './validation';
 
 const extension: VersioningExtension = {
   name: REENTRY_EXTENSION_NAME,
@@ -551,6 +552,26 @@ const extension: VersioningExtension = {
             }
 
             console.log('✅ Re-entry sync complete');
+          })
+      )
+      .addCommand(
+        new Command('validate')
+          .description('Validate that generated reentry files match the rendered status')
+          .option('-c, --config <file>', 'config file path', 'versioning.config.json')
+          .option('-p, --project <name>', 'project scope (separate ROADMAP/REENTRY/status per project)')
+          .action(async (options) => {
+            const configPath = String(options.config);
+            const rootConfig = (await fs.pathExists(configPath)) ? await fs.readJson(configPath) : {};
+            const result = await validateReentryFiles(rootConfig, options.project);
+
+            if (!result.ok) {
+              for (const error of result.errors) {
+                console.error(`❌ ${error}`);
+              }
+              process.exit(1);
+            }
+
+            console.log('✅ Re-entry files are in sync');
           })
       );
 

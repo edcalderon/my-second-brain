@@ -8,12 +8,13 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.9)
+## 📋 Latest Changes (v1.5.11)
 
-### Bug Fixes
+### Added
 
-* **versioning:** run the release guard through the `preRelease` hook and accept `extensionConfig["release-guard"]`
-* **versioning:** keep the standalone `guard-tag` command compatible with the hook-driven guard flow
+* **versioning:** add `check-changelog` guard to block empty release notes before publish
+* **versioning:** add `.agents/` task tracking extension with `tasks list|add|archive|sync|validate`
+* **reentry-status:** add `reentry validate` for generated JSON/markdown drift detection
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
@@ -29,9 +30,11 @@ For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub release
 - 📦 NPM publishable
 - 🏷️ Git tagging and committing
 - ✅ Validation of version sync
+- 🧭 Changelog validation before release
 - 🔌 **Extensible plugin system** for subdirectory-based extensions
 - 🔒 **Security Checks** with automatic Husky integration
 - 🧹 **Repository Cleanup** to keep root directory organized
+- 🗂️ `.agents/` task tracking with reentry snapshot sync
 
 ## Installation
 
@@ -53,7 +56,7 @@ The versioning tool supports a **composable extension system** that allows you t
 - Implement custom versioning strategies
 
 Extensions are loaded automatically from:
-- Built-in extensions in subdirectories of `src/extensions/` (e.g. `src/extensions/reentry-status/index.ts`)
+- Built-in extensions in subdirectories of `src/extensions/` (e.g. `src/extensions/changelog-guard/index.ts`, `src/extensions/reentry-status/index.ts`, `src/extensions/tasks/index.ts`)
 - External packages listed in `versioning.config.json`
 
 ### Creating Extensions
@@ -351,6 +354,17 @@ Configuration (`versioning.config.json`):
   }
 }
 ```
+
+#### README Maintainer Extension
+
+Keeps `README.md` files aligned with the latest changelog entry and resolves the release-history link from the target project when possible.
+
+Behavior:
+- Uses `package.json.repository` first
+- Falls back to the git `origin` remote, then `GITHUB_REPOSITORY`
+- Omits the releases link when no project repository can be resolved
+
+Override the release link with `extensionConfig["readme-maintainer"].releasesUrl` or `repositoryUrl` in `versioning.config.json`.
 
 ### External Extensions
 
