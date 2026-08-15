@@ -43,10 +43,10 @@ afterEach(async () => {
   }
 });
 
-async function runUpdateReadme(args: string[]): Promise<void> {
+async function runUpdateReadme(args: string[], config: any = {}): Promise<void> {
   const program = new Command();
   program.exitOverride();
-  await extension.register(program, {});
+  await extension.register(program, config);
   await program.parseAsync(['node', 'versioning', 'update-readme', ...args]);
 }
 
@@ -193,5 +193,27 @@ describe('readme-maintainer extension', () => {
         process.env.GITHUB_REPOSITORY = previousRepositoryEnv;
       }
     }
+  });
+
+  it('converts a configured repository URL into a GitHub releases link', async () => {
+    const readmePath = path.join(tmpDir, 'README.md');
+    const changelogPath = path.join(tmpDir, 'CHANGELOG.md');
+    await fs.writeFile(readmePath, README_CONTENT);
+    await fs.writeFile(changelogPath, CHANGELOG_CONTENT);
+
+    await runUpdateReadme([
+      '--readme', readmePath,
+      '--changelog', changelogPath,
+    ], {
+      extensionConfig: {
+        'readme-maintainer': {
+          repositoryUrl: 'https://github.com/acme/widget-kit'
+        }
+      }
+    });
+
+    const result = await fs.readFile(readmePath, 'utf8');
+    expect(result).toContain('https://github.com/acme/widget-kit/releases');
+    expect(result).not.toContain('https://github.com/acme/widget-kit)');
   });
 });

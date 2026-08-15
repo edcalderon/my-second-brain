@@ -159,6 +159,17 @@ Status: active
     expect(archived).toContain('Status: done');
   });
 
+  it('refuses to overwrite an existing archived task', async () => {
+    const source = '.agents/active-tasks/wallet/01-build-ui.md';
+    const destination = '.agents/done-tasks/wallet/01-build-ui.md';
+    await createTaskFile(source, '# New task\n\nStatus: active\n');
+    await createTaskFile(destination, '# Original task\n\nStatus: done\n');
+
+    await expect(archiveTaskFile(tmpDir, source)).rejects.toThrow('Archived task already exists');
+    expect(await fs.readFile(path.join(tmpDir, destination), 'utf8')).toContain('Original task');
+    expect(await fs.pathExists(path.join(tmpDir, source))).toBe(true);
+  });
+
   it('updates a task status header when one is present', () => {
     const next = setTaskStatus(`# Build UI\n\nStatus: active\n\n## Acceptance Criteria\n`, 'done');
     expect(next).toContain('Status: done');

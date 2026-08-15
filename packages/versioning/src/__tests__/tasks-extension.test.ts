@@ -28,10 +28,16 @@ async function writeTask(relativePath: string, content: string): Promise<void> {
   await fs.writeFile(absolutePath, content);
 }
 
+async function registerTasks(config: any = {}): Promise<Command> {
+  const program = new Command();
+  program.exitOverride();
+  await extension.register(program, config);
+  return program;
+}
+
 describe('tasks extension', () => {
   it('registers the expected task command tree', async () => {
-    const program = new Command();
-    await extension.register(program, {});
+    const program = await registerTasks();
 
     const tasks = program.commands.find((entry) => entry.name() === 'tasks');
     expect(tasks).toBeDefined();
@@ -64,9 +70,7 @@ Status: active
 - [ ] The UI renders
 `);
 
-    const program = new Command();
-    program.exitOverride();
-    await extension.register(program, {});
+    const program = await registerTasks();
 
     await expect(program.parseAsync(['node', 'versioning', 'tasks', 'sync'])).resolves.toBe(program);
 
@@ -80,5 +84,38 @@ Status: active
 
     const reentryMarkdown = await fs.readFile(path.join(tmpDir, '.versioning', 'REENTRY.md'), 'utf8');
     expect(reentryMarkdown).toContain('Tasks snapshot:');
+  });
+
+  it('writes a project-scoped task snapshot to the selected extension config paths', async () => {
+    await writeTask('.agents/active-tasks/wallet/01-build-ui.md', '# Build UI\n\nStatus: active\n');
+    await fs.writeJson(path.join(tmpDir, 'versioning.config.json'), {
+      extensionConfig: {
+        'reentry-status': {
+          projects: {
+            wallet: {}
+          }
+        }
+      }
+    });
+
+    const program = await registerTasks();
+    await expect(program.parseAsync(['node', 'versioning', 'tasks', 'sync', '--project', 'wallet'])).resolves.toBe(program);
+
+    expect(await fs.pathExists(path.join(tmpDir, '.versioning', 'projects', 'wallet', 'reentry.status.json'))).toBe(true);
+    expect(await fs.pathExists(path.join(tmpDir, '.versioning', 'reentry.status.json'))).toBe(false);
+  });
+
+  it('removes generated indexes for task groups that no longer exist', async () => {
+    const taskPath = '.agents/active-tasks/wallet/01-build-ui.md';
+    await writeTask(taskPath, '# Build UI\n\nStatus: active\n');
+    const program = await registerTasks();
+
+    await program.parseAsync(['node', 'versioning', 'tasks', 'sync']);
+    const readmePath = path.join(tmpDir, '.agents', 'active-tasks', 'wallet', 'README.md');
+    expect(await fs.pathExists(readmePath)).toBe(true);
+
+    await fs.remove(path.join(tmpDir, taskPath));
+    await program.parseAsync(['node', 'versioning', 'tasks', 'sync']);
+    expect(await fs.pathExists(readmePath)).toBe(false);
   });
 });

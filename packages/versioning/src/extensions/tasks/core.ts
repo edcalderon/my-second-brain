@@ -346,6 +346,10 @@ export async function archiveTaskFile(rootDir: string, sourcePath: string): Prom
   const fileName = parts.slice(3).join('/');
   const destinationPath = path.join(rootDir, '.agents', 'done-tasks', feature, fileName);
 
+  if (await fs.pathExists(destinationPath)) {
+    throw new Error(`Archived task already exists: ${path.relative(rootDir, destinationPath).split(path.sep).join('/')}`);
+  }
+
   const content = await fs.readFile(absoluteSource, 'utf8');
   await fs.ensureDir(path.dirname(destinationPath));
   await fs.writeFile(destinationPath, setTaskStatus(content, 'done'), 'utf8');
