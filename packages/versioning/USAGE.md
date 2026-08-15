@@ -699,4 +699,6 @@ test: add unit tests for auth
 5. Push commits and tags
 6. CI/CD handles publishing
 
+For maintainers of `@edcalderon/versioning`, production npm publishing is triggered only by a matching `versioning-v<version>` tag after the release commit is merged to `main`. See the package README for the guarded release procedure.
+
 This versioning system provides flexibility for any project structure while maintaining consistency and automation.
