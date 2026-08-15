@@ -8,13 +8,13 @@ A comprehensive versioning and changelog management tool designed for monorepos 
 
 ---
 
-## 📋 Latest Changes (v1.5.11)
+## 📋 Latest Changes (v1.5.13)
 
-### Added
+### Bug Fixes
 
-* **versioning:** add `check-changelog` guard to block empty release notes before publish
-* **versioning:** add `.agents/` task tracking extension with `tasks list|add|archive|sync|validate`
-* **reentry-status:** add `reentry validate` for generated JSON/markdown drift detection
+* **release:** require a current README release entry and matching package version before tagged publication
+* **release:** block accidental public npm publishes outside the tagged GitHub Actions workflow
+* **release:** skip an already-published version instead of failing a rerun or recovery workflow
 
 For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub releases](https://github.com/edcalderon/my-second-brain/releases)
 
@@ -490,35 +490,24 @@ npm run version:major    # Bump major version
 # Generate changelog
 npm run changelog
 
-# Publish to NPM
-npm run publish:npm      # Publish to NPM
-npm run publish:npm -- --tag beta  # Publish with specific tag
-
-# Publish to local registry for testing
+# Publish to a local registry for testing only
 npm run publish:local
 
-# Create and push version tag
-npm run create-tag
+# Prepare a production release: bump and sync README
+npm run release
 
-# Complete release process
-npm run release          # Bump version, changelog, create tag
-npm run release:local    # Bump version, changelog, publish locally
+# Commit and merge the release to main, then push the tag from main
+npm run create-tag
 ```
 
-The package maintains its own version using the same tooling it provides, ensuring consistency and testing the functionality in production. The NPM publishing extension handles all the complex publishing logic including building, verification, and 2FA support.
+The pushed `versioning-v*` tag is the only production publishing trigger for this package. Do not run `npm publish` or `npm run publish:npm` for a public release.
 
 #### NPM Publish Extension
 
-The package includes a built-in NPM publishing extension for streamlined publishing:
+The package includes an NPM publishing extension for consumer projects. This repository's own public package release remains GitHub Actions-only.
 
 ```bash
-# Publish to NPM
-npm run publish:npm
-
-# Publish to NPM with specific tag
-npm run publish:npm -- --tag beta
-
-# Publish to local registry for testing
+# Publish to a local registry for testing
 npm run publish:local
 
 # Publish to custom local registry
@@ -766,58 +755,44 @@ This tool works best with conventional commits. Examples:
 
 ### Automated NPM Publishing
 
-This package uses GitHub Actions for automated publishing to NPM when version tags are created.
+This package uses GitHub Actions as the sole production publisher. Pushing a `versioning-v<version>` tag starts the publish workflow.
 
 #### Release Process
 
-1. **Update Version**: Use the internal versioning scripts to bump version and update changelog
+1. **Prepare the release commit**: Bump the version, generate the changelog, and sync the README.
    ```bash
-   npm run version:patch  # or version:minor, version:major
-   npm run changelog
+   npm run version:patch
+   npm run update-readme
    ```
 
-2. **Publish Locally (Optional)**: Test publishing to a local registry
+2. **Commit and merge the release**: The version, CHANGELOG, and README must be committed on `main`.
+
+3. **Publish locally (optional)**: Test only against a local registry.
    ```bash
    npm run publish:local
    ```
 
-3. **Create Git Tag**: Use the create-tag script to create and push version tags
+4. **Create the release tag**: Use the create-tag script to create and push the matching tag.
    ```bash
    npm run create-tag
    ```
 
-4. **Guard the release tag first**: Validate the tag against the current package versions and release floor
-  ```bash
-  npx versioning guard-tag --tag versioning-v1.5.9
-  ```
-
-5. **Automated Publishing**: GitHub Actions will automatically publish to NPM using the publish extension
+5. **Monitor GitHub Actions**: The workflow verifies the tag, package version, and generated README before publishing. It skips a version already present in npm instead of attempting a duplicate publish.
 
 #### Quick Release Commands
 
 ```bash
-# Full production release
-npm run release          # Bump version, changelog, create tag
+# Prepare a production release, then commit and merge it to main
+npm run release
+
+# After the release commit is on main, create the publishing tag
+npm run create-tag
 
 # Local testing release
 npm run release:local    # Bump version, changelog, publish locally
-
-# Manual publishing
-npm run publish:npm      # Publish current version to NPM
-npm run publish:npm -- --tag beta  # Publish with specific tag
 ```
 
-This uses the same versioning and publishing logic that the package provides to users, ensuring the tool "eats its own dog food".
-
-#### Manual Publishing (First Release)
-
-For the initial release, publish manually:
-
-```bash
-cd packages/versioning
-npm login
-npm publish
-```
+Public npm versions are immutable. A direct publish or rerun after a version is already published returns npm `E403`. The package lifecycle blocks public manual publishes by default. An emergency manual publish requires explicit maintainer approval and both `ALLOW_MANUAL_NPM_PUBLISH=1` and `MANUAL_PUBLISH_CONFIRM=@edcalderon/versioning@<version>`.
 
 #### NPM Token Setup
 
@@ -825,7 +800,7 @@ To enable automated publishing:
 
 1. Go to [NPM](https://www.npmjs.com/) → Access Tokens → Generate New Token
 2. Create a token with **Automation** scope
-3. Add to GitHub repository secrets as `NPM_TOKEN`
+3. Add it only to GitHub repository secrets as `NPM_TOKEN`; do not keep a production publishing token in local developer configuration.
 
 ### Version Tags
 

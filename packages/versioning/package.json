@@ -1,6 +1,6 @@
 {
   "name": "@edcalderon/versioning",
-  "version": "1.5.12",
+  "version": "1.5.13",
   "description": "A comprehensive versioning and changelog management tool for monorepos",
   "main": "dist/index.js",
   "bin": {
@@ -14,7 +14,8 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src/**/*.ts",
     "postinstall": "node scripts/post-install.js",
-    "prepublishOnly": "npm run build && npm run test",
+    "prepublishOnly": "node scripts/guard-npm-publish.js && npm run build && npm run test",
+    "verify:release": "node scripts/verify-release-metadata.js",
     "version:patch": "node dist/cli.js patch --no-tag",
     "version:minor": "node dist/cli.js minor --no-tag",
     "version:major": "node dist/cli.js major --no-tag",
@@ -22,7 +23,7 @@
     "publish:npm": "node dist/cli.js publish-package",
     "publish:local": "node dist/cli.js publish-local",
     "create-tag": "node scripts/create-tag.js",
-    "release": "npm run version:patch && npm run create-tag",
+    "release": "npm run version:patch && npm run update-readme",
     "release:local": "npm run version:patch && npm run publish:local",
     "update-readme": "node dist/cli.js update-readme"
   },
