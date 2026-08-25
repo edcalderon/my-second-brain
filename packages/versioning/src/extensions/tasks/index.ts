@@ -30,12 +30,26 @@ async function resolveReentryConfig(configPath: string, project?: string): Promi
   const rootDir = path.dirname(path.resolve(configPath));
   const reentryConfig = ConfigManager.loadConfig(rawConfig, project);
 
+  // Must land under extensionConfig['reentry-status'], not the legacy
+  // top-level `reentryStatus` fallback -- ConfigManager.loadConfig() always
+  // checks extensionConfig first (see config-manager.ts), and callers like
+  // ReentryStatusManager.updateStatus() re-derive config from this object
+  // via ConfigManager.loadConfig(cfg) with *no* project argument. Writing
+  // the project-resolved paths to the fallback key meant they were silently
+  // shadowed by the root project's *unresolved* extensionConfig entry
+  // whenever one existed: `tasks sync -p <project>` would compute the right
+  // paths here and then write to the root files anyway, while `tasks
+  // validate -p <project>` (which reads the *actual* extensionConfig key)
+  // checked the project files and reported them missing.
   return {
     cfg: {
       ...rawConfig,
-      reentryStatus: {
-        ...((rawConfig as any).reentryStatus ?? {}),
-        files: reentryConfig.files
+      extensionConfig: {
+        ...(rawConfig as any).extensionConfig,
+        'reentry-status': {
+          ...(rawConfig as any).extensionConfig?.['reentry-status'],
+          files: reentryConfig.files
+        }
       }
     },
     rootDir

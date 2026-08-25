@@ -65,7 +65,15 @@ export default function CommandCenterPage() {
             });
 
             if (!isMounted || !statusResult) {
-                if (isMounted) setRefreshing(false);
+                // A network error (no structured payload at all, so
+                // getTradingErrorPayload returns nothing) still needs
+                // loading cleared -- otherwise the outage banner has an
+                // error to show, but permanent skeleton placeholders sit on
+                // top of it because `loading` never left its initial true.
+                if (isMounted) {
+                    setRefreshing(false);
+                    setLoading(false);
+                }
                 return;
             }
 

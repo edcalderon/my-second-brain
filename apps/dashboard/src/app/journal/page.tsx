@@ -147,15 +147,21 @@ export default function JournalPage() {
         return () => clearTimeout(id);
     }, [searchInput]);
 
-    async function load(preserveSelection = true) {
+    async function load(preserveSelection = true, pageOverride?: number) {
         setRefreshing(true);
         try {
+            // pageOverride exists because setPage() is async -- a caller that
+            // just called setPage(0) and immediately calls load() would
+            // otherwise still read the *old* `page` from this closure and
+            // fetch the wrong offset (see save(), which needs page 0 right
+            // after creating an entry, before the next render has run).
+            const effectivePage = pageOverride ?? page;
             const result = await fetchJournalEntries({
                 status: statusFilter || undefined,
                 side: sideFilter || undefined,
                 search: search || undefined,
                 limit: PAGE_SIZE,
-                offset: page * PAGE_SIZE,
+                offset: effectivePage * PAGE_SIZE,
             });
             setEntries(result.entries);
             setTotal(result.total);
@@ -211,7 +217,7 @@ export default function JournalPage() {
             if (mode === "create") {
                 const created = await createJournalEntry(payload);
                 setPage(0);
-                await load(false);
+                await load(false, 0);
                 setSelectedId(created.id);
             } else if (selected) {
                 const updated = await updateJournalEntry(selected.id, payload);

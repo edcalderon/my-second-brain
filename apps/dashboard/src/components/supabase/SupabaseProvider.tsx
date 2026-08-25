@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/lib/supabase";
 import { playPatternForNotification, severityFallbackPattern, startAlarmLoop } from "@/lib/notification-sounds";
 import { loadNotificationPreferences, shouldNotify } from "@/lib/notification-preferences";
@@ -91,6 +92,7 @@ const SupabaseContext = createContext<SupabaseContextType>({
 });
 
 export function SupabaseProvider({ children }: { children: ReactNode }) {
+    const { user } = useAuth();
     const [portfolio, setPortfolio] = useState<PortfolioSnapshot | null>(null);
     const [portfolioHistory, setPortfolioHistory] = useState<PortfolioSnapshot[]>([]);
     const [signals, setSignals] = useState<Signal[]>([]);
@@ -133,9 +135,35 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
                     : n
             )
         );
+        // Archiving a still-alarming critical notification must stop the
+        // sound/overlay too -- without this, an archived notification could
+        // keep sounding and stay in the CriticalAlertOverlay indefinitely,
+        // since dismissAlarm was only ever wired to "mark read", not archive.
+        if (archived) {
+            dismissAlarm(id);
+        }
     }
 
     useEffect(() => {
+        // Notifications (and, defensively, the rest of this data) are meant
+        // for an authenticated session -- fetching and subscribing before
+        // TradingAuthGate has confirmed a user would otherwise pull trade
+        // signal/risk-guard/journal content into a signed-out browser
+        // (including on /login) purely because this provider sits above the
+        // auth gate in the layout tree. Wait for auth to resolve; go back to
+        // the unloaded state on sign-out instead of leaving stale data around.
+        if (!user) {
+            setPortfolio(null);
+            setPortfolioHistory([]);
+            setSignals([]);
+            setTrades([]);
+            setNotifications([]);
+            hasLoadedInitialNotifications.current = false;
+            setLoading(true);
+            setError(null);
+            return;
+        }
+
         let isMounted = true;
 
         async function fetchInitialData() {
@@ -252,7 +280,7 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
                     const prefs = loadNotificationPreferences();
                     if (!shouldNotify(prefs, next.category, next.severity)) return;
 
-                    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+                    if (prefs.browserPushEnabled && typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
                         new Notification(next.title, { body: next.message, tag: next.id });
                     }
 
@@ -287,7 +315,7 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
             isMounted = false;
             supabase.removeChannel(channels);
         };
-    }, []);
+    }, [user]);
 
     const unreadCount = notifications.filter((n) => !n.read_at).length;
     const alarmingNotifications = notifications.filter((n) => alarmingIds.includes(n.id));

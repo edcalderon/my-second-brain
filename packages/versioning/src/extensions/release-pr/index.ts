@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import * as fs from 'fs-extra';
 import { VersioningExtension } from '../../extensions';
 import { VersionManager } from '../../versioning';
@@ -36,6 +36,13 @@ function runInherit(cmd: string): void {
 // packages/versioning/dist of its own), not just from inside this
 // package's own directory.
 const CLI_ENTRYPOINT = process.argv[1];
+
+// execFileSync + process.execPath, args as an array -- not a shell string
+// -- so this can't break on a path containing a space or shell metachar,
+// and always launches with the exact same node binary running right now.
+function runCli(...args: string[]): void {
+  execFileSync(process.execPath, [CLI_ENTRYPOINT, ...args], { stdio: 'inherit' });
+}
 
 async function loadConfig(configPath: string): Promise<any> {
   if (!(await fs.pathExists(configPath))) {
@@ -75,7 +82,7 @@ async function runReleasePr(
 
   console.log(`\n🔒 Running secrets-check before touching anything...`);
   try {
-    runInherit(`node ${CLI_ENTRYPOINT} check-secrets`);
+    runCli('check-secrets');
   } catch {
     throw new Error('secrets-check failed -- release blocked. Fix the finding(s) above before retrying.');
   }
@@ -85,7 +92,15 @@ async function runReleasePr(
     return;
   }
 
-  runInherit(`git checkout -b ${branchName}`);
+  // Explicit start point (git checkout -b <new-branch> [<start-point>]) --
+  // without it, the branch starts from whatever HEAD currently is, which
+  // is only baseBranch by coincidence. Invoking this from a feature branch
+  // with --base main would otherwise silently pull that branch's commits
+  // into the release and compute the changelog against the wrong history.
+  // Fetching origin/<base> first (not the possibly-stale local branch ref)
+  // guarantees the release always starts from the actual latest base.
+  runInherit(`git fetch origin ${baseBranch}`);
+  runInherit(`git checkout -b ${branchName} origin/${baseBranch}`);
 
   try {
     const versionManager = new VersionManager(config);
@@ -102,14 +117,14 @@ async function runReleasePr(
 
     console.log(`\n📦 Running readme-maintainer update-readme...`);
     try {
-      runInherit(`node ${CLI_ENTRYPOINT} update-readme`);
+      runCli('update-readme');
     } catch (err) {
       console.warn('⚠️  update-readme failed, continuing without it:', err instanceof Error ? err.message : String(err));
     }
 
     console.log(`\n🧹 Running cleanup-repo...`);
     try {
-      runInherit(`node ${CLI_ENTRYPOINT} cleanup move`);
+      runCli('cleanup', 'move');
     } catch (err) {
       console.warn('⚠️  cleanup-repo failed or is not configured, continuing:', err instanceof Error ? err.message : String(err));
     }
