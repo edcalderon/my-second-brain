@@ -14,3 +14,19 @@ npx versioning check-secrets 2>/dev/null
 echo "📝 Checking versioning package docs update…"
 ./scripts/check-versioning-docs.sh
 # === versioning-docs-check: end ===
+
+# === versioning-tests: start ===
+# Only when packages/versioning actually changed -- it's the only package
+# with real test coverage today (apps/dashboard has none yet). CI runs
+# the same suite + posts a coverage comment on the PR, see
+# .github/workflows/test-versioning.yml.
+if git diff --cached --name-only | grep -q '^packages/versioning/'; then
+  echo "🧪 Running packages/versioning tests + coverage…"
+  (cd packages/versioning && pnpm test --coverage)
+  if [ $? -ne 0 ]; then
+    echo "❌ versioning package tests failed or coverage dropped below the gate!"
+    echo "Run: cd packages/versioning && pnpm test --coverage"
+    exit 1
+  fi
+fi
+# === versioning-tests: end ===

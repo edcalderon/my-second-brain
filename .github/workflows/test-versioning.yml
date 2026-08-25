@@ -1,0 +1,56 @@
+name: versioning package tests + coverage
+
+on:
+  pull_request:
+    paths:
+      - "packages/versioning/**"
+      - ".github/workflows/test-versioning.yml"
+  push:
+    branches: [main]
+    paths:
+      - "packages/versioning/**"
+
+# Coverage stays entirely inside this workflow -- no Codecov/Coveralls
+# account needed (both are paid-only for private repos now), just
+# GITHUB_TOKEN posting a PR comment. See apps/api-svc's equivalent
+# (a-quant repo, docs/testing.md) for the same pattern applied to Python.
+#
+# No hard coverage threshold here yet -- existing coverage across this
+# package's ~20 extensions is uneven (some 90%+, some 0%, e.g. the new
+# release-pr extension and the sample-extension reference file). Add a
+# per-file/per-extension threshold once that's been deliberately raised,
+# not as a blanket gate that would fail on pre-existing gaps.
+#
+# permissions block: the a-quant equivalent of this workflow shipped
+# without it first and the PR-comment step failed with "Resource not
+# accessible by integration" -- default GITHUB_TOKEN permissions don't
+# include pull-requests: write. Fixed here before that happened here too.
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/versioning
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests with coverage
+        run: npx jest --coverage --coverageReporters=json-summary --coverageReporters=text
+
+      - name: Post coverage comment on the PR
+        if: github.event_name == 'pull_request'
+        uses: ArtiomTr/jest-coverage-report-action@v2
+        with:
+          working-directory: packages/versioning
+          skip-step: install
