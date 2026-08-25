@@ -3,12 +3,15 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { CandlestickChart, RefreshCw } from "lucide-react";
 import {
+    buildTradingOutageNotice,
     fetchTradingMarket,
     fetchTradingStatus,
+    getTradingErrorPayload,
     HummingbotMarket,
     HummingbotStatus,
 } from "@/lib/hummingbot-api";
 import { formatNumber, formatTime } from "@/lib/hummingbot-format";
+import { TradingOutageBanner } from "@/components/trading/TradingOutageBanner";
 
 const DEFAULT_PAIR = "ETH-USD";
 const DEFAULT_INTERVAL = "1h";
@@ -22,37 +25,47 @@ export default function MarketPage() {
     const [refreshCounter, setRefreshCounter] = useState(0);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<unknown>(null);
 
     useEffect(() => {
         let isMounted = true;
 
         async function load() {
             setRefreshing(true);
-            try {
-                const [statusPayload, marketPayload] = await Promise.all([
-                    fetchTradingStatus(),
-                    fetchTradingMarket({ trading_pair: tradingPair, interval: candleInterval, limit }),
-                ]);
+            const [statusResult, marketResult] = await Promise.allSettled([
+                fetchTradingStatus(),
+                fetchTradingMarket({ trading_pair: tradingPair, interval: candleInterval, limit }),
+            ]);
 
-                if (!isMounted) {
-                    return;
-                }
+            if (!isMounted) {
+                return;
+            }
 
-                setStatus(statusPayload);
-                setMarket(marketPayload);
-                setError(null);
-            } catch (err) {
-                if (!isMounted) {
-                    return;
-                }
-                setError(err instanceof Error ? err.message : "Failed to load market data");
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                    setRefreshing(false);
+            const failures: unknown[] = [];
+
+            if (statusResult.status === "fulfilled") {
+                setStatus(statusResult.value);
+            } else {
+                failures.push(statusResult.reason);
+                const payload = getTradingErrorPayload<HummingbotStatus>(statusResult.reason);
+                if (payload) {
+                    setStatus(payload);
                 }
             }
+
+            if (marketResult.status === "fulfilled") {
+                setMarket(marketResult.value);
+            } else {
+                failures.push(marketResult.reason);
+                const payload = getTradingErrorPayload<HummingbotMarket>(marketResult.reason);
+                if (payload) {
+                    setMarket(payload);
+                }
+            }
+
+            setError(failures[0] ?? null);
+            setLoading(false);
+            setRefreshing(false);
         }
 
         load();
@@ -65,6 +78,11 @@ export default function MarketPage() {
 
     const candles = market?.candles ?? [];
     const latest = market?.latest_candle ?? candles[candles.length - 1] ?? null;
+    const outageNotice = buildTradingOutageNotice({
+        status: status?.service_health ?? market?.service_health ?? null,
+        error,
+        endpoint: "/trading/status",
+    });
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 pb-16">
@@ -86,14 +104,10 @@ export default function MarketPage() {
                 </button>
             </header>
 
-            {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
-                    {error}
-                </div>
-            )}
+            <TradingOutageBanner notice={outageNotice} />
 
-            <section className="grid gap-6 lg:grid-cols-[1.25fr_1fr]">
-                <div className="glass-panel rounded-2xl p-6 space-y-5">
+            <section className="@container grid gap-6 @3xl:grid-cols-[1.25fr_1fr]">
+                <div className="glass-panel rounded-2xl p-6 space-y-5 min-w-0">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900">Feed controls</h2>
@@ -151,7 +165,13 @@ export default function MarketPage() {
                         <div className="flex items-center gap-2 text-emerald-700">
                             <span className="h-2 w-2 rounded-full bg-emerald-500" />
                             <span className="font-semibold">
-                                {loading ? "Loading market feed" : "Hummingbot market feed connected"}
+                                {loading
+                                    ? "Loading market feed"
+                                    : outageNotice
+                                        ? outageNotice.state === "offline"
+                                            ? "Market feed offline"
+                                            : "Market feed degraded"
+                                        : "Hummingbot market feed connected"}
                             </span>
                         </div>
                         <p className="mt-2">
@@ -160,7 +180,7 @@ export default function MarketPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-2xl p-6 space-y-4">
+                <div className="glass-panel rounded-2xl p-6 space-y-4 min-w-0">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-gray-900">Signal preview</h2>
                         <span className="rounded-lg bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">

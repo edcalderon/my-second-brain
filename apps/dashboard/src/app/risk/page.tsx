@@ -2,19 +2,28 @@
 
 import { useEffect, useState } from "react";
 import { ShieldAlert, ShieldCheck, Sparkles } from "lucide-react";
-import { fetchTradingStatus, previewTrade, HummingbotPreview, HummingbotStatus } from "@/lib/hummingbot-api";
+import {
+    buildTradingOutageNotice,
+    fetchTradingStatus,
+    getTradingErrorPayload,
+    previewTrade,
+    HummingbotPreview,
+    HummingbotStatus,
+} from "@/lib/hummingbot-api";
 import { formatJson, formatNumber, formatPercent, normalizePosition } from "@/lib/hummingbot-format";
+import { TradingOutageBanner } from "@/components/trading/TradingOutageBanner";
 
 const DEFAULT_PAIR = "ETH-USD";
 const DEFAULT_INTERVAL = "1h";
 const DEFAULT_FAST_EMA = 21;
 const DEFAULT_SLOW_EMA = 55;
 const DEFAULT_RSI = 14;
+const DEFAULT_CONNECTOR = "hyperliquid_perpetual";
 
 export default function RiskPage() {
     const [status, setStatus] = useState<HummingbotStatus | null>(null);
     const [preview, setPreview] = useState<HummingbotPreview | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<unknown>(null);
     const [loading, setLoading] = useState(true);
     const [refreshCounter, setRefreshCounter] = useState(0);
 
@@ -22,39 +31,43 @@ export default function RiskPage() {
         let isMounted = true;
 
         async function load() {
-            try {
-                const statusPayload = await fetchTradingStatus();
-                if (!isMounted) {
-                    return;
-                }
+            const failures: unknown[] = [];
+            const statusPayload = await fetchTradingStatus().catch((err) => {
+                failures.push(err);
+                return getTradingErrorPayload<HummingbotStatus>(err);
+            });
 
-                setStatus(statusPayload);
-
-                const previewPayload = await previewTrade({
-                    trading_pair: DEFAULT_PAIR,
-                    connector_name: statusPayload.default_connector,
-                    interval: DEFAULT_INTERVAL,
-                    fast_ema: DEFAULT_FAST_EMA,
-                    slow_ema: DEFAULT_SLOW_EMA,
-                    rsi_period: DEFAULT_RSI,
-                });
-
-                if (!isMounted) {
-                    return;
-                }
-
-                setPreview(previewPayload);
-                setError(null);
-            } catch (err) {
-                if (!isMounted) {
-                    return;
-                }
-                setError(err instanceof Error ? err.message : "Failed to load risk view");
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                }
+            if (!isMounted) {
+                return;
             }
+
+            const nextStatus = statusPayload || null;
+            if (nextStatus) {
+                setStatus(nextStatus);
+            }
+
+            const previewPayload = await previewTrade({
+                trading_pair: DEFAULT_PAIR,
+                connector_name: nextStatus?.default_connector || DEFAULT_CONNECTOR,
+                interval: DEFAULT_INTERVAL,
+                fast_ema: DEFAULT_FAST_EMA,
+                slow_ema: DEFAULT_SLOW_EMA,
+                rsi_period: DEFAULT_RSI,
+            }).catch((err) => {
+                failures.push(err);
+                return getTradingErrorPayload<HummingbotPreview>(err);
+            });
+
+            if (!isMounted) {
+                return;
+            }
+
+            if (previewPayload) {
+                setPreview(previewPayload);
+            }
+
+            setError(failures.length ? failures[0] : null);
+            setLoading(false);
         }
 
         load();
@@ -67,6 +80,11 @@ export default function RiskPage() {
 
     const positions = status?.open_positions ?? [];
     const normalizedPositions = positions.map(normalizePosition);
+    const outageNotice = buildTradingOutageNotice({
+        status: status?.service_health ?? preview?.service_health ?? null,
+        error,
+        endpoint: "/trading/status",
+    });
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-16">
@@ -90,14 +108,10 @@ export default function RiskPage() {
                 </div>
             </header>
 
-            {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
-                    {error}
-                </div>
-            )}
+            <TradingOutageBanner notice={outageNotice} />
 
-            <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                <div className="glass-panel rounded-2xl p-6 space-y-4">
+            <section className="@container grid gap-6 @3xl:grid-cols-[1.1fr_0.9fr]">
+                <div className="glass-panel rounded-2xl p-6 space-y-4 min-w-0">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900">Risk summary</h2>
@@ -116,7 +130,15 @@ export default function RiskPage() {
                     <div className="rounded-xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
                         <div className="flex items-center gap-2 text-emerald-700">
                             <ShieldCheck className="h-4 w-4" />
-                            <span className="font-semibold">{loading ? "Loading risk data" : "Backend risk state loaded"}</span>
+                            <span className="font-semibold">
+                                {loading
+                                    ? "Loading risk data"
+                                    : outageNotice
+                                        ? outageNotice.state === "offline"
+                                            ? "Backend risk feed offline"
+                                            : "Backend risk feed degraded"
+                                        : "Backend risk state loaded"}
+                            </span>
                         </div>
                         <p className="mt-2">
                             {status?.api_url || "Waiting for the Hummingbot backend."}
@@ -129,7 +151,7 @@ export default function RiskPage() {
                     </details>
                 </div>
 
-                <div className="glass-panel rounded-2xl p-6 space-y-4">
+                <div className="glass-panel rounded-2xl p-6 space-y-4 min-w-0">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-gray-900">Signal pressure</h2>
                         <span className="rounded-lg bg-amber-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-700">

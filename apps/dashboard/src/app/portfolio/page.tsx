@@ -16,6 +16,7 @@ import {
 import { BalanceChartCard } from "@/components/portfolio/BalanceChart";
 import { PortfolioLoading } from "@/components/portfolio/PortfolioLoading";
 import { useSupabaseData } from "@/components/supabase/SupabaseProvider";
+import { TradingOutageBanner } from "@/components/trading/TradingOutageBanner";
 import {
     appendBalanceSample,
     combineBalanceSeries,
@@ -25,8 +26,10 @@ import {
 } from "@/lib/balance-series";
 import { readPortfolioLiveCache, writePortfolioLiveCache, type PortfolioLiveCache } from "@/lib/trading-cache";
 import {
+    buildTradingOutageNotice,
     fetchPortfolioTracker,
     fetchTradingStatus,
+    getTradingErrorPayload,
     type HummingbotPortfolioTracker,
     type HummingbotStatus,
 } from "@/lib/hummingbot-api";
@@ -79,7 +82,7 @@ export default function PortfolioPage() {
     const [cacheSnapshot, setCacheSnapshot] = useState<PortfolioLiveCache | null>(null);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<unknown>(null);
     const [refreshCounter, setRefreshCounter] = useState(0);
     const [liveSamples, setLiveSamples] = useState<BalancePoint[]>([]);
 
@@ -117,6 +120,11 @@ export default function PortfolioPage() {
                 setStatus(nextStatus);
             } else {
                 nextErrors.push("Trading status is temporarily unavailable");
+                const payload = getTradingErrorPayload<HummingbotStatus>(statusResult.reason);
+                if (payload) {
+                    nextStatus = payload;
+                    setStatus(payload);
+                }
             }
 
             if (trackerResult.status === "fulfilled") {
@@ -124,6 +132,11 @@ export default function PortfolioPage() {
                 setTracker(nextTracker);
             } else {
                 nextErrors.push("Portfolio tracker is temporarily unavailable");
+                const payload = getTradingErrorPayload<HummingbotPortfolioTracker>(trackerResult.reason);
+                if (payload) {
+                    nextTracker = payload;
+                    setTracker(payload);
+                }
             }
 
             const summary = nextTracker?.summary ?? nextStatus?.portfolio_summary ?? null;
@@ -152,7 +165,13 @@ export default function PortfolioPage() {
                 writePortfolioLiveCache(nextCache);
             }
 
-            setError(nextErrors.length ? nextErrors.join(" • ") : null);
+            const firstFailure =
+                statusResult.status === "rejected"
+                    ? statusResult.reason
+                    : trackerResult.status === "rejected"
+                        ? trackerResult.reason
+                        : nextErrors.join(" • ");
+            setError(nextErrors.length ? firstFailure : null);
             setLoading(false);
             setRefreshing(false);
         }
@@ -178,6 +197,11 @@ export default function PortfolioPage() {
     const hasPositiveLiveBalance = typeof liveBalanceUsd === "number" && liveBalanceUsd > 0;
     const displayedBalanceUsd = hasPositiveLiveBalance ? liveBalanceUsd : latestStoredSnapshot?.total_value_usd ?? liveBalanceUsd ?? mainWalletUsdc;
     const displayedBalanceEth = hasPositiveLiveBalance ? liveBalanceEth : latestStoredSnapshot?.total_value_eth ?? liveBalanceEth;
+    const outageNotice = buildTradingOutageNotice({
+        status: status?.service_health ?? tracker?.service_health ?? null,
+        error,
+        endpoint: "/trading/status",
+    });
     const balanceSourceLabel = hasPositiveLiveBalance
         ? cacheSnapshot
             ? "Live tracker + warm cache"
@@ -192,9 +216,13 @@ export default function PortfolioPage() {
             ? "The live tracker is publishing a positive balance and the chart below is driven by the live update stream. A warm session cache keeps the page responsive between refreshes."
             : "The live tracker is publishing a positive balance and the chart below is driven by the live update stream."
         : latestStoredSnapshot
-            ? "The live tracker has not published a positive balance yet, so the latest stored snapshot is used as the current balance."
+            ? outageNotice
+                ? "The trading backend is degraded or offline, so the latest stored snapshot is used as the current balance until the feed recovers."
+                : "The live tracker has not published a positive balance yet, so the latest stored snapshot is used as the current balance."
             : cacheSnapshot
-                ? "The live tracker is still warming up, so the current values come from the cached session snapshot until fresh data lands."
+                ? outageNotice
+                    ? "The trading backend is degraded or offline, so the cached session snapshot is keeping the balance visible until fresh data lands."
+                    : "The live tracker is still warming up, so the current values come from the cached session snapshot until fresh data lands."
                 : "Waiting for the first live balance snapshot.";
     const latestUpdatedAt = liveSummary?.snapshot_time ?? tracker?.snapshot_time ?? latestStoredSnapshot?.time ?? null;
     const currentBalanceText = displayedBalanceUsd === null ? "--" : formatCurrency(displayedBalanceUsd, 2);
@@ -203,10 +231,14 @@ export default function PortfolioPage() {
     const liveAccount = tracker?.account_name || status?.default_account || "--";
     const liveConnector = tracker?.connector_name || status?.default_connector || "--";
     const livePositions = (tracker?.open_positions || status?.open_positions || []).map(normalizePosition);
-    const trackerState = error || portfolioError
+    const trackerState = outageNotice || portfolioError
         ? cacheSnapshot
-            ? "Using cached tracker"
-            : "Live tracker reconnecting"
+            ? outageNotice?.state === "offline"
+                ? "Using cached tracker during outage"
+                : "Using cached tracker"
+            : outageNotice?.state === "offline"
+                ? "Live tracker offline"
+                : "Live tracker reconnecting"
         : refreshing && cacheSnapshot
             ? "Refreshing cached tracker"
             : loading || portfolioLoading
@@ -265,11 +297,13 @@ export default function PortfolioPage() {
                 </div>
             </header>
 
-            {(error || portfolioError) && (
+            {outageNotice && <TradingOutageBanner notice={outageNotice} />}
+
+            {portfolioError && (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
                     <div className="flex items-start gap-2">
                         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
-                        <p>{error || portfolioError}</p>
+                        <p>{portfolioError}</p>
                     </div>
                 </div>
             )}
@@ -286,8 +320,9 @@ export default function PortfolioPage() {
                 fallbackNote={balanceFallbackNote}
             />
 
-            <section className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-                <div className="glass-panel rounded-2xl p-6 lg:p-7">
+            {/* @container not lg:, since this column's real space depends on the sidebar's fixed width, not raw viewport -- see command-center/page.tsx for the full explanation */}
+            <section className="@container grid gap-6 @3xl:grid-cols-[1.05fr_0.95fr]">
+                <div className="glass-panel rounded-2xl p-6 lg:p-7 min-w-0">
                     <SectionHeader
                         eyebrow="Live tracker"
                         title="Identity and live feed"
@@ -378,7 +413,7 @@ export default function PortfolioPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-2xl p-6 lg:p-7">
+                <div className="glass-panel rounded-2xl p-6 lg:p-7 min-w-0">
                     <SectionHeader
                         eyebrow="Capital summary"
                         title="Tracked balance and account health"
@@ -441,8 +476,8 @@ export default function PortfolioPage() {
                 </div>
             </section>
 
-            <section className="grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
-                <div className="glass-panel rounded-2xl p-6 lg:p-7">
+            <section className="@container grid gap-6 @3xl:grid-cols-[1.08fr_0.92fr]">
+                <div className="glass-panel rounded-2xl p-6 lg:p-7 min-w-0">
                     <SectionHeader
                         eyebrow="Recent snapshots"
                         title="Supabase history from the tracker feed"
@@ -493,7 +528,7 @@ export default function PortfolioPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-2xl p-6 lg:p-7">
+                <div className="glass-panel rounded-2xl p-6 lg:p-7 min-w-0">
                     <SectionHeader
                         eyebrow="Open positions"
                         title="Positions currently exposed by the tracker"

@@ -1,9 +1,10 @@
 "use client";
 
-import { Bell, Menu, Search, LogOut, LogIn, Settings, Moon, Sun, ChevronDown, UserIcon } from "lucide-react";
+import { Menu, Search, LogOut, LogIn, Settings, Moon, Sun, ChevronDown, UserIcon } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import NotificationCenter from "@/components/notifications/NotificationCenter";
 
 interface HeaderProps {
     onSidebarToggle?: () => void;
@@ -81,10 +82,7 @@ export default function Header({ onSidebarToggle, isSidebarCollapsed }: HeaderPr
             {/* Right Section - Responsive spacing */}
             <div className="flex items-center space-x-2 sm:space-x-4 ml-4">
                 {/* Notifications */}
-                <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors rounded-lg hover:bg-black/5 dark:hover:bg-white/5 relative flex-shrink-0">
-                    <Bell className="h-5 w-5" />
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full"></span>
-                </button>
+                <NotificationCenter />
 
                 {/* Theme Toggle */}
                 <button

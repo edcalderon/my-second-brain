@@ -11,7 +11,9 @@
     "update-readme": "versioning update-readme"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@tailwindcss/typography": "^0.5.20",
+    "@types/bun": "latest",
+    "unified": "^11.0.5"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
@@ -24,15 +26,21 @@
     "@types/node": "^25.0.3",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@uiw/react-md-editor": "^4.1.2",
     "autoprefixer": "^10.4.23",
     "clsx": "^2.1.1",
     "firebase": "^12.7.0",
     "firebase-admin": "^13.6.0",
+    "katex": "^0.18.4",
     "lucide-react": "^0.562.0",
     "next": "^16.1.7",
     "postcss": "^8.5.6",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
+    "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
     "supermemory": "^4.0.0",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18"

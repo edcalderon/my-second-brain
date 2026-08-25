@@ -7,7 +7,7 @@ import { stripDashboardBasePath } from "@/lib/public-site";
 
 // Trading operations pages that require authentication.
 // The `/a-quant` workspace is also private because it exposes the trading portal inside the dashboard shell.
-const PRIVATE_ROUTES = ["/", "/portfolio", "/market", "/strategy", "/risk", "/execution", "/a-quant"];
+const PRIVATE_ROUTES = ["/", "/portfolio", "/market", "/strategy", "/risk", "/execution", "/command-center", "/journal", "/a-quant"];
 
 function normalizeRoute(pathname: string) {
     const stripped = stripDashboardBasePath(pathname || "/").replace(/\/+$/, "");

@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
     ArrowUpRight,
     CandlestickChart,
+    Crosshair,
     ExternalLink,
     Gauge,
     ShieldCheck,
@@ -16,6 +17,12 @@ const MAIN_WALLET_ADDRESS = process.env.NEXT_PUBLIC_A_QUANT_MAIN_WALLET || "0x7E
 const API_WALLET_ADDRESS = process.env.NEXT_PUBLIC_A_QUANT_API_WALLET || "0x7544a933706abe1e2a3664b6e0b09ed16743743d";
 
 const quickLinks = [
+    {
+        href: "/command-center",
+        title: "Command Center",
+        description: "Live open positions and one-click trade control, refreshed every 5s.",
+        icon: Crosshair,
+    },
     {
         href: "/portfolio",
         title: "Portfolio Tracker",
@@ -102,8 +109,8 @@ export default function AQuantPortalPage() {
                     </Link>
                 </div>
 
-                <div className="mt-6 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
-                    <div className="space-y-6">
+                <div className="@container mt-6 grid gap-8 @3xl:grid-cols-[1.2fr_0.8fr] @3xl:items-start">
+                    <div className="space-y-6 min-w-0">
                         <div className="space-y-4">
                             <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
                                 A-Quant Trading Portal
@@ -143,7 +150,7 @@ export default function AQuantPortalPage() {
                         </div>
                     </div>
 
-                    <div className="grid gap-3">
+                    <div className="grid gap-3 min-w-0">
                         <InfoTile label="Main wallet" value={MAIN_WALLET_ADDRESS} mono />
                         <InfoTile label="API wallet" value={API_WALLET_ADDRESS} mono />
                         <InfoTile label="API base" value={API_BASE} mono />
@@ -174,8 +181,8 @@ export default function AQuantPortalPage() {
                 ))}
             </section>
 
-            <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                <div className="rounded-xl border border-border bg-white/95 p-6 shadow-sm">
+            <section className="@container grid gap-6 @3xl:grid-cols-[1.1fr_0.9fr]">
+                <div className="rounded-xl border border-border bg-white/95 p-6 shadow-sm min-w-0">
                     <div className="flex items-center justify-between gap-4">
                         <div>
                             <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">Testing workflow</p>
@@ -196,7 +203,7 @@ export default function AQuantPortalPage() {
                     </div>
                 </div>
 
-                <div className="rounded-xl border border-border bg-white/95 p-6 shadow-sm">
+                <div className="rounded-xl border border-border bg-white/95 p-6 shadow-sm min-w-0">
                     <div className="flex items-center justify-between gap-4">
                         <div>
                             <p className="text-xs uppercase tracking-[0.22em] text-emerald-700">API surface</p>

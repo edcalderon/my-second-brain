@@ -1,4 +1,5 @@
 node_modules/
+.codebase-memory/
 .env
 .env.local
 .env.*.local
