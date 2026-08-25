@@ -1,3 +1,21 @@
+## [1.5.5](https://github.com/edcalderon/my-second-brain/compare/v1.5.4...v1.5.5) (2026-08-25)
+
+
+### Bug Fixes
+
+* **readme-maintainer:** use project repository for release links ([2d311ba](https://github.com/edcalderon/my-second-brain/commit/2d311ba4dcf056e2364d7e3f13dd128a0bdbc9a9))
+
+
+### Features
+
+* **dashboard:** live trading desk -- command center, journal, real-time notifications ([668a24a](https://github.com/edcalderon/my-second-brain/commit/668a24a4a086369371039d4e13b8d79f75c5d9e7))
+* **versioning:** add changelog guard and tasks plugin ([f90cd10](https://github.com/edcalderon/my-second-brain/commit/f90cd108691d6392b9ab2c7798b641c35a15e9bc))
+* **versioning:** add release-pr extension ([491eb7b](https://github.com/edcalderon/my-second-brain/commit/491eb7b45addd73272a613631a6f8c7250c3ae7d))
+
+
+
+
+
 ## [1.5.4](https://github.com/edcalderon/my-second-brain/compare/v1.5.3...v1.5.4) (2026-05-19)
 
 
