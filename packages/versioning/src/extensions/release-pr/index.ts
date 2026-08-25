@@ -29,6 +29,14 @@ function runInherit(cmd: string): void {
   execSync(cmd, { stdio: 'inherit' });
 }
 
+// The currently-running CLI script's own path -- re-invoking through this
+// (instead of a hardcoded 'dist/cli.js') is what makes 'versioning
+// release-pr' work when run from a *consuming* repo (e.g. a-quant, which
+// depends on @edcalderon/versioning from node_modules and has no local
+// packages/versioning/dist of its own), not just from inside this
+// package's own directory.
+const CLI_ENTRYPOINT = process.argv[1];
+
 async function loadConfig(configPath: string): Promise<any> {
   if (!(await fs.pathExists(configPath))) {
     throw new Error(`Config file not found: ${configPath}. Run 'versioning init' to create one.`);
@@ -67,7 +75,7 @@ async function runReleasePr(
 
   console.log(`\n🔒 Running secrets-check before touching anything...`);
   try {
-    runInherit('node dist/cli.js check-secrets');
+    runInherit(`node ${CLI_ENTRYPOINT} check-secrets`);
   } catch {
     throw new Error('secrets-check failed -- release blocked. Fix the finding(s) above before retrying.');
   }
@@ -94,14 +102,14 @@ async function runReleasePr(
 
     console.log(`\n📦 Running readme-maintainer update-readme...`);
     try {
-      runInherit('node dist/cli.js update-readme');
+      runInherit(`node ${CLI_ENTRYPOINT} update-readme`);
     } catch (err) {
       console.warn('⚠️  update-readme failed, continuing without it:', err instanceof Error ? err.message : String(err));
     }
 
     console.log(`\n🧹 Running cleanup-repo...`);
     try {
-      runInherit('node dist/cli.js cleanup');
+      runInherit(`node ${CLI_ENTRYPOINT} cleanup`);
     } catch (err) {
       console.warn('⚠️  cleanup-repo failed or is not configured, continuing:', err instanceof Error ? err.message : String(err));
     }
