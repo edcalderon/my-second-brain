@@ -47,28 +47,49 @@ jobs:
       - name: Extract version from tag
         id: extract_version
         run: |
-          # Extract version from tag (remove 'versioning-v' prefix)
-          TAG_NAME=${{ github.ref_name }}
+          TAG_NAME="${{ github.ref_name }}"
+          if ! [[ "$TAG_NAME" =~ ^versioning-v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid versioning release tag: $TAG_NAME"
+            exit 1
+          fi
           VERSION=${TAG_NAME#versioning-v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing version: $VERSION"
 
-      - name: Update package.json version
+      - name: Verify release metadata
         run: |
           VERSION=${{ steps.extract_version.outputs.version }}
           cd packages/versioning
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           if [ "$CURRENT_VERSION" != "$VERSION" ]; then
-            echo "Updating package.json from $CURRENT_VERSION to $VERSION"
-            npm version $VERSION --no-git-tag-version --no-commit-hooks
+            echo "package.json version $CURRENT_VERSION does not match tag version $VERSION"
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "Release tag must reference a commit already merged into main"
+            exit 1
+          fi
+          npm run update-readme
+          git diff --exit-code -- README.md
+          npm run verify:release
+
+      - name: Check npm registry
+        id: npm_registry
+        run: |
+          VERSION=${{ steps.extract_version.outputs.version }}
+          if npm view "@edcalderon/versioning@$VERSION" version > /dev/null 2>&1; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "@edcalderon/versioning@$VERSION is already published; skipping npm publish."
           else
-            echo "Package.json already has correct version $VERSION"
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Publish to NPM
+        if: steps.npm_registry.outputs.already_published != 'true'
         run: cd packages/versioning && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VERSIONING_ACTION_PUBLISH: 'true'
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1

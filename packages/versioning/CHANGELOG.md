@@ -1,3 +1,21 @@
+## [1.5.13](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.12...versioning-v1.5.13) (2026-08-14)
+
+### Bug Fixes
+
+* **release:** require a current README release entry and matching package version before tagged publication
+* **release:** block accidental public npm publishes outside the tagged GitHub Actions workflow
+* **release:** skip an already-published version instead of failing a rerun or recovery workflow
+
+
+## [1.5.12](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.11...versioning-v1.5.12) (2026-08-14)
+
+### Bug Fixes
+
+* **versioning:** accept conventional-changelog single-`#` headings for minor and major release entries
+* **tasks:** preserve project-scoped reentry snapshots, avoid stale generated indexes, and protect archived task history
+* **readme-maintainer:** resolve `repositoryUrl` configuration to a GitHub releases URL
+
+
 ## [1.5.11](https://github.com/edcalderon/my-second-brain/compare/versioning-v1.5.10...versioning-v1.5.11) (2026-07-03)
 
 ### Added

@@ -28,6 +28,32 @@ describe('changelog guard', () => {
     expect(result.version).toBe('1.5.11');
   });
 
+  it('accepts the single-hash headings generated for minor and major releases', () => {
+    const content = `# Changelog
+
+# [2.0.0](https://github.com/acme/repo/compare/v1.9.0...v2.0.0) (2026-08-15)
+
+### Features
+- Ship the next major release
+
+# [1.9.0](https://github.com/acme/repo/compare/v1.8.0...v1.9.0) (2026-08-14)
+
+### Features
+- Ship a minor release
+`;
+
+    const entries = parseChangelog(content);
+    expect(entries.map((entry) => entry.version)).toEqual(['2.0.0', '1.9.0']);
+
+    const major = validateChangelog(content, { version: '2.0.0' });
+    expect(major.ok).toBe(true);
+    expect(major.entry?.sections[0].items).toContain('Ship the next major release');
+
+    const minor = validateChangelog(content, { version: '1.9.0' });
+    expect(minor.ok).toBe(true);
+    expect(minor.entry?.sections[0].items).toContain('Ship a minor release');
+  });
+
   it('deduplicates repeated entries and supports explicit version checks', () => {
     const content = `# Changelog
 

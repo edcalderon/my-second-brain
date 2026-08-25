@@ -29,31 +29,55 @@ async function resolveReentryConfig(configPath: string, project?: string): Promi
   const rawConfig = await loadRootConfig(configPath);
   const rootDir = path.dirname(path.resolve(configPath));
   const reentryConfig = ConfigManager.loadConfig(rawConfig, project);
+  const extensionConfig = rawConfig?.extensionConfig?.['reentry-status'];
 
-  // Must land under extensionConfig['reentry-status'], not the legacy
-  // top-level `reentryStatus` fallback -- ConfigManager.loadConfig() always
-  // checks extensionConfig first (see config-manager.ts), and callers like
-  // ReentryStatusManager.updateStatus() re-derive config from this object
-  // via ConfigManager.loadConfig(cfg) with *no* project argument. Writing
-  // the project-resolved paths to the fallback key meant they were silently
-  // shadowed by the root project's *unresolved* extensionConfig entry
-  // whenever one existed: `tasks sync -p <project>` would compute the right
-  // paths here and then write to the root files anyway, while `tasks
-  // validate -p <project>` (which reads the *actual* extensionConfig key)
-  // checked the project files and reported them missing.
+  if (extensionConfig) {
+    return {
+      cfg: {
+        ...rawConfig,
+        extensionConfig: {
+          ...rawConfig.extensionConfig,
+          'reentry-status': {
+            ...extensionConfig,
+            files: reentryConfig.files
+          }
+        }
+      },
+      rootDir
+    };
+  }
+
   return {
     cfg: {
       ...rawConfig,
-      extensionConfig: {
-        ...(rawConfig as any).extensionConfig,
-        'reentry-status': {
-          ...(rawConfig as any).extensionConfig?.['reentry-status'],
-          files: reentryConfig.files
-        }
+      reentryStatus: {
+        ...((rawConfig as any).reentryStatus ?? {}),
+        files: reentryConfig.files
       }
     },
     rootDir
   };
+}
+
+async function removeStaleTaskReadmeIndexes(rootDir: string, expectedReadmes: Map<string, string>): Promise<void> {
+  const categories = ['active-tasks', 'pending-tasks', 'done-tasks'];
+
+  for (const category of categories) {
+    const categoryDir = path.join(rootDir, '.agents', category);
+    if (!(await fs.pathExists(categoryDir))) continue;
+
+    const features = await fs.readdir(categoryDir, { withFileTypes: true });
+    for (const feature of features) {
+      if (!feature.isDirectory()) continue;
+      const readmePath = path.join(categoryDir, feature.name, 'README.md');
+      if (expectedReadmes.has(readmePath) || !(await fs.pathExists(readmePath))) continue;
+
+      const content = await fs.readFile(readmePath, 'utf8');
+      if (/^# .+\n\nCategory: (active|pending|done)-tasks\n/m.test(content) && /\nGenerated from \d+ task files\.\s*$/m.test(content)) {
+        await fs.remove(readmePath);
+      }
+    }
+  }
 }
 
 async function syncTaskSnapshot(configPath: string, project?: string): Promise<void> {
@@ -64,6 +88,7 @@ async function syncTaskSnapshot(configPath: string, project?: string): Promise<v
   for (const [readmePath, content] of readmes.entries()) {
     await fileManager.writeFileIfChanged(readmePath, content);
   }
+  await removeStaleTaskReadmeIndexes(rootDir, readmes);
 
   const metadata = buildTaskSyncMetadata(snapshot);
   await statusManager.updateStatus(cfg, (current) => ({

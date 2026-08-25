@@ -98,9 +98,12 @@ async function resolveReleaseLink(
     pkg: PackageMetadata | null | undefined,
     config: ReadmeMaintainerConfig | undefined
 ): Promise<string | null> {
-    const configuredUrl = config?.releasesUrl ?? config?.repositoryUrl;
-    if (typeof configuredUrl === 'string' && configuredUrl.trim().length > 0) {
-        return configuredUrl.trim();
+    if (typeof config?.releasesUrl === 'string' && config.releasesUrl.trim().length > 0) {
+        return config.releasesUrl.trim();
+    }
+
+    if (typeof config?.repositoryUrl === 'string' && config.repositoryUrl.trim().length > 0) {
+        return buildGitHubReleasesUrl(config.repositoryUrl);
     }
 
     const packageRepository = buildGitHubReleasesUrl(getRepositoryUrl(pkg));

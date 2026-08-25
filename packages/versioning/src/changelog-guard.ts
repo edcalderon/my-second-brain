@@ -27,7 +27,7 @@ export interface ChangelogGuardResult {
   reason?: string;
 }
 
-const releaseHeadingPattern = /^##\s+\[?v?([0-9]+(?:\.[0-9]+){2}(?:-[0-9A-Za-z.-]+)?)\]?.*$/;
+const releaseHeadingPattern = /^#{1,2}\s+\[?v?([0-9]+(?:\.[0-9]+){2}(?:-[0-9A-Za-z.-]+)?)\]?.*$/;
 const sectionHeadingPattern = /^###\s+(.+?)\s*$/;
 const listItemPattern = /^\s*(?:[-*+]|\d+\.)\s+(.+)$/;
 
