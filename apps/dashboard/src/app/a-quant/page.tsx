@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { dashboardHref, publicSiteUrl } from "@/lib/public-site";
 import { getHummingbotApiBase } from "@/lib/hummingbot-config";
+import BookDemoSection from "@/components/a-quant/BookDemoSection";
 
 const API_BASE = getHummingbotApiBase();
 const MAIN_WALLET_ADDRESS = process.env.NEXT_PUBLIC_A_QUANT_MAIN_WALLET || "0x7EF6Db4cf0201ca0e60127103E454eFf512FB423";
@@ -233,6 +234,8 @@ export default function AQuantPortalPage() {
                     </div>
                 </div>
             </section>
+
+            <BookDemoSection />
         </div>
     );
 }
