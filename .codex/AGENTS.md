@@ -35,3 +35,9 @@ Use these workflow files as reusable task scaffolds when the detected repository
 - Use the OpenSpec loop: `/opsx:propose`, `/opsx:apply`, `/opsx:archive`.
 - Prefer behavior-first specs and keep implementation detail out of `spec.md`.
 - Do not add private backend implementation details to public-facing specs or docs.
+- Treat `openspec/memory/constitution.md` as the repo constitution for all
+  non-trivial work.
+- Use `openspec/templates/change-folder/README.md` as the reusable change
+  shape for new work.
+- See `docs/spec-driven-workflow.md` for the local migration checklist and
+  process rules.
