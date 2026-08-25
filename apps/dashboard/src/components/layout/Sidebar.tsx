@@ -16,6 +16,9 @@ import {
     ShieldCheck,
     Sparkles,
     ChevronLeft,
+    Crosshair,
+    BookMarked,
+    Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dashboardHref, dashboardPath, publicSiteUrl, stripDashboardBasePath } from "@/lib/public-site";
@@ -42,6 +45,8 @@ const menuSections = [
     {
         title: "Trading Desk",
         items: [
+            { name: "Command Center", href: "/command-center", icon: Crosshair },
+            { name: "Trade Journal", href: "/journal", icon: BookMarked },
             { name: "Portfolio Tracker", href: "/portfolio", icon: Wallet },
             { name: "Market Feed", href: "/market", icon: CandlestickChart },
             { name: "Strategy Desk", href: "/strategy", icon: Sparkles },
@@ -59,6 +64,7 @@ const menuSections = [
     {
         title: "Account",
         items: [
+            { name: "Notifications", href: "/notifications", icon: Bell },
             { name: "Settings", href: "/settings", icon: Settings },
         ]
     }

@@ -2,12 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { Gauge, RefreshCw, ShieldCheck } from "lucide-react";
-import { fetchTradingStatus, HummingbotStatus } from "@/lib/hummingbot-api";
+import {
+    buildTradingOutageNotice,
+    fetchTradingStatus,
+    getTradingErrorPayload,
+    HummingbotStatus,
+} from "@/lib/hummingbot-api";
 import { formatJson, formatNumber, normalizePosition } from "@/lib/hummingbot-format";
+import { TradingOutageBanner } from "@/components/trading/TradingOutageBanner";
 
 export default function ExecutionPage() {
     const [status, setStatus] = useState<HummingbotStatus | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<unknown>(null);
     const [loading, setLoading] = useState(true);
     const [refreshCounter, setRefreshCounter] = useState(0);
 
@@ -26,7 +32,11 @@ export default function ExecutionPage() {
                 if (!isMounted) {
                     return;
                 }
-                setError(err instanceof Error ? err.message : "Failed to load execution feed");
+                const payload = getTradingErrorPayload<HummingbotStatus>(err);
+                if (payload) {
+                    setStatus(payload);
+                }
+                setError(err);
             } finally {
                 if (isMounted) {
                     setLoading(false);
@@ -43,6 +53,11 @@ export default function ExecutionPage() {
     }, [refreshCounter]);
 
     const positions = (status?.open_positions || []).map(normalizePosition);
+    const outageNotice = buildTradingOutageNotice({
+        status: status?.service_health ?? null,
+        error,
+        endpoint: "/trading/status",
+    });
 
     return (
         <div className="max-w-6xl mx-auto space-y-8 pb-16">
@@ -66,14 +81,10 @@ export default function ExecutionPage() {
                 </div>
             </header>
 
-            {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
-                    {error}
-                </div>
-            )}
+            <TradingOutageBanner notice={outageNotice} />
 
-            <section className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-                <div className="glass-panel rounded-2xl p-6 space-y-4">
+            <section className="@container grid gap-6 @3xl:grid-cols-[1fr_1.1fr]">
+                <div className="glass-panel rounded-2xl p-6 space-y-4 min-w-0">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900">Backend status</h2>
@@ -93,7 +104,15 @@ export default function ExecutionPage() {
                     <div className="rounded-xl border border-border bg-white px-5 py-4 text-sm text-gray-600">
                         <div className="flex items-center gap-2 text-emerald-700">
                             <ShieldCheck className="h-4 w-4" />
-                            <span className="font-semibold">{loading ? "Loading execution feed" : "Execution feed connected"}</span>
+                            <span className="font-semibold">
+                                {loading
+                                    ? "Loading execution feed"
+                                    : outageNotice
+                                        ? outageNotice.state === "offline"
+                                            ? "Execution feed offline"
+                                            : "Execution feed degraded"
+                                        : "Execution feed connected"}
+                            </span>
                         </div>
                         <p className="mt-2">
                             No orders are placed from this page. It is a monitor for what the strategy desk submitted.
@@ -101,7 +120,7 @@ export default function ExecutionPage() {
                     </div>
                 </div>
 
-                <div className="glass-panel rounded-2xl p-6 space-y-4">
+                <div className="glass-panel rounded-2xl p-6 space-y-4 min-w-0">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-gray-900">Portfolio snapshot</h2>
                         <span className="text-xs uppercase tracking-[0.2em] text-gray-500">{positions.length} open</span>

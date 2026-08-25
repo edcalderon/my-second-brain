@@ -48,6 +48,12 @@ export NEXT_PUBLIC_DASHBOARD_API_BASE="${NEXT_PUBLIC_DASHBOARD_API_BASE:-http://
 export NEXT_PUBLIC_A_QUANT_API_BASE="${NEXT_PUBLIC_A_QUANT_API_BASE:-http://localhost:$A_QUANT_PORT}"
 export NEXT_PUBLIC_HUMMINGBOT_API_BASE="${NEXT_PUBLIC_HUMMINGBOT_API_BASE:-http://localhost:$A_QUANT_PORT}"
 
-exec concurrently -k -n dashboard,aquant -c cyan,magenta \
+if command -v concurrently >/dev/null 2>&1; then
+    CONCURRENTLY=(concurrently)
+else
+    CONCURRENTLY=(pnpm exec concurrently)
+fi
+
+exec "${CONCURRENTLY[@]}" -k -n dashboard,aquant -c cyan,magenta \
     "pnpm --filter @ed/dashboard dev -p $DASHBOARD_PORT" \
     "cd '$API_SVC_DIR' && '$VENV_PYTHON' -m uvicorn src.main:app --host 0.0.0.0 --port $A_QUANT_PORT --reload"

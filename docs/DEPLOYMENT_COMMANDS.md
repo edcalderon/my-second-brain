@@ -50,15 +50,15 @@ This starts:
 
 If the local trading API dependencies are missing, the launcher bootstraps `a-quant/apps/api-svc/.venv` automatically before starting the service.
 
-### Upstream dependency
+### Upstream behavior
 
-The local A-Quant API-svc still depends on a Hummingbot API upstream. By default it looks for:
+For local development, the A-Quant API-svc now falls back to synthetic trading data when a local Hummingbot API is not available. By default it still looks for a real upstream at:
 
 ```bash
 HUMMINGBOT_API_URL=http://localhost:8000
 ```
 
-Override that env var if your Hummingbot API is running somewhere else.
+Override that env var if your Hummingbot API is running somewhere else. When the upstream is reachable, the local API-svc uses live data; otherwise it keeps the dashboard and portfolio routes responsive with local fallback data.
 
 ### Manual startup
 

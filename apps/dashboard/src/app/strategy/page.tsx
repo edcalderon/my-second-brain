@@ -3,12 +3,15 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { ArrowRightLeft, Play, RefreshCw, ShieldCheck, Sparkles } from "lucide-react";
 import {
+    buildTradingOutageNotice,
     closePaperTrade,
     fetchTradingPositions,
     fetchTradingStatus,
     HummingbotPosition,
     HummingbotPreview,
+    HummingbotPositionsResponse,
     HummingbotStatus,
+    getTradingErrorPayload,
     openPaperTrade,
     previewTrade,
     runBacktest,
@@ -20,6 +23,7 @@ import {
     formatTime,
     normalizePosition,
 } from "@/lib/hummingbot-format";
+import { TradingOutageBanner } from "@/components/trading/TradingOutageBanner";
 
 const DEFAULT_PAIR = "ETH-USD";
 const DEFAULT_INTERVAL = "1h";
@@ -125,7 +129,7 @@ export default function StrategyPage() {
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [busyAction, setBusyAction] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [error, setError] = useState<unknown>(null);
     const [lastAction, setLastAction] = useState<unknown>(null);
     const [refreshCounter, setRefreshCounter] = useState(0);
 
@@ -134,55 +138,70 @@ export default function StrategyPage() {
 
         async function loadWorkspace() {
             setRefreshing(true);
-            try {
-                const statusPayload = await fetchTradingStatus();
+            const failures: unknown[] = [];
+            const statusResult = await fetchTradingStatus().catch((err) => {
+                failures.push(err);
+                return getTradingErrorPayload<HummingbotStatus>(err);
+            });
 
-                if (!isMounted) {
-                    return;
+            if (!isMounted) {
+                return;
+            }
+
+            const nextStatus = statusResult || null;
+            if (nextStatus) {
+                setStatus(nextStatus);
+
+                if (!connectorName && nextStatus.default_connector) {
+                    setConnectorName(nextStatus.default_connector);
                 }
-
-                setStatus(statusPayload);
-
-                if (!connectorName && statusPayload.default_connector) {
-                    setConnectorName(statusPayload.default_connector);
-                }
-                if (!accountName && statusPayload.default_account) {
-                    setAccountName(statusPayload.default_account);
-                }
-
-                const selectedConnector = connectorName || statusPayload.default_connector || DEFAULT_CONNECTOR;
-                const selectedAccount = accountName || statusPayload.default_account || DEFAULT_ACCOUNT;
-
-                const [previewPayload, positionsPayload] = await Promise.all([
-                    previewTrade({
-                        trading_pair: tradingPair,
-                        connector_name: selectedConnector,
-                        interval: candleInterval,
-                        fast_ema: fastEma,
-                        slow_ema: slowEma,
-                        rsi_period: rsiPeriod,
-                    }),
-                    fetchTradingPositions(selectedAccount),
-                ]);
-
-                if (!isMounted) {
-                    return;
-                }
-
-                setPreview(previewPayload);
-                setPositions(positionsPayload.positions);
-                setError(null);
-            } catch (err) {
-                if (!isMounted) {
-                    return;
-                }
-                setError(err instanceof Error ? err.message : "Failed to load strategy workspace");
-            } finally {
-                if (isMounted) {
-                    setLoading(false);
-                    setRefreshing(false);
+                if (!accountName && nextStatus.default_account) {
+                    setAccountName(nextStatus.default_account);
                 }
             }
+
+            const selectedConnector = connectorName || nextStatus?.default_connector || DEFAULT_CONNECTOR;
+            const selectedAccount = accountName || nextStatus?.default_account || DEFAULT_ACCOUNT;
+
+            const [previewResult, positionsResult] = await Promise.allSettled([
+                previewTrade({
+                    trading_pair: tradingPair,
+                    connector_name: selectedConnector,
+                    interval: candleInterval,
+                    fast_ema: fastEma,
+                    slow_ema: slowEma,
+                    rsi_period: rsiPeriod,
+                }),
+                fetchTradingPositions(selectedAccount),
+            ]);
+
+            if (!isMounted) {
+                return;
+            }
+
+            if (previewResult.status === "fulfilled") {
+                setPreview(previewResult.value);
+            } else {
+                failures.push(previewResult.reason);
+                const payload = getTradingErrorPayload<HummingbotPreview>(previewResult.reason);
+                if (payload) {
+                    setPreview(payload);
+                }
+            }
+
+            if (positionsResult.status === "fulfilled") {
+                setPositions(positionsResult.value.positions);
+            } else {
+                failures.push(positionsResult.reason);
+                const payload = getTradingErrorPayload<HummingbotPositionsResponse>(positionsResult.reason);
+                if (payload) {
+                    setPositions(payload.positions);
+                }
+            }
+
+            setError(failures.length ? failures[0] : null);
+            setLoading(false);
+            setRefreshing(false);
         }
 
         loadWorkspace();
@@ -229,6 +248,11 @@ export default function StrategyPage() {
     const statusConnector = connectorName || status?.default_connector || DEFAULT_CONNECTOR;
     const statusAccount = accountName || status?.default_account || DEFAULT_ACCOUNT;
     const latestPreviewCandleTime = preview?.candles?.at(-1)?.time || "--";
+    const outageNotice = buildTradingOutageNotice({
+        status: status?.service_health ?? preview?.service_health ?? null,
+        error,
+        endpoint: "/trading/status",
+    });
 
     async function submitOpenTrade() {
         setBusyAction("open");
@@ -248,7 +272,7 @@ export default function StrategyPage() {
             setLastAction(response);
             setRefreshCounter((value) => value + 1);
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to open paper trade");
+            setError(err);
         } finally {
             setBusyAction(null);
         }
@@ -266,7 +290,7 @@ export default function StrategyPage() {
             });
             setLastAction(response);
         } catch (err) {
-            setError(err instanceof SyntaxError ? "Backtest config must be valid JSON" : err instanceof Error ? err.message : "Failed to run backtest");
+            setError(err);
         } finally {
             setBusyAction(null);
         }
@@ -291,7 +315,7 @@ export default function StrategyPage() {
             setLastAction(response);
             setRefreshCounter((value) => value + 1);
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to close position");
+            setError(err);
         } finally {
             setBusyAction(null);
         }
@@ -317,14 +341,10 @@ export default function StrategyPage() {
                 </div>
             </header>
 
-            {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-6 py-4 text-sm text-red-700">
-                    {error}
-                </div>
-            )}
+            <TradingOutageBanner notice={outageNotice} />
 
-            <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-                <div className="glass-panel rounded-2xl p-6 space-y-6">
+            <section className="@container grid gap-6 @3xl:grid-cols-[1.2fr_0.8fr]">
+                <div className="glass-panel rounded-2xl p-6 space-y-6 min-w-0">
                     <div className="flex items-center justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-gray-900">Strategy controls</h2>
@@ -520,7 +540,7 @@ export default function StrategyPage() {
                     </div>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-6 min-w-0">
                     <section className="glass-panel rounded-2xl p-6 space-y-4">
                         <div className="flex items-center justify-between">
                             <div>
@@ -641,25 +661,25 @@ export default function StrategyPage() {
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
                         <thead className="bg-gray-50">
                             <tr>
-                                <th className="px-4 py-3 text-left font-medium text-gray-500">Pair</th>
-                                <th className="px-4 py-3 text-left font-medium text-gray-500">Side</th>
-                                <th className="px-4 py-3 text-right font-medium text-gray-500">Amount</th>
-                                <th className="px-4 py-3 text-right font-medium text-gray-500">Entry</th>
-                                <th className="px-4 py-3 text-right font-medium text-gray-500">PnL</th>
-                                <th className="px-4 py-3 text-right font-medium text-gray-500">Leverage</th>
-                                <th className="px-4 py-3 text-right font-medium text-gray-500">Action</th>
+                                <th className="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-500">Pair</th>
+                                <th className="whitespace-nowrap px-4 py-3 text-left font-medium text-gray-500">Side</th>
+                                <th className="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-500">Amount</th>
+                                <th className="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-500">Entry</th>
+                                <th className="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-500">PnL</th>
+                                <th className="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-500">Leverage</th>
+                                <th className="whitespace-nowrap px-4 py-3 text-right font-medium text-gray-500">Action</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {normalizedPositions.map((position) => (
                                 <tr key={`${position.tradingPair ?? "pair"}-${position.side ?? "side"}-${position.entryPrice ?? "entry"}-${position.amount ?? "amount"}`}>
-                                    <td className="px-4 py-3 text-gray-900">{position.tradingPair}</td>
-                                    <td className="px-4 py-3 text-gray-700">{position.side}</td>
-                                    <td className="px-4 py-3 text-right tabular-nums text-gray-900">{formatNumber(position.amount)}</td>
-                                    <td className="px-4 py-3 text-right tabular-nums text-gray-900">{formatNumber(position.entryPrice)}</td>
-                                    <td className="px-4 py-3 text-right tabular-nums text-gray-900">{formatNumber(position.unrealizedPnl)}</td>
-                                    <td className="px-4 py-3 text-right tabular-nums text-gray-700">{formatNumber(position.leverage, 0)}x</td>
-                                    <td className="px-4 py-3 text-right">
+                                    <td className="whitespace-nowrap px-4 py-3 text-gray-900">{position.tradingPair}</td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-gray-700">{position.side}</td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-gray-900">{formatNumber(position.amount)}</td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-gray-900">{formatNumber(position.entryPrice)}</td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-gray-900">{formatNumber(position.unrealizedPnl)}</td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-gray-700">{formatNumber(position.leverage, 0)}x</td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-right">
                                         <button
                                             type="button"
                                             onClick={() => closePosition(position.raw)}

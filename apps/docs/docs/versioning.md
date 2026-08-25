@@ -9,7 +9,7 @@ The `@edcalderon/versioning` tool is a comprehensive versioning and changelog ma
 ## Key Features
 
 - **🚀 Automated Versioning**: Patch, minor, and major bumps with automated changelog generation.
-- **🔌 Extension System**: Composable plugins for custom logic (Reentry, Cleanup, Secrets).
+- **🔌 Extension System**: Composable plugins for custom logic (Reentry, Tasks, Cleanup, Secrets).
 - **🔒 Security Enforcement**: Built-in secrets scanning to prevent sensitive data leaks.
 - **🧹 Repo Cleanup**: Automated organization of stray files in the repository root.
 
@@ -39,6 +39,28 @@ npx versioning cleanup scan
 
 # Move stray files to designated folders
 npx versioning cleanup move
+```
+
+### Task Tracking
+```bash
+# Inspect the task inventory
+npx versioning tasks list
+npx versioning tasks list --feature wallet --status active
+
+# Create or archive tasks
+npx versioning tasks add active-tasks/wallet/01-build-ui.md
+npx versioning tasks add active-tasks/wallet/00-SPEC.md
+npx versioning tasks archive active-tasks/wallet/01-build-ui.md
+
+# Regenerate indexes and validate drift
+npx versioning tasks sync
+npx versioning tasks validate
+npx versioning reentry validate
+```
+
+For a pre-commit or pre-push guard:
+```bash
+npx versioning tasks validate && npx versioning reentry validate
 ```
 
 ## Configuration

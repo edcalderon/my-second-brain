@@ -6,6 +6,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import TradingAuthGate from "@/components/auth/TradingAuthGate";
+import CriticalAlertOverlay from "@/components/notifications/CriticalAlertOverlay";
 import { stripDashboardBasePath } from "@/lib/public-site";
 
 export default function AppShell({ children }: { children: ReactNode }) {
@@ -37,6 +38,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
     return (
         <TradingAuthGate>
+            <CriticalAlertOverlay />
             <div className="flex h-screen overflow-hidden bg-background transition-colors duration-300">
                 {/* Sidebar */}
                 <Sidebar isCollapsed={isCollapsed} onToggle={toggleSidebar} />
