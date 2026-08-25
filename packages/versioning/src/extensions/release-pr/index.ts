@@ -51,11 +51,20 @@ async function loadConfig(configPath: string): Promise<any> {
   return await fs.readJson(configPath);
 }
 
-function extractLatestChangelogSection(changelog: string, version: string): string {
-  // CHANGELOG.md sections are "## <version> ..." headers -- grab everything
-  // between the header for `version` and the next "## " header (or EOF).
+export function extractLatestChangelogSection(changelog: string, version: string): string {
+  // CHANGELOG.md sections are "## <version> ..." or "## [<version>](...)"
+  // headers -- grab everything between the header for `version` and the
+  // next "## " header (or EOF). The header must match right after "## ",
+  // not merely appear somewhere on the line: a loose l.includes(version)
+  // previously matched e.g. version "1.5.4" against the *1.5.5* header's
+  // own compare-link URL ("...compare/v1.5.4...v1.5.5)"), extracting the
+  // wrong section entirely for any version that appears in a newer
+  // release's diff link.
+  const escapedVersion = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const headerPattern = new RegExp(`^## \\[?v?${escapedVersion}\\]?[\\s(\\]]`);
+
   const lines = changelog.split('\n');
-  const startIdx = lines.findIndex((l) => l.startsWith('## ') && l.includes(version));
+  const startIdx = lines.findIndex((l) => l.startsWith('## ') && headerPattern.test(l));
   if (startIdx === -1) return '_(changelog section not found -- see CHANGELOG.md)_';
   let endIdx = lines.findIndex((l, i) => i > startIdx && l.startsWith('## '));
   if (endIdx === -1) endIdx = lines.length;
