@@ -109,7 +109,7 @@ async function runReleasePr(
 
     console.log(`\n🧹 Running cleanup-repo...`);
     try {
-      runInherit(`node ${CLI_ENTRYPOINT} cleanup`);
+      runInherit(`node ${CLI_ENTRYPOINT} cleanup move`);
     } catch (err) {
       console.warn('⚠️  cleanup-repo failed or is not configured, continuing:', err instanceof Error ? err.message : String(err));
     }
