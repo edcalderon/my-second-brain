@@ -1,3 +1,30 @@
+## [1.5.6](https://github.com/edcalderon/my-second-brain/compare/v1.5.4...v1.5.6) (2026-08-27)
+
+
+### Bug Fixes
+
+* address code review findings (2x P1, 5x P2) ([c542467](https://github.com/edcalderon/my-second-brain/commit/c542467ac50c8e6e028dcd834827622efded7342))
+* **ci:** add checks: write permission for jest-coverage-report-action ([0c363d6](https://github.com/edcalderon/my-second-brain/commit/0c363d6a5abe897a795a8d5f160d477b6411b7f0))
+* **readme-maintainer:** use project repository for release links ([2d311ba](https://github.com/edcalderon/my-second-brain/commit/2d311ba4dcf056e2364d7e3f13dd128a0bdbc9a9))
+* **release-pr:** call 'cleanup move' not bare 'cleanup' (needs a subcommand) ([1a5aab5](https://github.com/edcalderon/my-second-brain/commit/1a5aab53404eaba597b3adbe619a535177490c50))
+* **release-pr:** resolve CLI entrypoint dynamically, not a hardcoded relative path ([5c628be](https://github.com/edcalderon/my-second-brain/commit/5c628be1e36ce3bd72a6ee957a04980268d64905))
+* **versioning:** enforce action-only npm releases ([e9b8700](https://github.com/edcalderon/my-second-brain/commit/e9b8700cec2c2d8e53e1af201ea5f507b8ba026e))
+* **versioning:** release 1.5.12 changelog and task fixes ([05b241f](https://github.com/edcalderon/my-second-brain/commit/05b241fc602017284b0ca524fb8acfaaa5795c22)), closes [#42](https://github.com/edcalderon/my-second-brain/issues/42)
+
+
+### Features
+
+* **a-quant:** add book-a-demo contact section ([8633dec](https://github.com/edcalderon/my-second-brain/commit/8633dec4155a5eb648ef7aea2722c63510ed6ac6))
+* coverage on PR + pre-commit test gate for packages/versioning ([a001e5b](https://github.com/edcalderon/my-second-brain/commit/a001e5b19d994029826313e4e140b9e16f41c082))
+* **dashboard:** live trading desk -- command center, journal, real-time notifications ([668a24a](https://github.com/edcalderon/my-second-brain/commit/668a24a4a086369371039d4e13b8d79f75c5d9e7))
+* **dashboard:** ship live trading workspace ([3012423](https://github.com/edcalderon/my-second-brain/commit/3012423d8a7e83f1ce3916c9745a3942521bd86d))
+* **versioning:** add changelog guard and tasks plugin ([f90cd10](https://github.com/edcalderon/my-second-brain/commit/f90cd108691d6392b9ab2c7798b641c35a15e9bc))
+* **versioning:** add release-pr extension ([491eb7b](https://github.com/edcalderon/my-second-brain/commit/491eb7b45addd73272a613631a6f8c7250c3ae7d))
+
+
+
+
+
 ## [1.5.5](https://github.com/edcalderon/my-second-brain/compare/v1.5.4...v1.5.5) (2026-08-25)
 
 
