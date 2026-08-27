@@ -23,6 +23,22 @@ The public site now lives on `https://edcalderon.io` and acts as a directory for
 
 The root landing page is implemented as static HTML in `apps/dashboard/public/index.html`, with a matching dedicated A-Quant portal in `apps/dashboard/public/a-quant/index.html`. That keeps the root fast, gives each project its own surface, and leaves room for more projects later.
 
+## Development Workflow
+
+Edward uses two complementary workflow layers:
+
+- [`openspec/`](openspec/) is the source of truth for observable behavior and non-trivial change proposals.
+- [`.agents/`](.agents/) is the live, versioning-managed task workspace. It contains reusable agent skills plus `pending-tasks`, `active-tasks`, and `done-tasks`.
+
+Create the OpenSpec change before starting a non-trivial implementation task, then keep the task card in `.agents/` linked to that change. Do not maintain two complete specifications for one feature. See the [spec-driven workflow guide](docs/spec-driven-workflow.md) and [agent workspace guide](.agents/README.md).
+
+From the repository root, synchronize and verify task state with:
+
+```bash
+pnpm tasks:sync
+pnpm workflow:validate
+```
+
 
 A personal knowledge laboratory leveraged by **Obsidian** as the markdown foundation, designed for agentic intelligence and deep reflection.
 
@@ -97,6 +113,12 @@ Obsidian serves as the **Markdown Foundation** for this laboratory. While many t
 
 ## 🆕 Recent Updates
 
+### Dashboard v1.5.5
+- 📊 **Sidebar Live Trade Monitor**: Glass-panel position indicator — renders every open position (provider-tagged, composable) with direction icon, symbol, size, PnL. Collapsed: dot+count badge. Links to `/execution`. Replaces dead `LiveInfoWidget` code.
+- ⚡ **Sidebar Quick Actions**: Animated action menu (framer-motion) with "Open Trade" → Command Center, "Analyze Setup" → Strategy, "Trade Journal" → Journal. Tabbed "Recent Trades" / "Setups" area below, ready for API wiring.
+- 🔄 **Journal Stale-State Fix**: Trade cards now detect when exchange shows no position (`positionMissing`), wire real `agent_status`, and include a manual "Recheck now" button that atomically refreshes all live-state sources.
+- 🛠️ **Dev Workflow**: `dev:all` now kills sibling processes on exit (`-k`). Added `framer-motion`, `class-variance-authority`, `@radix-ui/react-slot`.
+
 ### Dashboard v1.1.5
 - ✨ **Mobile-First Redesign**: Complete responsive overhaul with collapsible sidebar
 - 🌙 **Dark Mode System**: Full theme support with localStorage persistence and system preference detection
@@ -104,11 +126,10 @@ Obsidian serves as the **Markdown Foundation** for this laboratory. While many t
 - 🎨 **Glass Panel Effects**: Enhanced UI with backdrop blur and premium gradients
 - 📱 **Touch-Friendly Navigation**: Improved mobile experience with proper touch targets
 
-### Versioning CLI v1.4.2
-- 🔄 **Extension Updates**: All extensions updated to v1.4.2 for consistency
-- 🛡️ **Enhanced Security**: Improved secrets detection and validation
-- 📊 **Status Command**: Comprehensive health reporting with `--json` and `--dot` output
-- 🔧 **Monorepo Support**: Better handling of multi-package versioning
+### Versioning CLI v1.5.13
+- 🗂️ **Agent Task Workspace**: Tracks pending, active, and completed work in `.agents/` and keeps generated indexes/re-entry status synchronized.
+- 🛡️ **Release Guardrails**: Validates changelog/README metadata before tagged publication and blocks unintended public publishes.
+- 🔧 **Monorepo Support**: Maintains workspace scripts, release status, and version synchronization across apps and packages.
 
 ---
 
@@ -127,14 +148,25 @@ Obsidian serves as the **Markdown Foundation** for this laboratory. While many t
 - **`packages/gcp-functions`**: Cloud Functions for IMAP ingestion and Gemini AI processing.
 - **`archive/node-binance-trader-legacy`**: Deprecated legacy trader repo kept as reference only.
 - **`packages/versioning`**: Composable versioning tool with extension system (reentry, cleanup, secrets).
+- **`.agents/`**: Reusable agent skills and the live pending/active/done task workspace.
+- **`openspec/`**: Behavior contracts and change proposals for non-trivial work.
 - **`docs/`**: Detailed architecture, deployment docs, and the [trading rewrite migration plan](docs/TRADING_REWRITE_MIGRATION.md).
 
 ## ⚠️ Trading Stack
 
-The active trading stack has been fully migrated to a **separate private repository**.
-The legacy `node-binance-trader` remains at `archive/node-binance-trader-legacy` as a read-only reference.
-See [docs/TRADING_REWRITE_MIGRATION.md](docs/TRADING_REWRITE_MIGRATION.md) for details.
+Trading functionality is operated from a separate private repository. This
+public project contains only the dashboard surfaces and public project portal;
+it does not publish trading infrastructure, credentials, strategies, or
+operational runbooks.
+
+## Frontend releases
+
+The public dashboard is published to GitHub Pages from `main` by
+[`deploy-web.yml`](.github/workflows/deploy-web.yml). Before a release, run the
+repository checks and secret guard; values prefixed `NEXT_PUBLIC_` are browser
+visible and must never contain private credentials. The legacy Firebase and
+Cloud Functions workflow is manual-only so a GitHub Pages release does not
+alter unrelated production services.
 
 ## 📄 License
 MIT
-# Firebase Auth Fix

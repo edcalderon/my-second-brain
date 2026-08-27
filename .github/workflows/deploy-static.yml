@@ -1,8 +1,6 @@
 name: Deploy Static Site & Cloud Functions
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 env:

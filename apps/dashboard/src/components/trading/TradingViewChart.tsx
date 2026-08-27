@@ -21,6 +21,15 @@ declare global {
 export function TradingViewChart({ symbol = "BYBIT:BTCUSDT.P", height = 420 }: { symbol?: string; height?: number }) {
     const containerId = `tv-chart-${useId().replace(/:/g, "")}`;
     const [scriptLoaded, setScriptLoaded] = useState(false);
+    const [isDark, setIsDark] = useState(false);
+
+    useEffect(() => {
+        const check = () => document.documentElement.classList.contains("dark");
+        setIsDark(check());
+        const obs = new MutationObserver(() => setIsDark(check()));
+        obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+        return () => obs.disconnect();
+    }, []);
 
     useEffect(() => {
         if (!scriptLoaded || !window.TradingView) return;
@@ -33,17 +42,17 @@ export function TradingViewChart({ symbol = "BYBIT:BTCUSDT.P", height = 420 }: {
             symbol,
             interval: "5",
             timezone: "Etc/UTC",
-            theme: "light",
+            theme: isDark ? "dark" : "light",
             style: "1",
             locale: "en",
-            toolbar_bg: "#f7f4ee",
+            toolbar_bg: isDark ? "#0d1117" : "#f7f4ee",
             enable_publishing: false,
             hide_top_toolbar: false,
             hide_legend: false,
             save_image: false,
             container_id: containerId,
         });
-    }, [scriptLoaded, containerId, symbol]);
+    }, [scriptLoaded, containerId, symbol, isDark]);
 
     return (
         <div className="glass-panel rounded-2xl p-4">

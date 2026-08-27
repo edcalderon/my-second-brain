@@ -23,8 +23,8 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
   --background: #f7f3ea;
   --foreground: #14161a;
-  --muted-foreground: #5a5a60;
-  --subtle-foreground: #79798c;
+  --muted-foreground: #4b5563;
+  --subtle-foreground: #6b7280;
   --accent: #0f766e;
   --accent-foreground: #ffffff;
   --card: #ffffff;
@@ -36,17 +36,17 @@
 
 /* ── Dark palette ──────────────────────────────────────────────── */
 html.dark:root {
-  --background: #0f1117;
+  --background: #0a0a0f;
   --foreground: #e6edf3;
-  --muted-foreground: #8b949e;
-  --subtle-foreground: #6e7681;
+  --muted-foreground: #9ca3af;
+  --subtle-foreground: #8b949e;
   --accent: #1f9e89;
   --accent-foreground: #ffffff;
-  --card: #161b22;
-  --card-foreground: #e6edf3;
-  --border: #30363d;
-  --sidebar: #0d1117;
-  --graph-line: rgba(31, 158, 137, 0.1);
+  --card: #0d1117;
+  --card-foreground: #f0f6fc;
+  --border: #21262d;
+  --sidebar: #080b10;
+  --graph-line: rgba(31, 158, 137, 0.06);
 }
 
 /* ── Body base ─────────────────────────────────────────────────── */
@@ -62,8 +62,8 @@ body {
 }
 
 html.dark body {
-  background: radial-gradient(circle at top left, rgba(31, 158, 137, 0.05), transparent 42%),
-    radial-gradient(circle at 30% 20%, rgba(248, 113, 113, 0.05), transparent 32%),
+  background: radial-gradient(circle at top left, rgba(31, 158, 137, 0.04), transparent 42%),
+    radial-gradient(circle at 30% 20%, rgba(248, 113, 113, 0.03), transparent 32%),
     var(--background) !important;
 }
 
@@ -85,19 +85,20 @@ body::before {
   }
 }
 
+/* ── Glass panel ─────────────────────────────────────────────── */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: none;
   border: 1px solid rgba(20, 22, 26, 0.08);
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
   color: inherit;
 }
 
 html.dark .glass-panel {
-  background: rgba(17, 24, 39, 0.94);
-  border: 1px solid rgba(107, 114, 128, 0.24);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
-  color: #e6edf3;
+  background: rgba(13, 17, 23, 0.96);
+  border: 1px solid rgba(33, 38, 45, 0.6);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  color: #f0f6fc;
 }
 
 .premium-gradient {
@@ -114,4 +115,199 @@ html.dark .premium-gradient {
 
 .clip-hexagon {
   clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+/* ── Dark mode: card re-tint — no white cards ────────────────── */
+html.dark .bg-white {
+  background-color: #0d1117 !important;
+}
+
+html.dark [class*="bg-white/"] {
+  background-color: rgba(13, 17, 23, 0.9) !important;
+}
+
+html.dark .shadow-sm {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark tbody {
+  border-color: rgba(33, 38, 45, 0.4) !important;
+}
+
+html.dark tbody tr,
+html.dark tbody td {
+  background-color: transparent !important;
+}
+
+html.dark .border-dashed {
+  border-color: rgba(33, 38, 45, 0.5) !important;
+}
+
+html.dark .dark\:bg-gray-800,
+html.dark [class*="dark:bg-gray-8"] {
+  background-color: #0d1117 !important;
+}
+
+html.dark .dark\:bg-gray-900,
+html.dark [class*="dark:bg-gray-9"] {
+  background-color: #0a0d11 !important;
+}
+
+html.dark [class*="dark:bg-slate-9"],
+html.dark .dark\:bg-slate-900,
+html.dark .dark\:bg-slate-950 {
+  background-color: #0d1117 !important;
+}
+
+html.dark .bg-gray-50,
+html.dark [class*="bg-gray-50"] {
+  background-color: rgba(22, 27, 34, 0.5) !important;
+}
+
+html.dark [class*="dark:bg-emerald-950"],
+html.dark [class*="dark:bg-emerald-9"] {
+  background-color: rgba(31, 158, 137, 0.06) !important;
+}
+
+html.dark [class*="dark:bg-amber-950"],
+html.dark [class*="dark:bg-amber-9"] {
+  background-color: rgba(245, 158, 11, 0.06) !important;
+}
+
+/* ── Dark mode: text contrast ────────────────────────────────── */
+html.dark .text-gray-300,
+html.dark [class*="text-gray-3"] {
+  color: #c9d1d9 !important;
+}
+
+html.dark .text-gray-400,
+html.dark [class*="text-gray-4"] {
+  color: #9ca3af !important;
+}
+
+html.dark .text-gray-500,
+html.dark .dark\:text-gray-500,
+html.dark [class*="text-gray-5"]:not([class*="dark:"]),
+html.dark [class*="dark:text-gray-5"] {
+  color: #9ca3af !important;
+}
+
+html.dark .text-gray-600,
+html.dark [class*="text-gray-6"] {
+  color: #a8b2bc !important;
+}
+
+html.dark .dark\:text-emerald-300,
+html.dark [class*="dark:text-emerald-3"] {
+  color: #34d399 !important;
+}
+
+html.dark h1,
+html.dark h2,
+html.dark h3 {
+  color: #f0f6fc !important;
+}
+
+html.dark header {
+  background: rgba(10, 10, 15, 0.95) !important;
+  border-color: rgba(33, 38, 45, 0.5) !important;
+}
+
+html.dark [class*="hover:bg-gray-50"]:hover,
+html.dark [class*="hover:bg-black/5"]:hover,
+html.dark [class*="hover:bg-white/5"]:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+html.dark [class*="hover:bg-emerald-50"]:hover,
+html.dark [class*="hover:bg-emerald-100"]:hover {
+  background-color: rgba(31, 158, 137, 0.1) !important;
+}
+
+html.dark tr:hover td {
+  background-color: rgba(31, 158, 137, 0.06) !important;
+}
+
+/* ── Light mode: subtitle & label contrast ───────────────────── */
+/* Make ALL gray subtitles readable — not washed out */
+html:not(.dark) .text-gray-400 {
+  color: #6b7280 !important;
+}
+
+html:not(.dark) .text-gray-500,
+html:not(.dark) [class*="text-gray-5"]:not([class*="dark:"]) {
+  color: #4b5563 !important;
+}
+
+html:not(.dark) .text-gray-600,
+html:not(.dark) [class*="text-gray-6"] {
+  color: #374151 !important;
+}
+
+html:not(.dark) .text-gray-700 {
+  color: #1f2937 !important;
+}
+
+html:not(.dark) .text-muted-foreground {
+  color: #4b5563 !important;
+}
+
+/* ── Placeholder text — readable in both modes ───────────────── */
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+html:not(.dark) h1,
+html:not(.dark) h2,
+html:not(.dark) h3 {
+  color: #0a0a0f !important;
+}
+
+html:not(.dark) [class*="hover:bg-gray-50"]:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+html:not(.dark) tr:hover td {
+  background-color: rgba(15, 118, 110, 0.04) !important;
+}
+
+html:not(.dark) .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+
+html.dark .shadow-lg {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+html.dark thead {
+  background-color: rgba(13, 17, 23, 0.95) !important;
+}
+
+html.dark input[type="text"],
+html.dark input:not([type]),
+html.dark select,
+html.dark textarea {
+  background-color: rgba(13, 17, 23, 0.85) !important;
+  border-color: rgba(33, 38, 45, 0.6) !important;
+}
+
+html.dark .border-border,
+html.dark [class*="border-gray-200"] {
+  border-color: var(--border) !important;
+}
+
+html.dark [class*="divide-gray"] {
+  --tw-divide-opacity: 1;
+  border-color: rgba(33, 38, 45, 0.4) !important;
+}
+
+html.dark [class*="divide-y"] > * + * {
+  border-color: rgba(33, 38, 45, 0.4) !important;
 }

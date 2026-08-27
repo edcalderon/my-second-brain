@@ -157,7 +157,7 @@ export default function MarketPage() {
                     <div className="grid gap-3 text-sm text-gray-700 sm:grid-cols-2 xl:grid-cols-4">
                         <DataRow label="Latest close" value={formatNumber(market?.latest_close)} />
                         <DataRow label="Candles" value={`${candles.length}`} />
-                        <DataRow label="Paper mode" value={status ? (status.paper_mode ? "Enabled" : "Disabled") : "--"} />
+                        <DataRow label="Live trading" value={status ? (status.live_trading_enabled ? "Enabled" : "Disabled (dry-run)") : "--"} />
                         <DataRow label="Open positions" value={status ? `${status.open_positions_count}` : "--"} />
                     </div>
 

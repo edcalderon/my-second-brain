@@ -121,7 +121,7 @@ export default function RiskPage() {
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-2">
-                        <DataRow label="Paper mode" value={status ? (status.paper_mode ? "Enabled" : "Disabled") : "--"} />
+                        <DataRow label="Live trading" value={status ? (status.live_trading_enabled ? "Enabled" : "Disabled (dry-run)") : "--"} />
                         <DataRow label="Connector" value={status?.default_connector || "--"} />
                         <DataRow label="Account" value={status?.default_account || "--"} />
                         <DataRow label="Open positions" value={`${positions.length}`} />

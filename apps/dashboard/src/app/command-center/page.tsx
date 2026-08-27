@@ -4,12 +4,16 @@ import { type ReactNode, useEffect, useState } from "react";
 import { Crosshair, Play, RefreshCw, Square, TrendingDown, TrendingUp } from "lucide-react";
 import {
     buildTradingOutageNotice,
-    closePaperTrade,
+    submitTradeClose,
     fetchTradingStatus,
+    fetchStrategyStatus,
+    activateStrategy,
+    deactivateStrategy,
+    type StrategyState,
     HummingbotPosition,
     HummingbotStatus,
     getTradingErrorPayload,
-    openPaperTrade,
+    submitTradeOpen,
 } from "@/lib/hummingbot-api";
 import {
     formatCurrency,
@@ -19,6 +23,7 @@ import {
 } from "@/lib/hummingbot-format";
 import { TradingOutageBanner } from "@/components/trading/TradingOutageBanner";
 import { TradingViewChart } from "@/components/trading/TradingViewChart";
+import { ExecutorStatusBadge } from "@/components/trading/ExecutorStatusBadge";
 
 // Matches the live backend defaults (infra/compose/.env on the AWS trading
 // box) -- BTC-USDT on Bybit perpetual, not the older ETH/Hyperliquid setup
@@ -53,6 +58,8 @@ export default function CommandCenterPage() {
     const [leverage, setLeverage] = useState(DEFAULT_LEVERAGE);
     const [busyOpen, setBusyOpen] = useState(false);
     const [lastAction, setLastAction] = useState<{ ok: boolean; message: string } | null>(null);
+    const [strategy, setStrategy] = useState<StrategyState | null>(null);
+    const [busyStrategy, setBusyStrategy] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -87,6 +94,7 @@ export default function CommandCenterPage() {
         }
 
         load();
+        fetchStrategyStatus().then(setStrategy).catch(() => {});
         const intervalId = setInterval(load, REFRESH_MS);
         return () => {
             isMounted = false;
@@ -127,11 +135,32 @@ export default function CommandCenterPage() {
         endpoint: "/trading/status",
     });
 
+    async function handleStrategyToggle() {
+        if (!strategy) return;
+        setBusyStrategy(true);
+        try {
+            const next = strategy.enabled
+                ? await deactivateStrategy()
+                : await activateStrategy();
+            setStrategy(next);
+            setLastAction({
+                ok: true,
+                message: next.enabled
+                    ? `Strategy armed — phase: ${next.phase}`
+                    : "Strategy deactivated",
+            });
+        } catch (err) {
+            setLastAction({ ok: false, message: `Strategy toggle failed: ${String(err)}` });
+        } finally {
+            setBusyStrategy(false);
+        }
+    }
+
     async function submitOpen() {
         setBusyOpen(true);
         setLastAction(null);
         try {
-            await openPaperTrade({
+            await submitTradeOpen({
                 trading_pair: tradingPair,
                 side,
                 amount,
@@ -141,6 +170,7 @@ export default function CommandCenterPage() {
                 take_profit_2_pct: DEFAULT_TP2,
                 account_name: account,
                 connector_name: connector,
+                client_request_id: crypto.randomUUID(),
             });
             setLastAction({ ok: true, message: `${side} ${amount} ${tradingPair} submitted.` });
             setRefreshCounter((v) => v + 1);
@@ -156,7 +186,7 @@ export default function CommandCenterPage() {
         setLastAction(null);
         try {
             const normalized = normalizePosition(position);
-            await closePaperTrade({
+            await submitTradeClose({
                 trading_pair: normalized.tradingPair,
                 side: normalized.side === "SELL" ? "SELL" : "BUY",
                 amount: normalized.amount || amount,
@@ -189,10 +219,11 @@ export default function CommandCenterPage() {
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700">
-                        <Chip tone={status?.paper_mode === false ? "danger" : "default"}>
-                            {status?.paper_mode === false ? "LIVE TRADING" : "Dry-run"}
+                        <Chip tone={status?.live_trading_enabled ? "danger" : "default"}>
+                            {status?.live_trading_enabled ? "LIVE TRADING" : "Dry-run"}
                         </Chip>
                         <Chip>{connector}</Chip>
+                        <ExecutorStatusBadge status={status} lastUpdated={lastUpdated} />
                         <Chip tone={isFallback ? "danger" : "default"}>
                             {dataAvailable ? `${totalOpenPositions} open` : isFallback ? "mock data" : "loading"}
                         </Chip>
@@ -449,7 +480,7 @@ export default function CommandCenterPage() {
                     )}
 
                     <div className="rounded-xl border border-border bg-white px-3 py-2 text-xs text-gray-500">
-                        {status?.paper_mode === false
+                        {status?.live_trading_enabled
                             ? "LIVE_TRADING_ENABLED is on — this submits a real order."
                             : "Dry-run mode — orders are logged, not sent to the exchange."}
                     </div>
@@ -528,6 +559,86 @@ export default function CommandCenterPage() {
                     </div>
                 </section>
             )}
+
+            {/* Strategy Engine */}
+            <section className="rounded-xl border border-border bg-white px-6 py-5 space-y-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-900">Strategy Engine</h2>
+                        <p className="text-sm text-gray-500">
+                            {strategy?.enabled
+                                ? `Watching ${strategy.symbol} for qualifying entries`
+                                : "Inactive — click Activate to arm"}
+                        </p>
+                    </div>
+                    <span
+                        className={`inline-block h-3 w-3 rounded-full ${
+                            strategy?.enabled
+                                ? strategy.phase === "in_position"
+                                    ? "bg-amber-400 animate-pulse"
+                                    : "bg-emerald-500"
+                                : "bg-gray-300"
+                        }`}
+                        title={strategy?.phase ?? "unknown"}
+                    />
+                </div>
+
+                {strategy && (
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                        <div>
+                            <span className="text-gray-500">Phase</span>
+                            <p className="font-medium text-gray-900 capitalize">{strategy.phase.replace("_", " ")}</p>
+                        </div>
+                        <div>
+                            <span className="text-gray-500">Market</span>
+                            <p className="font-medium text-gray-900">{strategy.symbol} · {strategy.category}</p>
+                        </div>
+                        <div>
+                            <span className="text-gray-500">Risk</span>
+                            <p className="font-medium text-gray-900">
+                                ${strategy.risk_params.margin_usd} × {strategy.risk_params.leverage}x
+                            </p>
+                        </div>
+                        <div>
+                            <span className="text-gray-500">Last evaluated</span>
+                            <p className="font-medium text-gray-900">
+                                {strategy.last_evaluated_at
+                                    ? formatRelativeTime(strategy.last_evaluated_at)
+                                    : "never"}
+                            </p>
+                        </div>
+                        {strategy.last_reason && (
+                            <div className="col-span-2">
+                                <span className="text-gray-500">Last reason</span>
+                                <p className="font-medium text-gray-900">{strategy.last_reason}</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                <button
+                    type="button"
+                    onClick={handleStrategyToggle}
+                    disabled={busyStrategy || !strategy}
+                    className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 ${
+                        strategy?.enabled
+                            ? "border border-border bg-white text-gray-700 hover:bg-gray-50"
+                            : "bg-emerald-600 text-white hover:bg-emerald-700"
+                    }`}
+                >
+                    {strategy?.enabled ? (
+                        <>
+                            <Square className="h-3.5 w-3.5" />
+                            {busyStrategy ? "Deactivating..." : "Deactivate"}
+                        </>
+                    ) : (
+                        <>
+                            <Play className="h-3.5 w-3.5" />
+                            {busyStrategy ? "Activating..." : "Activate"}
+                        </>
+                    )}
+                </button>
+            </section>
         </div>
     );
 }

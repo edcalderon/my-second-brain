@@ -29,6 +29,7 @@ type TradingStatusResponse = {
     service: string;
     api_url: string;
     paper_mode: boolean;
+    live_trading_enabled: boolean;
     default_account: string;
     default_connector: string;
     wallet_address?: string;
@@ -229,7 +230,7 @@ export async function fetchSummary() {
     return {
         fills: status.open_positions_count,
         rejected_or_timeouts: 0,
-        last_status: status.paper_mode ? "paper" : "live",
+        last_status: status.live_trading_enabled ? "live" : "dry-run",
         last_fill_price: latestPrice,
         paused: false,
         pause_reason: "",
@@ -267,13 +268,13 @@ export async function fetchRisk() {
     return {
         decision: {
             intent_id: `${status.default_account}:${status.default_connector}`,
-            approved: status.paper_mode,
-            reason: status.paper_mode
-                ? "Paper trading is enabled on the A-Quant backend."
-                : "Live mode requires manual review before execution.",
+            approved: !status.live_trading_enabled,
+            reason: !status.live_trading_enabled
+                ? "Dry-run mode — orders stay local."
+                : "Live trading is enabled — manual review required before execution.",
             bankroll: totalValueUsd,
             notional,
-            requires_revalidation: !status.paper_mode || status.connector_count === 0,
+            requires_revalidation: status.live_trading_enabled || status.connector_count === 0,
         },
     } satisfies RiskResponse;
 }

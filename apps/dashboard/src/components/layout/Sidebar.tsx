@@ -8,7 +8,7 @@ import {
     Brain,
     Network,
     BookOpen,
-    BarChart3,
+    DollarSign,
     Layers,
     CandlestickChart,
     Wallet,
@@ -19,12 +19,20 @@ import {
     Crosshair,
     BookMarked,
     Bell,
+    ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dashboardHref, dashboardPath, publicSiteUrl, stripDashboardBasePath } from "@/lib/public-site";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useTradingStatus } from "@/components/trading/TradingStatusProvider";
+import { useSupabaseData } from "@/components/supabase/SupabaseProvider";
+import BtcMiniChart from "@/components/layout/BtcMiniChart";
+import LiveTradeMonitor from "@/components/shared/LiveTradeMonitor";
+import SidebarQuickActions from "@/components/shared/SidebarQuickActions";
+import FloatingSidebarActions from "@/components/shared/FloatingSidebarActions";
+import FloatingSidebarActionsCollapsed from "@/components/shared/FloatingSidebarActionsCollapsed";
 
 interface SidebarProps {
     isCollapsed?: boolean;
@@ -39,7 +47,7 @@ const menuSections = [
             { name: "Memory Graph", href: "/memory-graph", icon: Network },
             { name: "Documents", href: "/documentation", icon: Layers },
             { name: "Agents", href: "/agents", icon: Brain },
-            { name: "Analytics", href: "/usage", icon: BarChart3 },
+            { name: "Analytics", href: "/usage", icon: DollarSign },
         ]
     },
     {
@@ -70,10 +78,83 @@ const menuSections = [
     }
 ];
 
+const notificationSeverityDot: Record<string, string> = {
+    info: "bg-sky-500",
+    warning: "bg-amber-500",
+    critical: "bg-red-500",
+};
+
+/** Small notification link shown below the BTC chart in the sidebar footer. */
+function NotificationLink({ collapsed }: { collapsed?: boolean }) {
+    const { notifications } = useSupabaseData();
+    const latestNotification = notifications[0] ?? null;
+    const notificationHref = latestNotification?.metadata?.journal_id
+        ? `/journal?id=${encodeURIComponent(latestNotification.metadata.journal_id)}`
+        : "/notifications";
+
+    if (collapsed) {
+        const hasUnread = latestNotification !== null;
+        const severity = latestNotification?.severity ?? "info";
+        return (
+            <div className="mx-2 mb-2">
+                <Link
+                    href={notificationHref}
+                    prefetch={false}
+                    className="w-full flex flex-col items-center justify-center gap-0.5 py-2 rounded-lg text-[10px] text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 transition-colors group relative"
+                    title={latestNotification?.title ?? "No notifications"}
+                >
+                    <span className="relative">
+                        <Bell className="h-4 w-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors" />
+                        {hasUnread && (
+                            <span className={cn(
+                                "absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full",
+                                notificationSeverityDot[severity] ?? "bg-gray-400",
+                            )} />
+                        )}
+                    </span>
+                    {/* Tooltip for collapsed state */}
+                    <div className="absolute left-16 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded-md py-1.5 px-2.5 whitespace-nowrap opacity-0 shadow-lg group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
+                        {latestNotification?.title ?? "No notifications"}
+                    </div>
+                </Link>
+            </div>
+        );
+    }
+
+    return (
+        <div className="mx-4">
+            <Link
+                href={notificationHref}
+                prefetch={false}
+                className="flex items-start gap-2 rounded-lg px-2 py-2 group hover:bg-white/5 dark:hover:bg-white/5 transition-colors"
+            >
+                {latestNotification ? (
+                    <>
+                        <span
+                            className={cn(
+                                "mt-1 h-1.5 w-1.5 shrink-0 rounded-full",
+                                notificationSeverityDot[latestNotification.severity] ?? "bg-gray-400",
+                            )}
+                        />
+                        <span className="flex-1 min-w-0 text-xs text-gray-700 dark:text-gray-300 truncate">
+                            {latestNotification.title}
+                        </span>
+                        <ExternalLink className="h-3 w-3 shrink-0 text-gray-400 dark:text-gray-500 group-hover:text-gray-300" />
+                    </>
+                ) : (
+                    <span className="text-xs text-gray-500 dark:text-gray-400">No notifications yet</span>
+                )}
+            </Link>
+        </div>
+    );
+}
+
 export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
     const pathname = usePathname();
     const [isMobile, setIsMobile] = useState(false);
     const { user } = useAuth();
+    const { status } = useTradingStatus();
+    const ticker = status?.btc_ticker;
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -136,8 +217,9 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                     {!isMobile && onToggle && (
                         <button
                             onClick={onToggle}
-                            className={cn("p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-md transition-colors", !isCollapsed && "ml-auto")}
+                            className={cn("p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded-md transition-colors group relative", !isCollapsed && "ml-auto")}
                             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                         >
                             <ChevronLeft
                                 className={cn(
@@ -145,6 +227,12 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                                     isCollapsed ? "rotate-180" : ""
                                 )}
                             />
+                            {/* Tooltip for collapsed state */}
+                            {isCollapsed && (
+                                <div className="absolute left-16 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded-md py-1.5 px-2.5 whitespace-nowrap opacity-0 shadow-lg group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
+                                    {isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                                </div>
+                            )}
                         </button>
                     )}
                 </div>
@@ -192,7 +280,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
 
                                                 {/* Tooltip for collapsed state */}
                                                 {isCollapsed && !isMobile && (
-                                                    <div className="absolute left-16 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded py-1 px-2 whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
+                                                    <div className="absolute left-16 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded-md py-1.5 px-2.5 whitespace-nowrap opacity-0 shadow-lg group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
                                                         {item.name}
                                                     </div>
                                                 )}
@@ -205,16 +293,44 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                     })}
                 </nav>
 
-                {/* Footer */}
-                {!isCollapsed && (
-                    <div className="px-4 py-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
-                        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 text-xs text-gray-600 dark:text-gray-400 space-y-2">
-                            <p className="font-semibold text-gray-800 dark:text-gray-200">🧠 Knowledge Hub</p>
-                            <p className="text-gray-600 dark:text-gray-400">Second Brain workspace with project links above</p>
-                        </div>
+                {/* Footer — BTC price chart + latest notification.
+                    Only rendered once signed in: TradingStatusProvider and
+                    SupabaseProvider both hold this data back until then. */}
+                {user && (
+                    <div className={cn("relative border-t border-gray-200 dark:border-gray-700/50 bg-white/80 dark:bg-[#080b10]/80", isCollapsed ? "py-4" : "pt-2 pb-6")}>
+                        {/* Floating "+" button centered over the top border */}
+                        {!isCollapsed && (
+                            <div className="relative -top-4 z-10">
+                                <FloatingSidebarActions />
+                            </div>
+                        )}
+
+                        {isCollapsed && !isMobile ? (
+                            <div className="mx-2">
+                                <BtcMiniChart collapsed onExpandSidebar={onToggle} />
+                                <LiveTradeMonitor collapsed />
+                                <NotificationLink collapsed />
+                            </div>
+                        ) : (
+                            <div>
+                                <BtcMiniChart />
+                                <LiveTradeMonitor collapsed={false} />
+                                <SidebarQuickActions />
+                                <NotificationLink />
+                            </div>
+                        )}
                     </div>
                 )}
             </aside>
+
+            {/* Floating "+" button for collapsed sidebar — positioned outside
+                the scrollable <aside> so the menu isn't clipped by overflow-y.
+                The collapsed sidebar is 80px (w-20) wide; the footer sits at
+                the bottom, so we place the button at the bottom of the sidebar
+                minus a small offset. */}
+            {user && isCollapsed && !isMobile && (
+                <FloatingSidebarActionsCollapsed />
+            )}
         </>
     );
 }

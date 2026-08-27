@@ -3,11 +3,18 @@ import { getHummingbotApiBase } from "@/lib/hummingbot-config";
 
 const NORMALIZED_API_BASE = getHummingbotApiBase();
 
+// Convert a frontend instrument string (e.g. "BTCUSDT") into the BASE-QUOTE
+// format Hummingbot expects (e.g. "BTC-USDT").
+export function toHummingbotPair(instrument: string): string {
+    return instrument.replace(/(USDT|USDC|PERP)$/i, "-$1");
+}
+
 export type TradingServiceIssue = {
     dependency: string;
     message: string;
     recoverable?: boolean;
     source?: string;
+    severity?: "critical" | "warning" | "info";
 };
 
 export type TradingServiceHealth = {
@@ -24,6 +31,7 @@ export type TradingOutageNotice = {
     message: string;
     endpointLabel: string;
     details: string[];
+    infoDetails?: string[];  // Info-severity issues (secondary deps, not actionable)
     statusCode: number | null;
 };
 
@@ -217,16 +225,42 @@ export function buildTradingOutageNotice({
     const requestUrl = error instanceof TradingApiError ? error.requestUrl : resolveRequestUrl(endpoint);
     const endpointLabel = error instanceof TradingApiError ? error.endpointLabel : `${method.toUpperCase()} ${requestUrl}`;
     const statusCode = error instanceof TradingApiError ? error.status : null;
+
+    // Only critical/warning issues drive the offline/degraded state.
+    // "info" issues are secondary dependencies (Aave, wallet snapshots)
+    // that don't impact core trading functionality.
+    const filterActionableIssues = (issues: TradingServiceIssue[] | undefined) =>
+        issues?.filter((i) => i.severity !== "info") ?? [];
+
+    const actionableHealthIssues = filterActionableIssues(serviceHealth?.issues);
+    const actionablePayloadIssues = filterActionableIssues(payload?.issues);
+    const actionableHealthState =
+        actionableHealthIssues.length === 0 && !serviceHealth?.fallback_active
+            ? "healthy"
+            : serviceHealth?.state ?? null;
+
     const issueMessages = [
-        ...(serviceHealth?.issues?.length
-            ? serviceHealth.issues.map((issue) => `${issue.dependency || "trading"}: ${issue.message}`)
+        ...(actionableHealthIssues.length
+            ? actionableHealthIssues.map((issue) => `${issue.dependency || "trading"}: ${issue.message}`)
             : []),
-        ...extractIssuesFromPayload(payload),
+        ...extractIssuesFromPayload(payload).filter((_, i) => {
+            // extractIssuesFromPayload pulls from payload.issues + payload.service_health.issues
+            // We already filtered actionablePayloadIssues above, but extractIssuesFromPayload is
+            // called separately. Filter out info-severity messages from the raw extraction too.
+            const allPayloadIssues = [
+                ...(payload?.issues ?? []),
+                ...(payload?.service_health?.issues ?? []),
+            ];
+            if (i < allPayloadIssues.length) {
+                return allPayloadIssues[i]?.severity !== "info";
+            }
+            return true;
+        }),
     ];
     const uniqueIssueMessages = [...new Set(issueMessages)];
 
-    const degradedByHealth = statusState === "degraded";
-    const offlineByHealth = statusState === "offline";
+    const degradedByHealth = actionableHealthState === "degraded";
+    const offlineByHealth = actionableHealthState === "offline";
     const offlineByResponse = statusCode !== null && statusCode >= 503;
     const state: "degraded" | "offline" = offlineByHealth || offlineByResponse ? "offline" : "degraded";
     const title = state === "offline" ? "Trading backend offline" : "Trading backend degraded";
@@ -243,16 +277,22 @@ export function buildTradingOutageNotice({
         message = getTradingErrorMessage(error) as string;
     }
 
-    if (!uniqueIssueMessages.length && !degradedByHealth && !offlineByHealth && !error) {
+    // Also collect info-severity issues for the details list (shown below critical ones)
+    const infoMessages = [
+        ...(serviceHealth?.issues?.filter((i) => i.severity === "info").map((issue) => `${issue.dependency || "trading"}: ${issue.message}`) ?? []),
+    ];
+
+    if (!uniqueIssueMessages.length && !degradedByHealth && !offlineByHealth && !error && infoMessages.length === 0) {
         return null;
     }
 
     return {
-        state,
-        title,
-        message,
+        state: uniqueIssueMessages.length > 0 || degradedByHealth || offlineByHealth || error ? state : "degraded",
+        title: uniqueIssueMessages.length > 0 || degradedByHealth || offlineByHealth || error ? title : "Trading service notice",
+        message: uniqueIssueMessages.length > 0 ? message : "One or more secondary dependencies are unavailable.",
         endpointLabel,
         details: uniqueIssueMessages,
+        infoDetails: infoMessages,
         statusCode,
     };
 }
@@ -267,6 +307,15 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
     const token = await getAuthToken();
     const response = await fetch(requestUrl, {
         ...init,
+        // The backend stamps short-lived Cache-Control headers on some GET
+        // routes (e.g. /trading/status: max-age=5, stale-while-revalidate=30)
+        // for reverse-proxy/CDN benefit. The browser's fetch cache honors
+        // that header too, which let a 5s-interval poller serve a response
+        // up to ~35s stale. This is a live trading dashboard -- every call
+        // through this wrapper should hit the network, not the browser
+        // cache. Callers can still override via `init.cache` if a specific
+        // call ever wants caching.
+        cache: init?.cache ?? "no-store",
         headers: {
             "Content-Type": "application/json",
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -321,6 +370,10 @@ export type HummingbotStatus = {
     service: string;
     api_url: string;
     paper_mode: boolean;
+    // Authoritative dry-run/live flag -- paper_mode above is not enforced
+    // anywhere in the backend's order-placement path. UI banners should
+    // branch on this, not on paper_mode.
+    live_trading_enabled: boolean;
     default_account: string;
     default_connector: string;
     wallet_address?: string;
@@ -360,6 +413,21 @@ export type HummingbotStatus = {
             error?: string;
         };
     };
+    // Executor identity -- tells the dashboard which backend instance is
+    // responding. See a-quant/apps/api-svc/src/core/config.py for the
+    // EXECUTOR_ID/LABEL/PRIORITY env vars.
+    executor_id?: string;
+    executor_label?: string;
+    executor_priority?: "primary" | "fallback" | "standby";
+    // BTC last price + 24h change, read directly from Bybit's public
+    // ticker endpoint (no API keys required). Powers the Sidebar's live
+    // price widget. null if the ticker fetch failed.
+    btc_ticker?: {
+        symbol: string;
+        last_price: number;
+        // Fraction, not percent -- e.g. 0.0123 == +1.23%.
+        price_24h_pcnt: number;
+    } | null;
 };
 
 export type HummingbotWalletSnapshot = {
@@ -472,6 +540,10 @@ export type TradeRequest = {
     take_profit_2_pct: number;
     account_name?: string;
     connector_name?: string;
+    // Client-generated UUID (crypto.randomUUID() at call time). A repeat
+    // within 24h returns the backend's cached result instead of placing a
+    // second real order -- see /trading/open's idempotency check.
+    client_request_id?: string;
 };
 
 export type BacktestRequest = {
@@ -484,6 +556,52 @@ export type TradingStatusResponse = HummingbotStatus;
 
 export async function fetchTradingStatus(init?: RequestInit) {
     return fetchJson<TradingStatusResponse>("/trading/status", init);
+}
+
+export type NextReconcileResponse = {
+    // ISO timestamp of the real, already-scheduled close-guard reconcile
+    // job's next fire (see api-svc main.py, APScheduler job id
+    // "close_guard_reconcile") -- null if the scheduler wasn't reachable or
+    // the guard is disabled. Not a fabricated timer: this is the literal
+    // next_run_time of the job that actually re-checks every open position.
+    next_run_at: string | null;
+    interval_minutes: number;
+    enabled: boolean;
+};
+
+export async function fetchNextReconcile(init?: RequestInit) {
+    return fetchJson<NextReconcileResponse>("/trading/next-reconcile", init);
+}
+
+export type ConnectivityState = "healthy" | "degraded" | "offline" | "unknown";
+
+export type MonitorStatusResponse = {
+    // Same close-guard timing as NextReconcileResponse, plus the real
+    // internet/Bybit connectivity monitor state (services/connectivity_monitor.py)
+    // -- backs the execution monitor's status card.
+    next_reconcile_at: string | null;
+    reconcile_interval_minutes: number;
+    reconcile_enabled: boolean;
+    connectivity_state: ConnectivityState | null;
+    connectivity_last_check_at: string | null;
+    connectivity_last_success_at: string | null;
+};
+
+export async function fetchMonitorStatus(init?: RequestInit) {
+    return fetchJson<MonitorStatusResponse>("/trading/monitor-status", init);
+}
+
+// Manual "check now" controls -- both call the exact same code path as
+// their scheduled counterpart, just on demand (see trading_routes.py).
+export async function triggerReconcileNow() {
+    return fetchJson<{ closed: number; [key: string]: unknown }>("/trading/reconcile-closes", { method: "POST" });
+}
+
+export async function triggerConnectivityCheckNow() {
+    return fetchJson<{ connectivity_state: ConnectivityState; checked_at: string | null }>(
+        "/trading/connectivity-check-now",
+        { method: "POST" },
+    );
 }
 
 export async function fetchPortfolioTracker(init?: RequestInit) {
@@ -534,14 +652,57 @@ export async function previewTrade(request: {
     });
 }
 
-export async function openPaperTrade(request: TradeRequest) {
+// ── AI Setup Suggest ────────────────────────────────────────────────
+
+export type AiSuggestRequest = {
+    instruments?: string[];
+    interval?: string;
+    limit?: number;
+    fast_ema?: number;
+    slow_ema?: number;
+    rsi_period?: number;
+    side_preference?: "long" | "short" | "neutral";
+};
+
+export type AiSuggestResult = {
+    instrument: string;
+    side: "long" | "short";
+    title: string;
+    reasoning: string;
+    thesis: string;
+    risk_plan: string;
+    stop_loss_pct: number;
+    tp1_pct: number;
+    tp2_pct: number;
+    confidence: number;
+};
+
+export async function aiSetupSuggest(request: AiSuggestRequest) {
+    return fetchJson<AiSuggestResult>("/strategy/ai-suggest", {
+        method: "POST",
+        body: JSON.stringify({
+            instruments: request.instruments || ["BTCUSDT", "ETHUSDT"],
+            interval: request.interval || "1h",
+            limit: request.limit || 120,
+            fast_ema: request.fast_ema || 21,
+            slow_ema: request.slow_ema || 55,
+            rsi_period: request.rsi_period || 14,
+            side_preference: request.side_preference || "neutral",
+        }),
+    });
+}
+
+// Named for what they actually do: both hit real live endpoints on the
+// backend (gated server-side by LIVE_TRADING_ENABLED, not by this client).
+// Previously named openPaperTrade/closePaperTrade, which was misleading.
+export async function submitTradeOpen(request: TradeRequest) {
     return fetchJson<{ request: TradeRequest; result: unknown }>("/trading/open", {
         method: "POST",
         body: JSON.stringify(request),
     });
 }
 
-export async function closePaperTrade(request: TradeRequest) {
+export async function submitTradeClose(request: TradeRequest) {
     return fetchJson<{ request: TradeRequest; result: unknown }>("/trading/close", {
         method: "POST",
         body: JSON.stringify(request),
@@ -560,6 +721,8 @@ export async function runBacktest(request: BacktestRequest) {
 // from the browser -- entries hold real strategy reasoning, unlike the
 // portfolio_snapshots/signals/trades tables the rest of this app reads
 // directly with the anon key.
+
+export type JournalEntryType = "trade" | "setup" | "lesson";
 
 export type JournalEntry = {
     id: string;
@@ -580,6 +743,37 @@ export type JournalEntry = {
     closed_at: string | null;
     created_at: string;
     updated_at: string;
+    // Migration 011 outcome fields
+    exit_price: number | null;
+    realized_pnl: number | null;
+    fees_paid: number | null;
+    funding_paid: number | null;
+    close_reason: string | null;
+    duration_hours: number | null;
+    mae: number | null;
+    mfe: number | null;
+    mae_at: string | null;
+    mfe_at: string | null;
+    post_mortem_at: string | null;
+    // Trade setups (migration 014)
+    entry_type: JournalEntryType;
+    reasoning: string | null;
+    parent_setup_id: string | null;
+    // Trigger Setup (migration 015)
+    scenario_label: string | null;
+    market_snapshot: MarketSnapshot | null;
+};
+
+// Captured from HummingbotPreview at setup save-time -- used to detect
+// drift (price/signal) before a setup is triggered into a live order.
+export type MarketSnapshot = {
+    latest_close?: number | null;
+    rsi?: number | null;
+    ema_fast?: number | null;
+    ema_slow?: number | null;
+    signal?: string | null;
+    funding_rate?: number | null;
+    [key: string]: unknown;
 };
 
 export type JournalEntryCreate = {
@@ -596,6 +790,13 @@ export type JournalEntryCreate = {
     outcome?: string | null;
     tags?: string[];
     opened_at?: string | null;
+    // Trade setups (migration 014)
+    entry_type?: JournalEntryType;
+    reasoning?: string | null;
+    parent_setup_id?: string | null;
+    // Trigger Setup (migration 015)
+    scenario_label?: string | null;
+    market_snapshot?: MarketSnapshot | null;
 };
 
 export type JournalEntryUpdate = Partial<JournalEntryCreate> & { closed_at?: string | null };
@@ -603,6 +804,7 @@ export type JournalEntryUpdate = Partial<JournalEntryCreate> & { closed_at?: str
 export type JournalListParams = {
     status?: "open" | "closed";
     side?: "long" | "short";
+    entry_type?: JournalEntryType;
     search?: string;
     limit?: number;
     offset?: number;
@@ -612,6 +814,7 @@ export async function fetchJournalEntries(params: JournalListParams = {}) {
     const search = new URLSearchParams();
     if (params.status) search.set("status", params.status);
     if (params.side) search.set("side", params.side);
+    if (params.entry_type) search.set("entry_type", params.entry_type);
     if (params.search) search.set("search", params.search);
     search.set("limit", String(params.limit ?? 20));
     search.set("offset", String(params.offset ?? 0));
@@ -653,6 +856,30 @@ export async function closeJournalEntry(id: string, request: JournalCloseRequest
     });
 }
 
+// Freshness verdict from evaluateSetupFreshness() (lib/setup-freshness.ts),
+// re-run against the live preview at Trigger Setup confirm-time.
+export type SetupFreshness = "aligned" | "drifted" | "flipped" | "unknown";
+
+export type JournalPromoteRequest = {
+    entry_price?: number | null;
+    size?: number | null;
+    leverage?: number | null;
+    title?: string | null;
+    // Trigger Setup (migration 015)
+    scenario_label?: string | null;
+    stop_loss_price?: number | null;
+    take_profit_price?: number | null;
+    freshness_status?: SetupFreshness | null;
+    freshness_reason?: string | null;
+};
+
+export async function promoteJournalEntry(id: string, request: JournalPromoteRequest = {}) {
+    return fetchJson<{ setup: string; trade: JournalEntry }>(`/journal/${id}/promote`, {
+        method: "POST",
+        body: JSON.stringify(request),
+    });
+}
+
 // ── Trade analysis log ──────────────────────────────────────────────
 // Append-only history of analysis passes over a journal entry (ATR/stop
 // recalculations, reconciliation checks, ...) -- unlike thesis/risk_plan
@@ -670,6 +897,105 @@ export type TradeAnalysis = {
 
 export async function fetchTradeAnalysis(journalId: string) {
     return fetchJson<{ entries: TradeAnalysis[]; count: number }>(`/journal/${journalId}/analysis`);
+}
+
+// ── AI cost & budget tracking ────────────────────────────────────────
+// Backs the "Cost & Budget" page (app/usage/page.tsx). See
+// a-quant/docs/ai-cost-tracking.md for the design these mirror.
+
+export type LlmSpendByModel = { model: string; cost_usd: number; calls: number };
+export type LlmSpendByFeature = { feature: string; cost_usd: number; calls: number };
+export type LlmSpendDaily = { date: string; cost_usd: number; calls: number };
+
+export type LlmSpendSummary = {
+    days: number;
+    total_cost_usd: number;
+    total_calls: number;
+    ok_calls: number;
+    error_calls: number;
+    by_model: LlmSpendByModel[];
+    by_feature: LlmSpendByFeature[];
+    daily: LlmSpendDaily[];
+    month_to_date_usd: number;
+};
+
+export type AiBudgetStatus = {
+    monthly_budget_usd: number;
+    alert_threshold_pct: number;
+    spent_this_month: number;
+    remaining: number;
+    pct_used: number;
+    status: "ok" | "warning" | "over";
+    active_model: string | null;
+    enabled: boolean;
+};
+
+export type AiCostSummary = {
+    spend: LlmSpendSummary;
+    budget: AiBudgetStatus;
+};
+
+export type LlmUsageEntry = {
+    id: string;
+    created_at: string;
+    feature: string;
+    model: string;
+    input_tokens: number;
+    output_tokens: number;
+    cache_creation_tokens: number;
+    cache_read_tokens: number;
+    cost_usd: number;
+    journal_id: string | null;
+    latency_ms: number | null;
+    ok: boolean;
+    error: string | null;
+};
+
+export type AiSettings = {
+    monthly_budget_usd: number;
+    alert_threshold_pct: number;
+    active_model: string;
+    enabled: boolean;
+};
+
+export type AiSettingsUpdate = Partial<AiSettings>;
+
+export type AiModelPricing = {
+    model: string;
+    input: number;
+    output: number;
+    cache_write: number;
+    cache_read: number;
+    active: boolean;
+};
+
+export async function fetchAiCostSummary(days = 30) {
+    return fetchJson<AiCostSummary>(`/ai/cost/summary?days=${days}`);
+}
+
+export async function fetchAiCostUsage(params: { limit?: number; offset?: number; feature?: string; model?: string } = {}) {
+    const search = new URLSearchParams();
+    search.set("limit", String(params.limit ?? 50));
+    search.set("offset", String(params.offset ?? 0));
+    if (params.feature) search.set("feature", params.feature);
+    if (params.model) search.set("model", params.model);
+
+    return fetchJson<{ entries: LlmUsageEntry[]; total: number }>(`/ai/cost/usage?${search.toString()}`);
+}
+
+export async function fetchAiSettings() {
+    return fetchJson<AiSettings>("/ai/cost/settings");
+}
+
+export async function updateAiSettings(update: AiSettingsUpdate) {
+    return fetchJson<AiSettings>("/ai/cost/settings", {
+        method: "PUT",
+        body: JSON.stringify(update),
+    });
+}
+
+export async function fetchAiCostModels() {
+    return fetchJson<{ active_model: string; models: AiModelPricing[] }>("/ai/cost/models");
 }
 
 // ── Notifications ────────────────────────────────────────────────────
@@ -692,4 +1018,83 @@ export async function archiveNotification(id: string) {
 
 export async function unarchiveNotification(id: string) {
     return fetchJson<{ id: string; archived_at: string | null }>(`/notifications/${id}/unarchive`, { method: "POST" });
+}
+
+// ── Strategy automation ────────────────────────────────────────
+// Backs the Strategy panel on the command-center page.
+// See a-quant/apps/api-svc/src/services/strategy_automation.md.
+
+export type StrategyRiskParams = {
+    margin_usd: number;
+    leverage: number;
+    atr_stop_mult: number;
+    atr_target_mult: number;
+    big_trade_notional_usd: number;
+};
+
+export type StrategyEntryFilters = {
+    min_adx_for_trend: number;
+    rsi_overbought: number;
+    rsi_oversold: number;
+    require_regime: boolean;
+    // 5M timing thresholds (dual-timeframe entries).
+    pullback_rsi_long: number;
+    pullback_rsi_short: number;
+    range_rsi_long: number;
+    range_rsi_short: number;
+};
+
+export type StrategyState = {
+    id: string;
+    enabled: boolean;
+    phase: "idle" | "armed" | "in_position";
+    symbol: string;
+    category: string;
+    settle_coin: string;
+    risk_params: StrategyRiskParams;
+    entry_filters: StrategyEntryFilters;
+    current_journal_id: string | null;
+    armed_at: string | null;
+    entered_at: string | null;
+    last_evaluated_at: string | null;
+    last_reason: string | null;
+    updated_at: string;
+};
+
+export async function fetchStrategyStatus(): Promise<StrategyState> {
+    return fetchJson<StrategyState>("/strategy/status");
+}
+
+export async function updateStrategySettings(
+    update: { risk_params?: Partial<StrategyRiskParams>; entry_filters?: Partial<StrategyEntryFilters> },
+): Promise<StrategyState> {
+    return fetchJson<StrategyState>("/strategy/settings", {
+        method: "PUT",
+        body: JSON.stringify(update),
+    });
+}
+
+// Agent activity -- in-memory registry of what each background service
+// (thesis_monitor, risk_guard, strategy_runner, position_defender) is
+// doing right now. No persistence -- a restart resets to idle.
+export type AgentActivityState = "idle" | "thinking" | "writing" | "monitoring";
+
+export type AgentActivityEntry = {
+    state: AgentActivityState;
+    detail: string | null;
+    updated_at: string | null;
+};
+
+export type AgentStatusResponse = Record<string, AgentActivityEntry>;
+
+export async function fetchAgentStatus(): Promise<AgentStatusResponse> {
+    return fetchJson<AgentStatusResponse>("/agents/status");
+}
+
+export async function activateStrategy(): Promise<StrategyState> {
+    return fetchJson<StrategyState>("/strategy/activate", { method: "POST" });
+}
+
+export async function deactivateStrategy(): Promise<StrategyState> {
+    return fetchJson<StrategyState>("/strategy/deactivate", { method: "POST" });
 }
