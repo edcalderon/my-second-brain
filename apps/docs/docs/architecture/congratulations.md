@@ -48,9 +48,10 @@ Before you begin, ensure you have the following installed:
 
 You'll need to obtain API keys for the following services:
 
-#### Supermemory API
-- Visit [Supermemory](https://supermemory.ai) to get your API key
-- Add to `.env.local`: `NEXT_PUBLIC_SUPERMEMORY_API_KEY=your-key`
+#### Server-only provider integrations
+- Keep provider API keys in the server environment only.
+- Do not add provider credentials to `.env.local` values prefixed with
+  `NEXT_PUBLIC_`.
 
 #### Firebase
 - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)

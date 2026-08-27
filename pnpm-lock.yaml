@@ -114,9 +114,6 @@ importers:
       remark-math:
         specifier: ^6.0.0
         version: 6.0.0
-      supermemory:
-        specifier: ^4.0.0
-        version: 4.0.0
       tailwind-merge:
         specifier: ^3.4.0
         version: 3.4.0
@@ -9418,9 +9415,6 @@ packages:
     engines: {node: ^14 || ^16 || >=18.0}
     peerDependencies:
       postcss: ^8.4.31
-
-  supermemory@4.0.0:
-    resolution: {integrity: sha512-xMN05PQ8kTv8DuXa2qf8h/9LaRI7v1Kz3Tutt97JPq+PzhGabKLv5YVbSgqHiPX5yXcSUBVBNYPPbhAQMF6GYQ==}
 
   superstatic@10.0.0:
     resolution: {integrity: sha512-4xIenBdrIIYuqXrIVx/lejyCh4EJwEMPCwfk9VGFfRlhZcdvzTd3oVOUILrAGfC4pFUWixzPgaOVzAEZgeYI3w==}
@@ -22362,8 +22356,6 @@ snapshots:
       browserslist: 4.28.1
       postcss: 8.5.6
       postcss-selector-parser: 6.1.2
-
-  supermemory@4.0.0: {}
 
   superstatic@10.0.0(encoding@0.1.13):
     dependencies:

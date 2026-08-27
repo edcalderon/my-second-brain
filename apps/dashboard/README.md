@@ -45,7 +45,6 @@ Create `.env.local` with publishable client configuration only:
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_SUPERMEMORY_API_KEY=your_publishable_api_key
 ```
 
 `NEXT_PUBLIC_*` values are included in the browser bundle. Never put service

@@ -6,64 +6,11 @@ sidebar_position: 3
 
 Comprehensive API documentation for Edward's Second Brain system components.
 
-## Supermemory API
+## Provider integrations
 
-The core AI service for knowledge processing and memory management.
-
-### Authentication
-
-```javascript
-// API Key is exposed in client (GitHub Pages limitation)
-const apiKey = process.env.NEXT_PUBLIC_SUPERMEMORY_API_KEY;
-```
-
-### Memory Operations
-
-#### Add Memory
-```typescript
-interface AddMemoryRequest {
-  content: string;
-  containerTags?: string[];
-}
-
-interface AddMemoryResponse {
-  id: string;
-  content: string;
-  tags: string[];
-  created_at: string;
-}
-
-// Usage
-const response = await supermemory.memories.add({
-  content: "Your knowledge content here",
-  containerTags: ["personal", "work"]
-});
-```
-
-#### Search Memories
-```typescript
-interface SearchRequest {
-  q: string;
-  containerTags?: string[];
-}
-
-interface SearchResponse {
-  results: Array<{
-    content: string;
-    metadata: any;
-    chunks: Array<{
-      content: string;
-      metadata: any;
-    }>;
-  }>;
-}
-
-// Usage
-const results = await supermemory.search.execute({
-  q: "machine learning",
-  containerTags: ["ai", "research"]
-});
-```
+The GitHub Pages dashboard is static and does not call third-party memory
+providers. Provider API keys must remain in a server-only runtime, never in a
+`NEXT_PUBLIC_*` build variable.
 
 ## Firebase Services
 
@@ -168,18 +115,16 @@ Example:
 
 | Variable | Description | Used In |
 |----------|-------------|---------|
-| `NEXT_PUBLIC_SUPERMEMORY_API_KEY` | Supermemory API access | Dashboard |
 | `NEXT_PUBLIC_FIREBASE_API_KEY` | Firebase project key | Dashboard |
 | `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Firebase auth domain | Dashboard |
 | `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Firebase project ID | Dashboard |
-| `SUPERMEMORY_API_KEY` | Server-side API key | GitHub Actions |
+| `SUPERMEMORY_API_KEY` | Server-side provider key | Server runtime only |
 
 ### Setting Environment Variables
 
 #### Local Development
 ```bash
 # .env.local
-NEXT_PUBLIC_SUPERMEMORY_API_KEY=your-key-here
 NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-key
 ```
 
@@ -191,19 +136,6 @@ NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-key
 ## Error Handling
 
 ### Common Errors
-
-#### Supermemory API Errors
-```typescript
-try {
-  const result = await supermemory.memories.add(memoryData);
-} catch (error) {
-  if (error.message.includes('API_KEY')) {
-    console.error('Invalid API key');
-  } else if (error.message.includes('RATE_LIMIT')) {
-    console.error('Rate limit exceeded');
-  }
-}
-```
 
 #### Firebase Errors
 ```typescript
@@ -227,7 +159,6 @@ try {
 
 ## Rate Limits
 
-- **Supermemory API**: 1000 requests/hour (free tier)
 - **Firebase**: Varies by service
 - **GitHub Pages**: No specific rate limits
 
