@@ -39,14 +39,20 @@ pnpm start
 
 ## Environment Variables
 
-Create `.env.local` with:
+Create `.env.local` with publishable client configuration only:
 
 ```env
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-SUPermemory_API_KEY=your_api_key
+NEXT_PUBLIC_SUPERMEMORY_API_KEY=your_publishable_api_key
 ```
+
+`NEXT_PUBLIC_*` values are included in the browser bundle. Never put service
+keys, database credentials, exchange credentials, or private API tokens in
+this file. GitHub Pages releases are built by
+[`deploy-web.yml`](../../../.github/workflows/deploy-web.yml) after a change is
+merged to `main`.
 
 ## Recent Updates
 

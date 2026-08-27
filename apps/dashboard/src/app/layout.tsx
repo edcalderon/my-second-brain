@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SupabaseProvider } from "@/components/supabase/SupabaseProvider";
+import { TradingStatusProvider } from "@/components/trading/TradingStatusProvider";
 import AppShell from "@/components/layout/AppShell";
 import "@/styles/globals.css";
 
@@ -46,7 +47,9 @@ export default function RootLayout({
                 <ThemeProvider>
                     <AuthProvider>
                         <SupabaseProvider>
-                            <AppShell>{children}</AppShell>
+                            <TradingStatusProvider>
+                                <AppShell>{children}</AppShell>
+                            </TradingStatusProvider>
                         </SupabaseProvider>
                     </AuthProvider>
                 </ThemeProvider>

@@ -75,7 +75,7 @@ const apiLinks = [
     {
         href: `${API_BASE}/trading/positions`,
         title: "Open positions",
-        description: "Current paper-trading exposure for the Hyperliquid account.",
+        description: "Current paper-trading exposure for the active trading account.",
     },
 ];
 
@@ -117,7 +117,7 @@ export default function AQuantPortalPage() {
                                 A-Quant Trading Portal
                             </h1>
                             <p className="max-w-3xl text-base leading-8 text-gray-600 sm:text-lg">
-                                Dedicated control surface for the main Hyperliquid account. Use this page to test paper trading, inspect the
+                                Dedicated control surface for the main trading account. Use this page to test paper trading, inspect the
                                 portfolio tracker, and keep the market, strategy, risk, and execution flows inside the dashboard shell.
                             </p>
                         </div>

@@ -218,13 +218,13 @@ export default function NotificationsPage() {
                                     <p className="mt-1 text-[10px] text-gray-400">{formatRelativeTime(n.created_at)} · {formatTime(n.created_at)}</p>
                                 </div>
                                 <div className="flex items-center gap-1 flex-shrink-0">
-                                    <button
+                                    <div
                                         onClick={(e) => toggleArchive(e, n)}
-                                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded"
+                                        className="p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded cursor-pointer"
                                         title={n.archived_at ? "Unarchive" : "Archive"}
                                     >
                                         {n.archived_at ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                                    </button>
+                                    </div>
                                     {expanded ? <ChevronUp className="h-4 w-4 text-gray-400" /> : <ChevronDown className="h-4 w-4 text-gray-400" />}
                                 </div>
                             </button>
