@@ -1,3 +1,14 @@
+## [1.5.7](https://github.com/edcalderon/my-second-brain/compare/v1.5.6...v1.5.7) (2026-08-27)
+
+
+### Bug Fixes
+
+* remove client-exposed provider key ([165eb51](https://github.com/edcalderon/my-second-brain/commit/165eb5199ca9e6eb8d53f737e135ec73cc2142a5))
+
+
+
+
+
 ## [1.5.6](https://github.com/edcalderon/my-second-brain/compare/v1.5.4...v1.5.6) (2026-08-27)
 
 
