@@ -1160,6 +1160,51 @@ export async function fetchStrategies(): Promise<StrategiesResponse> {
     return fetchJson<StrategiesResponse>("/strategies");
 }
 
+// Per-strategy live monitor (GET /strategies/{id}/monitor). Every field is
+// optional/nullable on purpose: the UI renders whatever the backend chooses
+// to expose and must not break when a section is missing.
+export type StrategyMonitorPosition = {
+    side?: "long" | "short" | string | null;
+    size?: number | null;
+    entry_price?: number | null;
+    mark_price?: number | null;
+    stop_price?: number | null;
+    liq_price?: number | null;
+    unrealized_pnl?: number | null;
+    leverage?: number | null;
+    journal_id?: string | null;
+};
+
+export type StrategyMonitorRisk = {
+    equity_usd?: number | null;
+    day_pnl_usd?: number | null;
+    daily_loss_limit_pct?: number | null;
+    daily_halt?: boolean | null;
+    risk_per_trade_pct?: number | null;
+    max_leverage?: number | null;
+    max_notional_usd?: number | null;
+};
+
+export type StrategyMonitorEvent = {
+    id?: string | number;
+    created_at?: string | null;
+    analysis_type?: string | null;
+    summary?: string | null;
+    details?: string | null;
+};
+
+export type StrategyMonitorResponse = {
+    strategy?: Partial<StrategyListItem> | null;
+    position?: StrategyMonitorPosition | null;
+    risk?: StrategyMonitorRisk | null;
+    trades?: JournalEntry[] | null;
+    events?: StrategyMonitorEvent[] | null;
+};
+
+export async function fetchStrategyMonitor(stateId: string): Promise<StrategyMonitorResponse> {
+    return fetchJson<StrategyMonitorResponse>(`/strategies/${encodeURIComponent(stateId)}/monitor`);
+}
+
 export async function fetchStrategyStatus(stateId?: string): Promise<StrategyState> {
     const qs = stateId ? `?state_id=${encodeURIComponent(stateId)}` : "";
     return fetchJson<StrategyState>(`/strategy/status${qs}`);

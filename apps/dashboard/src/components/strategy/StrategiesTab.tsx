@@ -200,6 +200,8 @@ function StrategyRow({
     const backtestFailed = latest_backtest?.status === "failed";
     const backtestCancelled = latest_backtest?.status === "cancelled";
     const [stopping, setStopping] = useState(false);
+    const canEdit = !!strategy.risk_params && "margin_usd" in strategy.risk_params;
+    const isLive = enabled || phase === "in_position";
 
     async function handleStop() {
         if (!latest_backtest?.id) return;
@@ -340,6 +342,15 @@ function StrategyRow({
                                     “{strategy.last_reason}”
                                 </span>
                             )}
+                            {isLive && (
+                                <Link
+                                    href={`/strategy/live?id=${encodeURIComponent(id)}`}
+                                    className="inline-flex items-center gap-1 whitespace-nowrap font-semibold text-sky-700 hover:text-sky-800 hover:underline dark:text-sky-400"
+                                >
+                                    <Monitor className="h-3 w-3" />
+                                    Live monitor
+                                </Link>
+                            )}
                             {strategy.current_journal_id && (
                                 <Link
                                     href={`/journal?id=${strategy.current_journal_id}`}
@@ -359,6 +370,17 @@ function StrategyRow({
                             type="button"
                             disabled={isBusy}
                             onClick={async () => {
+                                // Mainnet rows trade the real account -- make the
+                                // owner acknowledge that before arming one.
+                                if (
+                                    !enabled &&
+                                    execution_mode === "mainnet" &&
+                                    !window.confirm(
+                                        `Activate "${label}"?\n\nThis strategy trades REAL money on the live account. It can open and close positions on its own once armed.`,
+                                    )
+                                ) {
+                                    return;
+                                }
                                 onBusy(id);
                                 try {
                                     if (enabled) {
@@ -407,14 +429,19 @@ function StrategyRow({
                                 </>
                             )}
                         </button>
-                        <button
-                            type="button"
-                            onClick={onEdit}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:bg-slate-800 dark:text-gray-400 dark:hover:bg-slate-700"
-                        >
-                            <Settings2 className="h-3 w-3" />
-                            Edit
-                        </button>
+                        {/* The edit form rewrites risk_params wholesale with
+                            margin/leverage/ATR keys, so only offer it for rows
+                            that actually have that shape. */}
+                        {canEdit && (
+                            <button
+                                type="button"
+                                onClick={onEdit}
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:bg-slate-800 dark:text-gray-400 dark:hover:bg-slate-700"
+                            >
+                                <Settings2 className="h-3 w-3" />
+                                Edit
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

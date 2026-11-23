@@ -30,6 +30,7 @@ import { useTradingStatus } from "@/components/trading/TradingStatusProvider";
 import { useSupabaseData } from "@/components/supabase/SupabaseProvider";
 import BtcMiniChart from "@/components/layout/BtcMiniChart";
 import LiveTradeMonitor from "@/components/shared/LiveTradeMonitor";
+import LiveStrategiesMonitor from "@/components/shared/LiveStrategiesMonitor";
 import SidebarQuickActions from "@/components/shared/SidebarQuickActions";
 import FloatingSidebarActions from "@/components/shared/FloatingSidebarActions";
 import FloatingSidebarActionsCollapsed from "@/components/shared/FloatingSidebarActionsCollapsed";
@@ -309,12 +310,14 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                             <div className="mx-2">
                                 <BtcMiniChart collapsed onExpandSidebar={onToggle} />
                                 <LiveTradeMonitor collapsed />
+                                <LiveStrategiesMonitor collapsed />
                                 <NotificationLink collapsed />
                             </div>
                         ) : (
                             <div>
                                 <BtcMiniChart />
                                 <LiveTradeMonitor collapsed={false} />
+                                <LiveStrategiesMonitor collapsed={false} />
                                 <SidebarQuickActions />
                                 <NotificationLink />
                             </div>

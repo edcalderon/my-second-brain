@@ -113,6 +113,11 @@ Obsidian serves as the **Markdown Foundation** for this laboratory. While many t
 
 ## 🆕 Recent Updates
 
+### Dashboard — Live Strategies
+- 🟢 **Sidebar "Live strategies"**: appears only while a strategy is active; collapsed it shows an icon and count, expanded it lists each running strategy with its phase and live PnL.
+- 📈 **Strategy monitor page** (`/strategy/live`): per-strategy position, distance to stop and liquidation, risk and daily-halt status, performance, trades and event log, refreshed automatically.
+- 🛡️ **Safer activation**: Strategy Desk asks for a real-money confirmation before activating a mainnet strategy and hides the legacy edit form for strategies it cannot represent.
+
 ### Dashboard v1.5.5
 - 📊 **Sidebar Live Trade Monitor**: Glass-panel position indicator — renders every open position (provider-tagged, composable) with direction icon, symbol, size, PnL. Collapsed: dot+count badge. Links to `/execution`. Replaces dead `LiveInfoWidget` code.
 - ⚡ **Sidebar Quick Actions**: Animated action menu (framer-motion) with "Open Trade" → Command Center, "Analyze Setup" → Strategy, "Trade Journal" → Journal. Tabbed "Recent Trades" / "Setups" area below, ready for API wiring.
