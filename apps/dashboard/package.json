@@ -36,6 +36,7 @@
     "framer-motion": "^12.23.22",
     "katex": "^0.18.4",
     "lucide-react": "^0.562.0",
+    "lightweight-charts": "^5.1.0",
     "next": "^16.1.7",
     "postcss": "^8.5.6",
     "react": "^19.2.3",

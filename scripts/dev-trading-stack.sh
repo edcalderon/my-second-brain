@@ -44,6 +44,24 @@ ensure_a_quant_python_env() {
 
 ensure_a_quant_python_env
 
+# Kill any existing process bound to our dev ports before starting.
+# This prevents EADDRINUSE from stale dev-server crashes.
+kill_port() {
+    local port=$1
+    if command -v fuser >/dev/null 2>&1; then
+        fuser -k "${port}/tcp" >/dev/null 2>&1 || true
+    else
+        # Fallback: find PID via lsof and kill
+        local pid
+        pid=$(lsof -ti ":${port}" 2>/dev/null | head -1) || true
+        [ -n "$pid" ] && kill -9 "$pid" 2>/dev/null || true
+    fi
+    sleep 0.5
+}
+
+kill_port "$DASHBOARD_PORT"
+kill_port "$A_QUANT_PORT"
+
 export NEXT_PUBLIC_DASHBOARD_API_BASE="${NEXT_PUBLIC_DASHBOARD_API_BASE:-http://localhost:$DASHBOARD_PORT}"
 export NEXT_PUBLIC_A_QUANT_API_BASE="${NEXT_PUBLIC_A_QUANT_API_BASE:-http://localhost:$A_QUANT_PORT}"
 export NEXT_PUBLIC_HUMMINGBOT_API_BASE="${NEXT_PUBLIC_HUMMINGBOT_API_BASE:-http://localhost:$A_QUANT_PORT}"

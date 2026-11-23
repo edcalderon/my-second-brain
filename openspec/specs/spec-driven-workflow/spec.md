@@ -63,3 +63,28 @@ done and the spec has been synced into the main spec tree.
 - **WHEN** implementation tasks are complete and the spec is approved
 - **THEN** the change SHALL be moved to the archive area and the main spec tree
   SHALL reflect the final requirements
+
+### Requirement: Operational task workspace
+The repository SHALL track live task status in `.agents/pending-tasks`,
+`.agents/active-tasks`, and `.agents/done-tasks`.
+
+#### Scenario: A non-trivial task starts
+- **GIVEN** a task is ready for implementation
+- **WHEN** a contributor moves it to `active-tasks`
+- **THEN** the task SHALL link to a matching OpenSpec change
+- **AND** the OpenSpec change SHALL contain the required proposal, spec, and tasks
+
+#### Scenario: A task completes
+- **GIVEN** a task is in the pending or active workspace
+- **WHEN** the work is completed
+- **THEN** the task SHALL be archived to `done-tasks`
+- **AND** the versioning task workspace SHALL be synchronized and validated
+
+### Requirement: Separate workflow responsibilities
+The repository SHALL retain OpenSpec as the source of truth for behavioral
+requirements and `.agents/` as the source of truth for execution status.
+
+#### Scenario: A task brief is created
+- **WHEN** a contributor creates `00-SPEC.md` for a feature
+- **THEN** it SHALL contain a compact execution brief
+- **AND** it SHALL link to its OpenSpec change rather than duplicate the contract

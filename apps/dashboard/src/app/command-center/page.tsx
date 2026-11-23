@@ -22,7 +22,8 @@ import {
     normalizePosition,
 } from "@/lib/hummingbot-format";
 import { TradingOutageBanner } from "@/components/trading/TradingOutageBanner";
-import { TradingViewChart } from "@/components/trading/TradingViewChart";
+import { CandleChart } from "@/components/trading/CandleChart";
+import { OrderBookPanel } from "@/components/trading/OrderBookPanel";
 import { ExecutorStatusBadge } from "@/components/trading/ExecutorStatusBadge";
 
 // Matches the live backend defaults (infra/compose/.env on the AWS trading
@@ -283,7 +284,15 @@ export default function CommandCenterPage() {
                 </section>
             )}
 
-            <TradingViewChart />
+            {/* Chart + Order Book */}
+            <section className="@container grid gap-4 @3xl:grid-cols-[1fr_340px]">
+                <div>
+                    <CandleChart symbol="BTCUSDC" interval="5" limit={500} />
+                </div>
+                <div>
+                    <OrderBookPanel symbol="BTCUSDC" depth={20} tradeLimit={30} />
+                </div>
+            </section>
 
             {/*
                 @container, not lg:, because this section's *available* width

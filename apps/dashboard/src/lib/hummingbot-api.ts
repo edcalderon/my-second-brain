@@ -414,7 +414,7 @@ export type HummingbotStatus = {
         };
     };
     // Executor identity -- tells the dashboard which backend instance is
-    // responding. See a-quant/apps/api-svc/src/core/config.py for the
+    // responding. See the backend config for the
     // EXECUTOR_ID/LABEL/PRIORITY env vars.
     executor_id?: string;
     executor_label?: string;
@@ -560,7 +560,7 @@ export async function fetchTradingStatus(init?: RequestInit) {
 
 export type NextReconcileResponse = {
     // ISO timestamp of the real, already-scheduled close-guard reconcile
-    // job's next fire (see api-svc main.py, APScheduler job id
+    // job's next fire (see the backend scheduler, job id
     // "close_guard_reconcile") -- null if the scheduler wasn't reachable or
     // the guard is disabled. Not a fabricated timer: this is the literal
     // next_run_time of the job that actually re-checks every open position.
@@ -577,7 +577,7 @@ export type ConnectivityState = "healthy" | "degraded" | "offline" | "unknown";
 
 export type MonitorStatusResponse = {
     // Same close-guard timing as NextReconcileResponse, plus the real
-    // internet/Bybit connectivity monitor state (services/connectivity_monitor.py)
+    // internet/Bybit connectivity monitor state (backend connectivity monitor)
     // -- backs the execution monitor's status card.
     next_reconcile_at: string | null;
     reconcile_interval_minutes: number;
@@ -592,7 +592,7 @@ export async function fetchMonitorStatus(init?: RequestInit) {
 }
 
 // Manual "check now" controls -- both call the exact same code path as
-// their scheduled counterpart, just on demand (see trading_routes.py).
+// their scheduled counterpart, just on demand (see the backend trading routes).
 export async function triggerReconcileNow() {
     return fetchJson<{ closed: number; [key: string]: unknown }>("/trading/reconcile-closes", { method: "POST" });
 }
@@ -901,7 +901,7 @@ export async function fetchTradeAnalysis(journalId: string) {
 
 // ── AI cost & budget tracking ────────────────────────────────────────
 // Backs the "Cost & Budget" page (app/usage/page.tsx). See
-// a-quant/docs/ai-cost-tracking.md for the design these mirror.
+// the backend cost-tracking design these mirror.
 
 export type LlmSpendByModel = { model: string; cost_usd: number; calls: number };
 export type LlmSpendByFeature = { feature: string; cost_usd: number; calls: number };
@@ -1022,7 +1022,7 @@ export async function unarchiveNotification(id: string) {
 
 // ── Strategy automation ────────────────────────────────────────
 // Backs the Strategy panel on the command-center page.
-// See a-quant/apps/api-svc/src/services/strategy_automation.md.
+// See the backend strategy-automation notes.
 
 export type StrategyRiskParams = {
     margin_usd: number;
@@ -1061,19 +1061,6 @@ export type StrategyState = {
     updated_at: string;
 };
 
-export async function fetchStrategyStatus(): Promise<StrategyState> {
-    return fetchJson<StrategyState>("/strategy/status");
-}
-
-export async function updateStrategySettings(
-    update: { risk_params?: Partial<StrategyRiskParams>; entry_filters?: Partial<StrategyEntryFilters> },
-): Promise<StrategyState> {
-    return fetchJson<StrategyState>("/strategy/settings", {
-        method: "PUT",
-        body: JSON.stringify(update),
-    });
-}
-
 // Agent activity -- in-memory registry of what each background service
 // (thesis_monitor, risk_guard, strategy_runner, position_defender) is
 // doing right now. No persistence -- a restart resets to idle.
@@ -1091,10 +1078,141 @@ export async function fetchAgentStatus(): Promise<AgentStatusResponse> {
     return fetchJson<AgentStatusResponse>("/agents/status");
 }
 
-export async function activateStrategy(): Promise<StrategyState> {
-    return fetchJson<StrategyState>("/strategy/activate", { method: "POST" });
+export async function activateStrategy(stateId?: string): Promise<StrategyState> {
+    const qs = stateId ? `?state_id=${encodeURIComponent(stateId)}` : "";
+    return fetchJson<StrategyState>(`/strategy/activate${qs}`, { method: "POST" });
 }
 
-export async function deactivateStrategy(): Promise<StrategyState> {
-    return fetchJson<StrategyState>("/strategy/deactivate", { method: "POST" });
+export async function deactivateStrategy(stateId?: string): Promise<StrategyState> {
+    const qs = stateId ? `?state_id=${encodeURIComponent(stateId)}` : "";
+    return fetchJson<StrategyState>(`/strategy/deactivate${qs}`, { method: "POST" });
+}
+
+// ── Multi-strategy ───────────────────────────────────────────
+
+// Realized-PnL performance for a strategy's CLOSED trades (demo or
+// mainnet, whichever `execution_mode` the parent row is). `null` on the
+// parent means no closed trade yet -- the UI shows a "not tested yet"
+// prompt instead of 0%/$0 numbers that would misleadingly read as data.
+export type StrategyPerformance = {
+    closed: number;
+    wins: number;
+    losses: number;
+    win_rate: number | null;
+    total_pnl: number | null;
+    avg_pnl: number | null;
+    best_trade: number | null;
+    worst_trade: number | null;
+    last_closed_at: string | null;
+};
+
+// A backtest run as returned by GET /strategies' `latest_backtest` and by
+// GET /backtest/runs* -- 'running' means it was fired as a background
+// task on the server and hasn't finished yet (survives the triggering
+// request/page navigation).
+export type BacktestRunSummary = {
+    id?: string;
+    status?: "running" | "completed" | "failed" | "cancelled" | string;
+    error?: string | null;
+    created_at?: string;
+    // The knobs the run was started with (symbol/interval/days/fast/slow/
+    // rsi_period/stop_loss_pct/etc.) -- already returned by the backend
+    // (list_backtest_runs' SELECT includes `params`), just wasn't typed.
+    params?: Record<string, unknown>;
+    overall?: { total_pnl_usd?: number | null; [key: string]: unknown };
+    [key: string]: unknown;
+};
+
+export type StrategyListItem = {
+    id: string;
+    kind: string;
+    execution_mode: "mainnet" | "demo";
+    label: string;
+    // Key to pass as `strategy_id` when triggering a new backtest for
+    // this row (distinct from `id`, the strategy_state row id) -- null
+    // for rows with no backtest lineage (e.g. the read-only S2 row).
+    backtest_label?: string | null;
+    phase: string;
+    enabled: boolean;
+    symbol: string | null;
+    risk_params: Record<string, unknown> | null;
+    entry_filters: Record<string, unknown> | null;
+    latest_backtest: BacktestRunSummary | null;
+    trade_counts: { open: number; closed: number; total: number };
+    read_only?: boolean;
+    description?: string;
+    // Proof-of-life + trade linkage -- lets the UI show whether an "Armed"
+    // strategy is actually ticking (vs. a stalled scheduler job) and jump
+    // straight to the journal entry it's currently managing.
+    last_evaluated_at?: string | null;
+    last_reason?: string | null;
+    armed_at?: string | null;
+    entered_at?: string | null;
+    current_journal_id?: string | null;
+    performance?: StrategyPerformance | null;
+};
+
+export type StrategiesResponse = {
+    strategies: StrategyListItem[];
+};
+
+export async function fetchStrategies(): Promise<StrategiesResponse> {
+    return fetchJson<StrategiesResponse>("/strategies");
+}
+
+export async function fetchStrategyStatus(stateId?: string): Promise<StrategyState> {
+    const qs = stateId ? `?state_id=${encodeURIComponent(stateId)}` : "";
+    return fetchJson<StrategyState>(`/strategy/status${qs}`);
+}
+
+export async function updateStrategySettings(
+    update: { risk_params?: Partial<StrategyRiskParams>; entry_filters?: Partial<StrategyEntryFilters> },
+    stateId?: string,
+): Promise<StrategyState> {
+    const qs = stateId ? `?state_id=${encodeURIComponent(stateId)}` : "";
+    return fetchJson<StrategyState>(`/strategy/settings${qs}`, {
+        method: "PUT",
+        body: JSON.stringify(update),
+    });
+}
+
+export type StrategyBacktestRequest = {
+    strategy_id: string;
+    symbol: string;
+    interval: string;
+    days: number;
+    fast: number;
+    slow: number;
+    rsi_period: number;
+    stop_loss_pct: number;
+    take_profit_1_pct: number;
+    take_profit_2_pct: number;
+    position_size: number;
+    initial_balance_usd: number;
+    kind: "ema_rsi_single_timeframe" | "dual_timeframe_high_cadence";
+};
+
+export async function runStrategyBacktest(request: StrategyBacktestRequest): Promise<BacktestRunSummary> {
+    return fetchJson<BacktestRunSummary>("/backtest/run", {
+        method: "POST",
+        body: JSON.stringify(request),
+    });
+}
+
+// Stops a running backtest -- cancels the server-side asyncio.Task (if
+// still tracked) and flips the row to status "cancelled". 404s if the
+// run isn't found or has already finished.
+export async function cancelStrategyBacktest(runId: string): Promise<BacktestRunSummary> {
+    return fetchJson<BacktestRunSummary>(`/backtest/runs/${encodeURIComponent(runId)}/cancel`, {
+        method: "POST",
+    });
+}
+
+export type BacktestTradesResponse = {
+    trades: Array<Record<string, unknown>>;
+    count: number;
+};
+
+export async function fetchBacktestTrades(runId: string): Promise<BacktestTradesResponse> {
+    return fetchJson<BacktestTradesResponse>(`/backtest/runs/${encodeURIComponent(runId)}/trades`);
 }

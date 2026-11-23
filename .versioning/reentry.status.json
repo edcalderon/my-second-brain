@@ -15,7 +15,7 @@
   },
   "currentPhase": "development",
   "dependencies": [],
-  "lastUpdated": "2026-02-13T04:20:20.803Z",
+  "lastUpdated": "2026-08-26T03:19:48.862Z",
   "milestone": null,
   "milestones": [],
   "nextSteps": [
@@ -38,5 +38,14 @@
     "currentVersion": "1.1.5",
     "previousVersion": "0.0.0",
     "versionType": "patch"
+  },
+  "workspaceTasks": {
+    "activeCount": 0,
+    "doneCount": 0,
+    "featureCount": 1,
+    "generatedAt": "2026-08-26T03:19:48.861Z",
+    "pendingCount": 5,
+    "snapshotHash": "5417b7849f89425ff46b13665abc96f9fabc0d0046298e1301a2c9052dceff1d",
+    "specCount": 1
   }
 }

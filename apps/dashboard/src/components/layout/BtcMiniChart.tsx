@@ -150,12 +150,13 @@ export default function BtcMiniChart({
         <div ref={ref} className="mx-4 mb-3">
             <div className="rounded-xl border border-border bg-white dark:bg-slate-900 overflow-hidden">
                 {/* Header — compact row with pair, price, pct, collapse */}
-                <button
-                    type="button"
-                    onClick={() => setCollapsed(true)}
-                    className="w-full flex items-center justify-between px-3 py-2 border-b border-gray-100 dark:border-white/5 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors"
-                >
-                    <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 dark:border-white/5">
+                    <button
+                        type="button"
+                        onClick={() => setCollapsed(true)}
+                        className="flex min-w-0 flex-1 items-center gap-2 text-left transition-colors hover:text-gray-700 dark:hover:text-gray-100"
+                        title="Collapse BTC chart"
+                    >
                         <span className="text-[11px] font-bold text-gray-900 dark:text-gray-200">₿ BTC-USDT</span>
                         <span className={cn(
                             "text-xs font-semibold tabular-nums",
@@ -169,14 +170,16 @@ export default function BtcMiniChart({
                         )}>
                             {displayPct}
                         </span>
-                    </div>
+                        <ChevronUp className="ml-auto h-3 w-3 text-gray-400" />
+                    </button>
                     <div className="flex items-center gap-1 shrink-0">
                         {/* Range buttons */}
                         <div className="flex gap-0.5">
                             {(Object.keys(RANGE_CONFIG) as TimeRange[]).map((r) => (
                                 <button
                                     key={r}
-                                    onClick={(e) => { e.stopPropagation(); setRange(r); }}
+                                    type="button"
+                                    onClick={() => setRange(r)}
                                     className={cn(
                                         "px-1.5 py-0.5 rounded text-[9px] font-semibold transition-colors",
                                         range === r
@@ -188,9 +191,8 @@ export default function BtcMiniChart({
                                 </button>
                             ))}
                         </div>
-                        <ChevronUp className="h-3 w-3 text-gray-400 ml-0.5" />
                     </div>
-                </button>
+                </div>
 
                 {/* Sparkline */}
                 <div className="px-3 py-2">

@@ -1,0 +1,8 @@
+- [x] Audit the installed and published versioning package and task schema.
+- [x] Migrate the desktop-shell draft into `.agents/pending-tasks`.
+- [x] Add task workspace documentation and generated task index.
+- [x] Document the OpenSpec/task-workspace responsibility boundary.
+- [x] Add root task validation scripts and update the repository README.
+- [x] Add a regression test and fix task validation for extension-configured re-entry status.
+- [x] Run the documented task/reentry validation pair.
+- [ ] Archive this OpenSpec change after review.

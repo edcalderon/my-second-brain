@@ -3,6 +3,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SupabaseProvider } from "@/components/supabase/SupabaseProvider";
 import { TradingStatusProvider } from "@/components/trading/TradingStatusProvider";
+import { LiveMarketProvider } from "@/components/trading/LiveMarketProvider";
 import AppShell from "@/components/layout/AppShell";
 import "@/styles/globals.css";
 
@@ -48,7 +49,9 @@ export default function RootLayout({
                     <AuthProvider>
                         <SupabaseProvider>
                             <TradingStatusProvider>
-                                <AppShell>{children}</AppShell>
+                                <LiveMarketProvider>
+                                    <AppShell>{children}</AppShell>
+                                </LiveMarketProvider>
                             </TradingStatusProvider>
                         </SupabaseProvider>
                     </AuthProvider>

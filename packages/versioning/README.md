@@ -36,6 +36,19 @@ For full version history, see [CHANGELOG.md](./CHANGELOG.md) and [GitHub release
 - 🧹 **Repository Cleanup** to keep root directory organized
 - 🗂️ `.agents/` task tracking with reentry snapshot sync
 
+### Agent task workspace
+
+The built-in `tasks` extension manages operational task state without replacing
+your specification system. It recognizes feature folders in
+`.agents/pending-tasks`, `.agents/active-tasks`, and `.agents/done-tasks`;
+generates feature README indexes; and records a snapshot in re-entry status.
+
+Use `00-SPEC.md` as a compact execution brief, then keep full behavioral
+contracts in your spec system (OpenSpec in this repository). Run
+`versioning tasks sync` after task changes and
+`versioning tasks validate && versioning reentry validate` before sharing work.
+See [USAGE.md](./USAGE.md#task-tracking) for commands and examples.
+
 ## Installation
 
 ```bash

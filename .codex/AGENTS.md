@@ -41,3 +41,10 @@ Use these workflow files as reusable task scaffolds when the detected repository
   shape for new work.
 - See `docs/spec-driven-workflow.md` for the local migration checklist and
   process rules.
+
+## Task Workspace
+
+- `.agents/pending-tasks`, `.agents/active-tasks`, and `.agents/done-tasks` are the live task-status source of truth managed by `@edcalderon/versioning`.
+- Keep reusable instructions in `.agents/skills`; do not put task cards there.
+- Before beginning a non-trivial task, create or link its OpenSpec change and keep the task card linked to it. Do not duplicate the full OpenSpec contract in `00-SPEC.md`.
+- After changing task files, run `pnpm tasks:sync`; before pushing, run `pnpm workflow:validate`.

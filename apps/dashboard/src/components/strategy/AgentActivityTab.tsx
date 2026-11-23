@@ -10,17 +10,22 @@ type AgentActivityTabProps = {
     loading: boolean;
 };
 
-const AGENT_LABELS: { key: string; label: string }[] = [
+const STATIC_AGENT_LABELS: { key: string; label: string }[] = [
     { key: "thesis_monitor", label: "Thesis Monitor" },
     { key: "risk_guard", label: "Risk Guard" },
-    { key: "strategy_runner", label: "Strategy Runner" },
 ];
 
 const POSITION_DEFENDER_PREFIX = "position_defender:";
+const STRATEGY_RUNNER_PREFIX = "strategy_runner:";
 
 function positionDefenderLabel(key: string): string {
     const symbol = key.slice(POSITION_DEFENDER_PREFIX.length).split(":")[0];
     return symbol ? `Position Defender (${symbol})` : "Position Defender";
+}
+
+function strategyRunnerLabel(key: string): string {
+    const stateId = key.slice(STRATEGY_RUNNER_PREFIX.length);
+    return stateId ? `Strategy Runner (${stateId})` : "Strategy Runner";
 }
 
 export function AgentActivityTab({
@@ -37,31 +42,55 @@ export function AgentActivityTab({
         );
     }
 
+    // Collect dynamic keys for position defenders and strategy runners.
+    const defenderKeys = Object.keys(agentStatus)
+        .filter((key) => key.startsWith(POSITION_DEFENDER_PREFIX))
+        .sort();
+    const runnerKeys = Object.keys(agentStatus)
+        .filter((key) => key.startsWith(STRATEGY_RUNNER_PREFIX))
+        .sort();
+
     return (
         <div className="space-y-6">
             {/* Agent Status Cards */}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {AGENT_LABELS.map(({ key, label }) => (
+                {STATIC_AGENT_LABELS.map(({ key, label }) => (
                     <AgentStatusChip
                         key={key}
                         label={label}
                         entry={agentStatus[key] ?? null}
+                    />
+                ))}
+                {/* Per-instance strategy runner cards (btc_default, demo rows, ...) */}
+                {runnerKeys.map((key) => (
+                    <AgentStatusChip
+                        key={key}
+                        label={strategyRunnerLabel(key)}
+                        entry={agentStatus[key] ?? null}
                         detailOverride={
-                            key === "strategy_runner" ? strategyState?.last_reason ?? null : null
+                            key === "strategy_runner:btc_default"
+                                ? strategyState?.last_reason ?? null
+                                : null
                         }
                     />
                 ))}
-                {Object.keys(agentStatus)
-                    .filter((key) => key.startsWith(POSITION_DEFENDER_PREFIX))
-                    .sort()
-                    .map((key) => (
-                        <AgentStatusChip
-                            key={key}
-                            label={positionDefenderLabel(key)}
-                            entry={agentStatus[key] ?? null}
-                        />
-                    ))}
-                {!Object.keys(agentStatus).some((key) => key.startsWith(POSITION_DEFENDER_PREFIX)) && (
+                {/* Per-instance position defender cards */}
+                {defenderKeys.map((key) => (
+                    <AgentStatusChip
+                        key={key}
+                        label={positionDefenderLabel(key)}
+                        entry={agentStatus[key] ?? null}
+                    />
+                ))}
+                {/* Fallbacks when no dynamic instances are registered yet */}
+                {runnerKeys.length === 0 && (
+                    <AgentStatusChip
+                        label="Strategy Runner"
+                        entry={null}
+                        detailOverride="No strategy runner registered."
+                    />
+                )}
+                {defenderKeys.length === 0 && (
                     <AgentStatusChip
                         label="Position Defender"
                         entry={null}
@@ -70,10 +99,10 @@ export function AgentActivityTab({
                 )}
             </div>
 
-            {/* Strategy State Details */}
+            {/* Strategy State Details (btc_default singleton — legacy detail view) */}
             {strategyState && (
                 <div className="glass-panel rounded-2xl p-6 space-y-4">
-                    <h3 className="text-sm font-semibold text-gray-900">Strategy Runner State</h3>
+                    <h3 className="text-sm font-semibold text-gray-900">Strategy Runner State — btc_default</h3>
                     <div className="grid gap-3 sm:grid-cols-2">
                         <div className="rounded-lg border border-border bg-white px-4 py-3">
                             <p className="text-xs uppercase tracking-wide text-gray-500">Status</p>

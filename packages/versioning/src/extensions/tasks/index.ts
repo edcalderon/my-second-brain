@@ -35,6 +35,10 @@ async function resolveReentryConfig(configPath: string, project?: string): Promi
     return {
       cfg: {
         ...rawConfig,
+        reentryStatus: {
+          ...((rawConfig as any).reentryStatus ?? {}),
+          files: reentryConfig.files
+        },
         extensionConfig: {
           ...rawConfig.extensionConfig,
           'reentry-status': {

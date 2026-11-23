@@ -9,6 +9,8 @@ Scope: all non-trivial changes in this repository.
 1. Change first.
    - Non-trivial work MUST begin in an OpenSpec change directory.
    - Proposal, spec, and tasks MUST exist before implementation starts.
+   - The matching execution work MUST be tracked in the `.agents/` task
+     workspace before it begins.
 
 2. Clarify before guessing.
    - Ambiguous requirements MUST be recorded explicitly.
@@ -43,3 +45,8 @@ Scope: all non-trivial changes in this repository.
    - Update process docs when the workflow changes.
    - If a rule becomes outdated, revise the constitution rather than relying on
      memory.
+
+9. Keep sources of truth separate.
+   - OpenSpec owns behavioral contracts and `.agents/` owns operational task
+     status.
+   - Do not maintain a second full specification in task cards.

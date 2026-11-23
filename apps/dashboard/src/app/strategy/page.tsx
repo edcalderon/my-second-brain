@@ -13,6 +13,8 @@ import {
     createJournalEntry,
     fetchAgentStatus,
     fetchJournalEntries,
+    fetchStrategies,
+    type StrategyListItem,
     fetchStrategyStatus,
     fetchTradingPositions,
     fetchTradingStatus,
@@ -35,7 +37,7 @@ import { MarketDataTab } from "@/components/strategy/MarketDataTab";
 import { SetupBuilderTab } from "@/components/strategy/SetupBuilderTab";
 import { ActiveSetupsTab } from "@/components/strategy/ActiveSetupsTab";
 import { AgentActivityTab } from "@/components/strategy/AgentActivityTab";
-import { PositionsTab } from "@/components/strategy/PositionsTab";
+import { StrategiesTab } from "@/components/strategy/StrategiesTab";
 
 const SCENARIO_PRESETS = ["Oversold bounce", "Breakdown continuation", "Range fade", "Breakout"];
 
@@ -111,6 +113,10 @@ export default function StrategyPage() {
     const [agentStatus, setAgentStatus] = useState<AgentStatusResponse | null>(null);
     const [strategyState, setStrategyState] = useState<StrategyState | null>(null);
     const [agentsLoading, setAgentsLoading] = useState(true);
+
+    // Strategies
+    const [strategyList, setStrategyList] = useState<StrategyListItem[]>([]);
+    const [strategiesLoading, setStrategiesLoading] = useState(true);
 
     // Strategy config
     const [fastEma, setFastEma] = useState(DEFAULT_FAST_EMA);
@@ -193,6 +199,18 @@ export default function StrategyPage() {
         }
     }
 
+    async function loadStrategies() {
+        setStrategiesLoading(true);
+        try {
+            const res = await fetchStrategies();
+            setStrategyList(res.strategies);
+        } catch {
+            // Ignore
+        } finally {
+            setStrategiesLoading(false);
+        }
+    }
+
     async function loadAgentActivity() {
         const [agentsResult, strategyResult] = await Promise.allSettled([
             fetchAgentStatus(),
@@ -207,7 +225,7 @@ export default function StrategyPage() {
         let isMounted = true;
 
         async function loadAll() {
-            await Promise.all([loadWorkspace(), loadActiveSetups(), loadTodayTrades()]);
+            await Promise.all([loadWorkspace(), loadActiveSetups(), loadTodayTrades(), loadStrategies()]);
         }
 
         loadAll();
@@ -427,42 +445,47 @@ export default function StrategyPage() {
             <StrategyTabs
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
-                setupCount={activeSetups.length}
-                positionCount={positions.length}
             >
                 {activeTab === "market" && (
                     <MarketDataTab preview={preview} loading={loading} onRefresh={() => setRefreshCounter((v) => v + 1)} />
                 )}
 
-                {activeTab === "builder" && (
-                    <SetupBuilderTab
-                        onSaveSetup={handleSaveSetup}
-                        onAiSuggest={executeAiSuggest}
-                        aiSuggestBusy={aiSuggestBusy}
-                        aiSuggestError={aiSuggestError}
-                        setupError={setupError}
-                        setupTitle={setupTitle}
-                        setupSide={setupSide}
-                        setupInstrument={setupInstrument}
-                        setupScenario={setupScenario}
-                        setupReasoning={setupReasoning}
-                        setupNotes={setupRiskPlan}
-                        setSetupTitle={setSetupTitle}
-                        setSetupSide={setSetupSide}
-                        setSetupInstrument={setSetupInstrument}
-                        setSetupScenario={setSetupScenario}
-                        setSetupReasoning={setSetupReasoning}
-                        setSetupNotes={setSetupRiskPlan}
-                    />
+                {activeTab === "setups" && (
+                    <div className="space-y-6">
+                        <SetupBuilderTab
+                            onSaveSetup={handleSaveSetup}
+                            onAiSuggest={executeAiSuggest}
+                            aiSuggestBusy={aiSuggestBusy}
+                            aiSuggestError={aiSuggestError}
+                            setupError={setupError}
+                            setupTitle={setupTitle}
+                            setupSide={setupSide}
+                            setupInstrument={setupInstrument}
+                            setupScenario={setupScenario}
+                            setupReasoning={setupReasoning}
+                            setupNotes={setupRiskPlan}
+                            setSetupTitle={setSetupTitle}
+                            setSetupSide={setSetupSide}
+                            setSetupInstrument={setSetupInstrument}
+                            setSetupScenario={setSetupScenario}
+                            setSetupReasoning={setSetupReasoning}
+                            setSetupNotes={setSetupRiskPlan}
+                        />
+                        <ActiveSetupsTab
+                            setups={activeSetups}
+                            loading={setupsLoading}
+                            globalPreview={preview}
+                            onTrigger={handleTriggerSetup}
+                            onDiscard={handleDiscardSetup}
+                        />
+                    </div>
                 )}
 
-                {activeTab === "setups" && (
-                    <ActiveSetupsTab
-                        setups={activeSetups}
-                        loading={setupsLoading}
-                        globalPreview={preview}
-                        onTrigger={handleTriggerSetup}
-                        onDiscard={handleDiscardSetup}
+                {activeTab === "strategies" && (
+                    <StrategiesTab
+                        strategies={strategyList}
+                        loading={strategiesLoading}
+                        onRefresh={loadStrategies}
                     />
                 )}
 
@@ -471,26 +494,6 @@ export default function StrategyPage() {
                         agentStatus={agentStatus}
                         strategyState={strategyState}
                         loading={agentsLoading}
-                    />
-                )}
-
-                {activeTab === "cadence" && (
-                    <PositionsTab
-                        positions={positions}
-                        todayTrades={todayTrades}
-                        targetTrades={targetTrades}
-                        onTargetChange={setTargetTrades}
-                        activeSetupsCount={activeSetups.length}
-                    />
-                )}
-
-                {activeTab === "positions" && (
-                    <PositionsTab
-                        positions={positions}
-                        todayTrades={todayTrades}
-                        targetTrades={targetTrades}
-                        onTargetChange={setTargetTrades}
-                        activeSetupsCount={activeSetups.length}
                     />
                 )}
             </StrategyTabs>

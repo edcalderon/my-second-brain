@@ -1,26 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { TrendingUp, Target, Activity, BookOpen, Zap, ClipboardList } from "lucide-react";
+import { TrendingUp, BookOpen, Activity, Layers } from "lucide-react";
 
-type StrategyTab = "market" | "builder" | "setups" | "activity" | "cadence" | "positions";
+type StrategyTab = "market" | "setups" | "strategies" | "activity";
 
 type StrategyTabsProps = {
     children: React.ReactNode;
     activeTab?: StrategyTab;
     onTabChange?: (tab: StrategyTab) => void;
-    setupCount?: number;
-    positionCount?: number;
 };
-
-const TABS: { id: StrategyTab; label: string; icon: React.ReactNode; badge?: number }[] = [];
 
 export function StrategyTabs({
     children,
     activeTab = "market",
     onTabChange,
-    setupCount = 0,
-    positionCount = 0,
 }: StrategyTabsProps) {
     const [internalTab, setInternalTab] = useState<StrategyTab>(activeTab);
 
@@ -29,11 +23,9 @@ export function StrategyTabs({
 
     const tabs = [
         { id: "market" as StrategyTab, label: "Market", icon: <TrendingUp className="h-4 w-4" /> },
-        { id: "builder" as StrategyTab, label: "Setup Builder", icon: <Target className="h-4 w-4" /> },
-        { id: "setups" as StrategyTab, label: "Active Setups", icon: <BookOpen className="h-4 w-4" />, badge: setupCount },
+        { id: "setups" as StrategyTab, label: "Setups", icon: <BookOpen className="h-4 w-4" /> },
+        { id: "strategies" as StrategyTab, label: "Strategies", icon: <Layers className="h-4 w-4" /> },
         { id: "activity" as StrategyTab, label: "Agent Activity", icon: <Activity className="h-4 w-4" /> },
-        { id: "cadence" as StrategyTab, label: "Trade Cadence", icon: <ClipboardList className="h-4 w-4" /> },
-        { id: "positions" as StrategyTab, label: "Positions", icon: <Zap className="h-4 w-4" />, badge: positionCount },
     ];
 
     return (
@@ -58,11 +50,6 @@ export function StrategyTabs({
                         >
                             {t.icon}
                             {t.label}
-                            {t.badge !== undefined && t.badge > 0 && (
-                                <span className="ml-1 inline-flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-emerald-100 px-1.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-                                    {t.badge}
-                                </span>
-                            )}
                         </button>
                     ))}
                 </div>

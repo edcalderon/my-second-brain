@@ -86,6 +86,33 @@ Status: active
     expect(reentryMarkdown).toContain('Tasks snapshot:');
   });
 
+  it('validates a task workspace when reentry is configured as an extension', async () => {
+    await writeTask('.agents/pending-tasks/desktop/00-SPEC.md', `# Desktop
+
+## Goal
+
+- Ship a desktop shell
+
+## Tasks
+
+- [ ] Add the shell
+
+## Acceptance Criteria
+
+- [ ] The shell starts
+`);
+    await fs.writeJson(path.join(tmpDir, 'versioning.config.json'), {
+      extensionConfig: {
+        'reentry-status': { enabled: true }
+      }
+    });
+
+    const program = await registerTasks();
+
+    await expect(program.parseAsync(['node', 'versioning', 'tasks', 'sync'])).resolves.toBe(program);
+    await expect(program.parseAsync(['node', 'versioning', 'tasks', 'validate'])).resolves.toBe(program);
+  });
+
   it('writes a project-scoped task snapshot to the selected extension config paths', async () => {
     await writeTask('.agents/active-tasks/wallet/01-build-ui.md', '# Build UI\n\nStatus: active\n');
     await fs.writeJson(path.join(tmpDir, 'versioning.config.json'), {
