@@ -1,3 +1,16 @@
+## [1.5.8](https://github.com/edcalderon/my-second-brain/compare/v1.5.7...v1.5.8) (2026-11-24)
+
+
+### Features
+
+* **dashboard:** live market feed, candle/order-book panels, strategy tabs ([c803223](https://github.com/edcalderon/my-second-brain/commit/c8032231a2929611406db5613fa5804b9927e12a))
+* **dashboard:** live strategies sidebar panel and per-strategy monitor page ([91d10ab](https://github.com/edcalderon/my-second-brain/commit/91d10ab6d15d747d0378af8a86d02337dcd44f64))
+* **dashboard:** pin portfolio value indicator in sidebar, fix dev auth env ([1aa2ba4](https://github.com/edcalderon/my-second-brain/commit/1aa2ba43597455c13d5e812e857f0b87bb7870e0))
+
+
+
+
+
 ## [1.5.7](https://github.com/edcalderon/my-second-brain/compare/v1.5.6...v1.5.7) (2026-08-27)
 
 
