@@ -8,6 +8,8 @@ npx versioning cleanup scan 2>/dev/null || true
 # === secrets-check: start ===
 echo "🔒 Running secrets check…"
 npx versioning check-secrets 2>/dev/null
+# Strict scanner (Google/Firebase keys, env-file secrets). Blocking.
+./scripts/secret-scan.sh --staged || exit 1
 # === secrets-check: end ===
 
 # === versioning-docs-check: start ===

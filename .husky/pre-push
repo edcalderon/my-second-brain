@@ -38,6 +38,9 @@ else
   echo "Skipping Readme Maintainer: no versioning-related files changed in this push."
 fi
 
+echo "Running strict secret scan on pushed commits..."
+./scripts/secret-scan.sh --tree || exit 1
+
 echo "Running secrets scan on tracked files..."
 tracked_files=$(git ls-files -z)
 

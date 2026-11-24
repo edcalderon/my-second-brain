@@ -44,3 +44,11 @@ pnpm exec versioning reentry validate
 Use `versioning tasks archive <path>` to move a completed pending or active
 task into `done-tasks`. Always run `tasks sync` after manually adding or moving
 task files, then run the validation pair before pushing.
+
+## Secret handling (mandatory for agents)
+
+Before any commit, follow [docs/SECRET_HANDLING.md](../docs/SECRET_HANDLING.md):
+no real values in tracked files (including "public" Firebase/Supabase keys),
+never print a secret (use a 4-char prefix or sha256 fingerprint), never bypass
+hooks, and rotate first if anything leaks. `scripts/secret-scan.sh --staged`
+must pass; CI re-checks every push.
