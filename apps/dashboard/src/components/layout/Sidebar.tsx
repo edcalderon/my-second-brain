@@ -20,9 +20,12 @@ import {
     BookMarked,
     Bell,
     ExternalLink,
+    TrendingUp,
+    TrendingDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { dashboardHref, dashboardPath, publicSiteUrl, stripDashboardBasePath } from "@/lib/public-site";
+import { formatCompactCurrency, formatCurrency } from "@/lib/hummingbot-format";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -150,6 +153,76 @@ function NotificationLink({ collapsed }: { collapsed?: boolean }) {
     );
 }
 
+/**
+ * Pinned portfolio value readout — this is the primary metric the whole
+ * dashboard exists to track, so it lives in the sticky header (not the
+ * scrollable nav or the footer) and stays on screen at all times, in both
+ * the expanded and collapsed sidebar states.
+ */
+function PortfolioValueIndicator({ collapsed }: { collapsed?: boolean }) {
+    const { status } = useTradingStatus();
+    const bybitValue = status?.bybit_portfolio_value;
+
+    if (!bybitValue) return null;
+
+    const totalUsd = bybitValue.total_usd ?? 0;
+    const pnlUsd = bybitValue.unified.unrealized_pnl_usd;
+    const hasPnl = bybitValue.unified.available && typeof pnlUsd === "number";
+    const isPositive = (pnlUsd ?? 0) >= 0;
+    const PnlIcon = isPositive ? TrendingUp : TrendingDown;
+
+    if (collapsed) {
+        return (
+            <div className="mx-2 mb-1">
+                <Link
+                    href="/portfolio"
+                    prefetch={false}
+                    className="w-full flex flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors group relative"
+                    title="Portfolio value"
+                >
+                    <Wallet className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-[10px] font-semibold text-gray-900 dark:text-white truncate max-w-full">
+                        {formatCompactCurrency(totalUsd, 1)}
+                    </span>
+                    <div className="absolute left-16 top-1/2 -translate-y-1/2 bg-gray-900 dark:bg-gray-800 text-white text-xs rounded-md py-1.5 px-2.5 whitespace-nowrap opacity-0 shadow-lg group-hover:opacity-100 pointer-events-none z-50 transition-opacity">
+                        Portfolio: {formatCurrency(totalUsd, 2)}
+                    </div>
+                </Link>
+            </div>
+        );
+    }
+
+    return (
+        <Link
+            href="/portfolio"
+            prefetch={false}
+            className="mx-3 mb-1 flex items-center justify-between gap-2 rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-950/50 px-3 py-2.5 transition-colors group"
+        >
+            <div className="min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-400">
+                    Portfolio Value
+                </p>
+                <p className="text-lg font-bold leading-tight text-gray-900 dark:text-white truncate">
+                    {formatCurrency(totalUsd, 2)}
+                </p>
+            </div>
+            {hasPnl && (
+                <span
+                    className={cn(
+                        "flex items-center gap-0.5 shrink-0 rounded-full px-2 py-1 text-[11px] font-semibold",
+                        isPositive
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300"
+                    )}
+                >
+                    <PnlIcon className="h-3 w-3" />
+                    {formatCurrency(Math.abs(pnlUsd ?? 0), 0)}
+                </span>
+            )}
+        </Link>
+    );
+}
+
 export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
     const pathname = usePathname();
     const [isMobile, setIsMobile] = useState(false);
@@ -237,6 +310,13 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                         </button>
                     )}
                 </div>
+
+                {/* Portfolio value — pinned, always visible, independent of nav scroll */}
+                {user && (
+                    <div className={cn("sticky top-16 z-20 bg-sidebar pt-3", isCollapsed ? "px-0" : "")}>
+                        <PortfolioValueIndicator collapsed={isCollapsed && !isMobile} />
+                    </div>
+                )}
 
                 {/* Navigation */}
                 <nav className="flex-1 px-2 py-4 space-y-4 overflow-y-auto">
