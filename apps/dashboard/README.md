@@ -47,6 +47,8 @@ NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 ```
 
+Put real values in the git-ignored `.env.development.local`, never in tracked files. See [Firebase Web API Key](../../docs/FIREBASE_WEB_API_KEY.md) for the required key restrictions.
+
 `NEXT_PUBLIC_*` values are included in the browser bundle. Never put service
 keys, database credentials, exchange credentials, or private API tokens in
 this file. GitHub Pages releases are built by
