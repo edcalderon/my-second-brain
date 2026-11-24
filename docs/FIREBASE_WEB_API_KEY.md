@@ -55,9 +55,12 @@ Cloud; Gemini usage was seen on it. It was removed from the tree, rotated, and
 the Generative Language API restricted. The old key remains in git history and
 must stay deleted/disabled in Google Cloud.
 
-## Server-side exposure to review
+## Firestore rules
 
-`firestore.rules` lets **any signed-in user write** `knowledge_base`. With a
-public key and open sign-up (email/anonymous), anyone can become signed-in and
-write. Restrict writes to known users (custom claim or allowlist) or disable
-open sign-up in Firebase Authentication.
+`firestore.rules` allows public **read** of `knowledge_base` and **denies all
+client writes** (changed 2026-11-24; previously any signed-in user could write,
+which is meaningless with a public key and open sign-up). Writes go through the
+Cloud Functions via the admin SDK, which bypasses rules. Deploy rule changes with
+`firebase deploy --only firestore:rules --project second-brain-482901`.
+
+Also keep sign-up closed in Firebase Authentication unless you need it.
