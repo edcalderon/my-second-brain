@@ -15,6 +15,8 @@ PATTERNS=(
   'sb_secret_[A-Za-z0-9_-]{20,}'                   # Supabase secret key
   'eyJ[A-Za-z0-9_-]{20,}\.eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}'  # JWT
   '-----BEGIN [A-Z ]*PRIVATE KEY-----'
+  '(client-key-data|client-certificate-data):[[:space:]]*[A-Za-z0-9+/=]{40,}'  # kubeconfig credentials
+  '"private_key"[[:space:]]*:[[:space:]]*"-----BEGIN'                           # GCP service-account JSON
 )
 # Env-style assignment of a secret-looking name to a real-looking value.
 ENV_NAME='^[+ ]?(export )?[A-Za-z0-9_]*(API_?KEY|SECRET|TOKEN|PASSWORD|PRIVATE_?KEY|CLIENT_?SECRET)[A-Za-z0-9_]*='
